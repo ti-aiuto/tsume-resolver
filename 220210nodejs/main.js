@@ -24,6 +24,188 @@ const KOMA_UMA = 'UMA';
 const KOMA_RYU = 'RYU';
 const KOMA_NARI_GIN = 'NARI_GIN';
 
+class Koma {
+  constructor(nari = false) {
+    if (!this.canBeNari && nari) {
+      throw new Error('nari不可');
+    }
+    this.nari = nari;
+  }
+
+  get label() {
+    throw new Error('NotImplemented');
+  }
+
+  get canBeNari() {
+    throw new Error('NotImplemented');
+  }
+
+  toJSON() {
+    return {
+      label: this.label,
+      nari: this.nari,
+    };
+  }
+}
+
+class KomaFu extends Koma {
+  constructor(nari) {
+    super(nari);
+  }
+
+  get label() {
+    if (this.nari) {
+      return KOMA_TOKIN;
+    } else {
+      return KOMA_FU;
+    }
+  }
+
+  get canBeNari() {
+    return true;
+  }
+}
+
+class KomaKyo extends Koma {
+  constructor(nari) {
+    super(nari);
+  }
+
+  get label() {
+    if (this.nari) {
+      return KOMA_NARI_KYO;
+    } else {
+      return KOMA_KYO;
+    }
+  }
+
+  get canBeNari() {
+    return true;
+  }
+}
+
+class KomaKei extends Koma {
+  constructor(nari) {
+    super(nari);
+  }
+
+  get label() {
+    if (this.nari) {
+      return KOMA_NARI_KEI;
+    } else {
+      return KOMA_KEI;
+    }
+  }
+
+  get canBeNari() {
+    return true;
+  }
+}
+
+class KomaKaku extends Koma {
+  constructor(nari) {
+    super(nari);
+  }
+
+  get label() {
+    if (this.nari) {
+      return KOMA_UMA;
+    } else {
+      return KOMA_KAKU;
+    }
+  }
+
+  get canBeNari() {
+    return true;
+  }
+}
+
+class KomaHisha extends Koma {
+  constructor(nari) {
+    super(nari);
+  }
+
+  get label() {
+    if (this.nari) {
+      return KOMA_RYU;
+    } else {
+      return KOMA_HISHA;
+    }
+  }
+
+  get canBeNari() {
+    return true;
+  }
+}
+
+class KomaKin extends Koma {
+  constructor(nari) {
+    super(nari);
+  }
+
+  get label() {
+    return KOMA_KIN;
+  }
+
+  get canBeNari() {
+    return false;
+  }
+}
+
+class KomaGin extends Koma {
+  constructor(nari) {
+    super(nari);
+  }
+
+  get label() {
+    if (this.nari) {
+      return KOMA_NARI_GIN;
+    } else {
+      return KOMA_GIN;
+    }
+  }
+
+  get canBeNari() {
+    return true;
+  }
+}
+
+class KomaGyoku extends Koma {
+  constructor(nari) {
+    super(nari);
+  }
+
+  get label() {
+    return KOMA_GYOKU;
+  }
+
+  get canBeNari() {
+    return false;
+  }
+}
+
+function createKoma(name, nari) {
+  if (name === '歩') {
+    return new KomaFu(nari);
+  } else if (name === '香') {
+    return new KomaKyo(nari);
+  } else if (name === '桂') {
+    return new KomaKei(nari);
+  } else if (name === '角') {
+    return new KomaKaku(nari);
+  } else if (name === '飛') {
+    return new KomaHisha(nari);
+  } else if (name === '金') {
+    return new KomaKin(nari);
+  } else if (name === '銀') {
+    return new KomaGin(nari);
+  } else if (name === '玉') {
+    return new KomaGyoku(nari);
+  } else {
+    throw new Error(`${name}は未定義`);
+  }
+}
+
 class BanSnapshot {
   constructor() {
     this.onBoard = this.createEmptyBoard();
@@ -31,27 +213,27 @@ class BanSnapshot {
     this.goteCaptured = [];
   }
 
-  putSenteOnBoard(suji, dan, code) {
+  putSenteOnBoard(suji, dan, koma) {
     const i = this.sujiToArrayIndex(suji);
     const j = this.danToArrayIndex(dan);
-    this.onBoard[i][j] = { code, owner: 'sente' };
+    this.onBoard[i][j] = { koma, owner: 'sente' };
     return this;
   }
 
-  putGoteOnBoard(suji, dan, code) {
+  putGoteOnBoard(suji, dan, koma) {
     const i = this.sujiToArrayIndex(suji);
     const j = this.danToArrayIndex(dan);
-    this.onBoard[i][j] = { code, owner: 'gote' };
+    this.onBoard[i][j] = { koma, owner: 'gote' };
     return this;
   }
 
-  addSenteCaptured(code) {
-    this.senteCaptured.push({ code });
+  addSenteCaptured(koma) {
+    this.senteCaptured.push({ koma });
     return this;
   }
 
-  addGoteCaptured(code) {
-    this.goteCaptured.push({ code });
+  addGoteCaptured(koma) {
+    this.goteCaptured.push({ koma });
     return this;
   }
 
@@ -81,36 +263,6 @@ class BanSnapshot {
   }
 }
 
-const komaNameToCodeMap = Object.freeze({
-  nari: {
-    歩: KOMA_TOKIN,
-    香: KOMA_NARI_KYO,
-    桂: KOMA_NARI_KEI,
-    角: KOMA_UMA,
-    飛: KOMA_RYU,
-    銀: KOMA_NARI_GIN,
-  },
-  narazu: {
-    歩: KOMA_FU,
-    香: KOMA_KYO,
-    桂: KOMA_KEI,
-    角: KOMA_KAKU,
-    飛: KOMA_HISHA,
-    金: KOMA_KIN,
-    銀: KOMA_GIN,
-    玉: KOMA_GYOKU,
-  },
-});
-
-function komaNameToCode(name, nari) {
-  const firstLevelKey = nari ? 'nari' : 'narazu';
-  const value = komaNameToCodeMap[firstLevelKey][name];
-  if (!value) {
-    throw new Error(`${name}は未定義`);
-  }
-  return value;
-}
-
 function loadBanSnapshot(json) {
   const banSnapshot = new BanSnapshot();
 
@@ -118,7 +270,7 @@ function loadBanSnapshot(json) {
     banSnapshot.putSenteOnBoard(
       koma['suji'],
       koma['dan'],
-      komaNameToCode(koma['name'], koma['nari']),
+      createKoma(koma['name'], koma['nari']),
     );
   });
 
@@ -126,16 +278,16 @@ function loadBanSnapshot(json) {
     banSnapshot.putGoteOnBoard(
       koma['suji'],
       koma['dan'],
-      komaNameToCode(koma['name'], koma['nari']),
+      createKoma(koma['name'], koma['nari']),
     );
   });
 
-  json['initial_koma']['captured']['sente'].forEach((item) =>
-    banSnapshot.addSenteCaptured(komaNameToCode(item['name'], false)),
+  json['initial_koma']['captured']['sente'].forEach((koma) =>
+    banSnapshot.addSenteCaptured(createKoma(koma['name'], false)),
   );
 
-  json['initial_koma']['captured']['gote'].forEach((item) =>
-    banSnapshot.addGoteCaptured(komaNameToCode(item['name'], false)),
+  json['initial_koma']['captured']['gote'].forEach((koma) =>
+    banSnapshot.addGoteCaptured(createKoma(koma['name'], false)),
   );
 
   return banSnapshot;
