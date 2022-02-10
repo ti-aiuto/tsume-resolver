@@ -1,4 +1,4 @@
-// 220210の目標：いったんテストコード無し・OOPなしで動くロジックを書いてみる
+// 220210の目標：いったんテストコード無しで動くロジックを書いてみる
 
 // TODO: コマンドライン引数でとる
 const sample_filename = '../sample/horoki1.json';
@@ -7,25 +7,6 @@ async function readFileAsJson(filename) {
   const fs = require('fs').promises;
   const body = await fs.readFile(filename, 'utf-8');
   return JSON.parse(body);
-}
-
-function createBanSnapshot(onBoard, senteCaptured, goteCaptured) {
-  return {
-    onBoard,
-    senteCaptured,
-    goteCaptured,
-  };
-}
-
-function createEmptyBoard() {
-  const result = [];
-  for (let i = 0; i < 9; i++) {
-    result[i] = [];
-    for (let j = 0; j < 9; j++) {
-      result[i][j] = null;
-    }
-  }
-  return result;
 }
 
 const KOMA_FU = 'FU';
@@ -42,6 +23,63 @@ const KOMA_NARI_KEI = 'NARI_KEI';
 const KOMA_UMA = 'UMA';
 const KOMA_RYU = 'RYU';
 const KOMA_NARI_GIN = 'NARI_GIN';
+
+class BanSnapshot {
+  constructor() {
+    this.onBoard = this.createEmptyBoard();
+    this.senteCaptured = [];
+    this.goteCaptured = [];
+  }
+
+  putSenteOnBoard(suji, dan, code) {
+    const i = this.sujiToArrayIndex(suji);
+    const j = this.danToArrayIndex(dan);
+    this.onBoard[i][j] = { code, owner: 'sente' };
+    return this;
+  }
+
+  putGoteOnBoard(suji, dan, code) {
+    const i = this.sujiToArrayIndex(suji);
+    const j = this.danToArrayIndex(dan);
+    this.onBoard[i][j] = { code, owner: 'gote' };
+    return this;
+  }
+
+  addSenteCaptured(code) {
+    this.senteCaptured.push({ code });
+    return this;
+  }
+
+  addGoteCaptured(code) {
+    this.goteCaptured.push({ code });
+    return this;
+  }
+
+  createEmptyBoard() {
+    const result = [];
+    for (let i = 0; i < 9; i++) {
+      result[i] = [];
+      for (let j = 0; j < 9; j++) {
+        result[i][j] = null;
+      }
+    }
+    return result;
+  }
+
+  sujiToArrayIndex(suji) {
+    return suji - 1;
+  }
+
+  danToArrayIndex(dan) {
+    return dan - 1;
+  }
+
+  debug() {
+    console.log(JSON.stringify(this.onBoard, null, '  '));
+    console.log(JSON.stringify(this.senteCaptured, null, '  '));
+    console.log(JSON.stringify(this.goteCaptured, null, '  '));
+  }
+}
 
 const komaNameToCodeMap = Object.freeze({
   nari: {
@@ -73,40 +111,34 @@ function komaNameToCode(name, nari) {
   return value;
 }
 
-function sujiToArrayIndex(suji) {
-  return suji - 1;
-}
-
-function danToArrayIndex(dan) {
-  return dan - 1;
-}
-
 function loadBanSnapshot(json) {
-  const onBoard = createEmptyBoard();
+  const banSnapshot = new BanSnapshot();
 
   json['initial_koma']['on_board']['sente'].forEach((koma) => {
-    onBoard[sujiToArrayIndex(koma['suji'])][danToArrayIndex(koma['dan'])] = {
-      code: komaNameToCode(koma['name'], koma['nari']),
-      owner: 'sente',
-    };
+    banSnapshot.putSenteOnBoard(
+      koma['suji'],
+      koma['dan'],
+      komaNameToCode(koma['name'], koma['nari']),
+    );
   });
 
   json['initial_koma']['on_board']['gote'].forEach((koma) => {
-    onBoard[sujiToArrayIndex(koma['suji'])][danToArrayIndex(koma['dan'])] = {
-      code: komaNameToCode(koma['name'], koma['nari']),
-      owner: 'sente',
-    };
+    banSnapshot.putGoteOnBoard(
+      koma['suji'],
+      koma['dan'],
+      komaNameToCode(koma['name'], koma['nari']),
+    );
   });
 
-  return createBanSnapshot(
-    onBoard,
-    json['initial_koma']['captured']['sente'].map((item) =>
-      komaNameToCode(item['name'], false),
-    ),
-    json['initial_koma']['captured']['gote'].map((item) =>
-      komaNameToCode(item['name'], false),
-    ),
+  json['initial_koma']['captured']['sente'].forEach((item) =>
+    banSnapshot.addSenteCaptured(komaNameToCode(item['name'], false)),
   );
+
+  json['initial_koma']['captured']['gote'].forEach((item) =>
+    banSnapshot.addGoteCaptured(komaNameToCode(item['name'], false)),
+  );
+
+  return banSnapshot;
 }
 
 async function main() {
