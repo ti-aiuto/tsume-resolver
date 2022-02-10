@@ -40,6 +40,10 @@ class Koma {
     throw new Error('NotImplemented');
   }
 
+  clone() {
+    throw new Error('NotImplemented');
+  }
+
   toJSON() {
     return {
       label: this.label,
@@ -64,6 +68,10 @@ class KomaFu extends Koma {
   get canBeNari() {
     return true;
   }
+
+  clone() {
+    return new KomaFu(this.nari);
+  }
 }
 
 class KomaKyo extends Koma {
@@ -81,6 +89,10 @@ class KomaKyo extends Koma {
 
   get canBeNari() {
     return true;
+  }
+
+  clone() {
+    return new KomaKyo(this.nari);
   }
 }
 
@@ -100,6 +112,10 @@ class KomaKei extends Koma {
   get canBeNari() {
     return true;
   }
+
+  clone() {
+    return new KomaKei(this.nari);
+  }
 }
 
 class KomaKaku extends Koma {
@@ -117,6 +133,10 @@ class KomaKaku extends Koma {
 
   get canBeNari() {
     return true;
+  }
+
+  clone() {
+    return new KomaKaku(this.nari);
   }
 }
 
@@ -136,6 +156,10 @@ class KomaHisha extends Koma {
   get canBeNari() {
     return true;
   }
+
+  clone() {
+    return new KomaHisha(this.nari);
+  }
 }
 
 class KomaKin extends Koma {
@@ -149,6 +173,10 @@ class KomaKin extends Koma {
 
   get canBeNari() {
     return false;
+  }
+
+  clone() {
+    return new KomaKin(this.nari);
   }
 }
 
@@ -168,6 +196,10 @@ class KomaGin extends Koma {
   get canBeNari() {
     return true;
   }
+
+  clone() {
+    return new KomaGin(this.nari);
+  }
 }
 
 class KomaGyoku extends Koma {
@@ -181,6 +213,10 @@ class KomaGyoku extends Koma {
 
   get canBeNari() {
     return false;
+  }
+
+  clone() {
+    return new KomaGyoku(this.nari);
   }
 }
 
