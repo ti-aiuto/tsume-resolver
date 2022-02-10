@@ -23,6 +23,8 @@ const KOMA_NARI_KEI = 'NARI_KEI';
 const KOMA_UMA = 'UMA';
 const KOMA_RYU = 'RYU';
 const KOMA_NARI_GIN = 'NARI_GIN';
+const OWNER_SENTE= 'SENTE';
+const OWNER_GOTE= 'GOTE';
 
 class Koma {
   constructor(nari = false) {
@@ -264,7 +266,7 @@ class BanSnapshot {
     if (this.findBanKomaBySujiAndDan(suji, dan)) {
       new Error('既に駒が存在');
     }
-    this.banKomas.push(new BanKoma(koma, 'sente', suji, dan));
+    this.banKomas.push(new BanKoma(koma, OWNER_SENTE, suji, dan));
     return this;
   }
 
@@ -272,17 +274,17 @@ class BanSnapshot {
     if (this.findBanKomaBySujiAndDan(suji, dan)) {
       new Error('既に駒が存在');
     }
-    this.banKomas.push(new BanKoma(koma, 'gote', suji, dan));
+    this.banKomas.push(new BanKoma(koma, OWNER_GOTE, suji, dan));
     return this;
   }
 
   addSenteCaptured(koma) {
-    this.banKomas.push(new BanKoma(koma, 'sente'));
+    this.banKomas.push(new BanKoma(koma, OWNER_SENTE));
     return this;
   }
 
   addGoteCaptured(koma) {
-    this.banKomas.push(new BanKoma(koma, 'gote'));
+    this.banKomas.push(new BanKoma(koma, OWNER_GOTE));
     return this;
   }
 
@@ -294,7 +296,7 @@ class BanSnapshot {
 
   findGyoku(owner) {
     return this.banKomas.find(
-      (item) => item.owner === owner && item instanceof KomaGyoku,
+      (item) => item.owner === owner && item.koma instanceof KomaGyoku,
     );
   }
 
@@ -337,7 +339,10 @@ async function main() {
   const json = await readFileAsJson(sample_filename);
   const ban = loadBanSnapshot(json);
 
-  ban.debug();
+  console.log(ban.findGyoku(OWNER_SENTE));
+  console.log(ban.findGyoku(OWNER_GOTE));
+
+//   ban.debug();
 
   // 作戦
   // banに状態を全て読み込む
