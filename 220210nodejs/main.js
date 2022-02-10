@@ -44,6 +44,10 @@ class Koma {
     throw new Error('NotImplemented');
   }
 
+  findNextOtes(banSnapshot, owner, suji, dan) {
+    throw new Error('NotImplemented');
+  }
+
   toJSON() {
     return {
       label: this.label,
@@ -242,63 +246,60 @@ function createKoma(name, nari) {
   }
 }
 
+class BanKoma {
+  constructor(koma, owner, suji, dan) {
+    this.koma = koma;
+    this.owner = owner;
+    this.suji = suji;
+    this.dan = dan;
+  }
+}
+
 class BanSnapshot {
   constructor() {
-    this.onBoard = this.createEmptyBoard();
-    this.senteCaptured = [];
-    this.goteCaptured = [];
+    this.banKomas = [];
   }
 
   putSenteOnBoard(suji, dan, koma) {
-    const i = this.sujiToArrayIndex(suji);
-    const j = this.danToArrayIndex(dan);
-    this.onBoard[i][j] = { koma, owner: 'sente' };
+    if (this.findBanKomaBySujiAndDan(suji, dan)) {
+      new Error('既に駒が存在');
+    }
+    this.banKomas.push(new BanKoma(koma, 'sente', suji, dan));
     return this;
   }
 
   putGoteOnBoard(suji, dan, koma) {
-    const i = this.sujiToArrayIndex(suji);
-    const j = this.danToArrayIndex(dan);
-    this.onBoard[i][j] = { koma, owner: 'gote' };
+    if (this.findBanKomaBySujiAndDan(suji, dan)) {
+      new Error('既に駒が存在');
+    }
+    this.banKomas.push(new BanKoma(koma, 'gote', suji, dan));
     return this;
   }
 
   addSenteCaptured(koma) {
-    this.senteCaptured.push({ koma });
+    this.banKomas.push(new BanKoma(koma, 'sente'));
     return this;
   }
 
   addGoteCaptured(koma) {
-    this.goteCaptured.push({ koma });
+    this.banKomas.push(new BanKoma(koma, 'gote'));
     return this;
   }
 
-  createEmptyBoard() {
-    const result = [];
-    for (let i = 0; i < 9; i++) {
-      result[i] = [];
-      for (let j = 0; j < 9; j++) {
-        result[i][j] = null;
-      }
-    }
-    return result;
+  findBanKomaBySujiAndDan(suji, dan) {
+    return this.banKomas.find((banKoma) => {
+      banKoma.suji === suji && banKoma.dan === dan;
+    });
   }
 
-  sujiToArrayIndex(suji) {
-    return suji - 1;
-  }
-
-  danToArrayIndex(dan) {
-    return dan - 1;
+  findGyoku(owner) {
+    return this.banKomas.find(
+      (item) => item.owner === owner && item instanceof KomaGyoku,
+    );
   }
 
   debug() {
-    console.log('onBoard', JSON.stringify(this.onBoard, null, '  '));
-    console.log(
-      'senteCaptured',
-      JSON.stringify(this.senteCaptured, null, '  '),
-    );
-    console.log('goteCaptured', JSON.stringify(this.goteCaptured, null, '  '));
+    console.log('banKomas', JSON.stringify(this.banKomas, null, '  '));
   }
 }
 
