@@ -257,9 +257,12 @@ class BanSnapshot {
   }
 
   debug() {
-    console.log(JSON.stringify(this.onBoard, null, '  '));
-    console.log(JSON.stringify(this.senteCaptured, null, '  '));
-    console.log(JSON.stringify(this.goteCaptured, null, '  '));
+    console.log('onBoard', JSON.stringify(this.onBoard, null, '  '));
+    console.log(
+      'senteCaptured',
+      JSON.stringify(this.senteCaptured, null, '  '),
+    );
+    console.log('goteCaptured', JSON.stringify(this.goteCaptured, null, '  '));
   }
 }
 
@@ -297,7 +300,7 @@ async function main() {
   const json = await readFileAsJson(sample_filename);
   const ban = loadBanSnapshot(json);
 
-  console.log(JSON.stringify(ban, null, '  '));
+  ban.debug();
 
   // 作戦
   // banに状態を全て読み込む
