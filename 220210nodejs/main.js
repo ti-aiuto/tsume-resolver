@@ -23,8 +23,8 @@ const KOMA_NARI_KEI = 'NARI_KEI';
 const KOMA_UMA = 'UMA';
 const KOMA_RYU = 'RYU';
 const KOMA_NARI_GIN = 'NARI_GIN';
-const OWNER_SENTE= 'SENTE';
-const OWNER_GOTE= 'GOTE';
+const OWNER_SENTE = 'SENTE';
+const OWNER_GOTE = 'GOTE';
 
 class Koma {
   constructor(nari = false) {
@@ -42,11 +42,11 @@ class Koma {
     throw new Error('NotImplemented');
   }
 
-  clone() {
+  possibleSteps() {
     throw new Error('NotImplemented');
   }
 
-  findNextOtes(banSnapshot, owner, suji, dan) {
+  clone() {
     throw new Error('NotImplemented');
   }
 
@@ -75,6 +75,21 @@ class KomaFu extends Koma {
     return true;
   }
 
+  possibleSteps() {
+    if (this.nari) {
+      [
+        [0, 1],
+        [-1, 1],
+        [1, 1],
+        [0, -1],
+        [1, 0],
+        [-1, 0],
+      ];
+    } else {
+      [[0, 1]];
+    }
+  }
+
   clone() {
     return new KomaFu(this.nari);
   }
@@ -95,6 +110,30 @@ class KomaKyo extends Koma {
 
   get canBeNari() {
     return true;
+  }
+
+  possibleSteps() {
+    if (this.nari) {
+      [
+        [0, 1],
+        [-1, 1],
+        [1, 1],
+        [0, -1],
+        [1, 0],
+        [-1, 0],
+      ];
+    } else {
+      [
+        [0, 1],
+        [0, 2],
+        [0, 3],
+        [0, 4],
+        [0, 5],
+        [0, 6],
+        [0, 7],
+        [0, 8],
+      ];
+    }
   }
 
   clone() {
@@ -119,6 +158,24 @@ class KomaKei extends Koma {
     return true;
   }
 
+  possibleSteps() {
+    if (this.nari) {
+      [
+        [0, 1],
+        [-1, 1],
+        [1, 1],
+        [0, -1],
+        [1, 0],
+        [-1, 0],
+      ];
+    } else {
+      [
+        [1, 2],
+        [-1, 2],
+      ];
+    }
+  }
+
   clone() {
     return new KomaKei(this.nari);
   }
@@ -139,6 +196,48 @@ class KomaKaku extends Koma {
 
   get canBeNari() {
     return true;
+  }
+
+  possibleSteps() {
+    const steps = [
+      [1, 1],
+      [2, 2],
+      [3, 3],
+      [4, 4],
+      [5, 5],
+      [6, 6],
+      [7, 7],
+      [8, 8],
+      [1, -1],
+      [2, -2],
+      [3, -3],
+      [4, -4],
+      [5, -5],
+      [6, -6],
+      [7, -7],
+      [8, -8],
+      [-1, 1],
+      [-2, 2],
+      [-3, 3],
+      [-4, 4],
+      [-5, 5],
+      [-6, 6],
+      [-7, 7],
+      [-8, 8],
+      [-1, -1],
+      [-2, -2],
+      [-3, -3],
+      [-4, -4],
+      [-5, -5],
+      [-6, -6],
+      [-7, -7],
+      [-8, -8],
+    ];
+    if (this.nari) {
+      [...steps, [0, 1], [0, -1], [-1, 0], [1, 0]];
+    } else {
+      return steps;
+    }
   }
 
   clone() {
@@ -163,6 +262,48 @@ class KomaHisha extends Koma {
     return true;
   }
 
+  possibleSteps() {
+    const steps = [
+      [0, 1],
+      [0, 2],
+      [0, 3],
+      [0, 4],
+      [0, 5],
+      [0, 6],
+      [0, 7],
+      [0, 8],
+      [0, -1],
+      [0, -2],
+      [0, -3],
+      [0, -4],
+      [0, -5],
+      [0, -6],
+      [0, -7],
+      [0, -8],
+      [1, 0],
+      [2, 0],
+      [3, 0],
+      [4, 0],
+      [5, 0],
+      [6, 0],
+      [7, 0],
+      [8, 0],
+      [-1, 0],
+      [-2, 0],
+      [-3, 0],
+      [-4, 0],
+      [-5, 0],
+      [-6, 0],
+      [-7, 0],
+      [-8, 0],
+    ];
+    if (this.nari) {
+      [...steps, [-1, 1], [1, 1], [-1, -1], [1, -1]];
+    } else {
+      return steps;
+    }
+  }
+
   clone() {
     return new KomaHisha(this.nari);
   }
@@ -179,6 +320,17 @@ class KomaKin extends Koma {
 
   get canBeNari() {
     return false;
+  }
+
+  possibleSteps() {
+    return [
+      [0, 1],
+      [-1, 1],
+      [1, 1],
+      [0, -1],
+      [1, 0],
+      [-1, 0],
+    ];
   }
 
   clone() {
@@ -203,6 +355,27 @@ class KomaGin extends Koma {
     return true;
   }
 
+  possibleSteps() {
+    if (this.nari) {
+      [
+        [0, 1],
+        [-1, 1],
+        [1, 1],
+        [0, -1],
+        [1, 0],
+        [-1, 0],
+      ];
+    } else {
+      [
+        [0, 1],
+        [-1, 1],
+        [1, 1],
+        [1, -1],
+        [-1, -1],
+      ];
+    }
+  }
+
   clone() {
     return new KomaGin(this.nari);
   }
@@ -219,6 +392,19 @@ class KomaGyoku extends Koma {
 
   get canBeNari() {
     return false;
+  }
+
+  possibleSteps() {
+    return [
+      [0, 1],
+      [-1, 1],
+      [1, 1],
+      [0, -1],
+      [1, 0],
+      [-1, 0],
+      [1, -1],
+      [-1, -1],
+    ];
   }
 
   clone() {
@@ -254,6 +440,11 @@ class BanKoma {
     this.owner = owner;
     this.suji = suji;
     this.dan = dan;
+  }
+
+  // TODO: 実装
+  findNextOtes() {
+    return [];
   }
 }
 
@@ -342,7 +533,7 @@ async function main() {
   console.log(ban.findGyoku(OWNER_SENTE));
   console.log(ban.findGyoku(OWNER_GOTE));
 
-//   ban.debug();
+  //   ban.debug();
 
   // 作戦
   // banに状態を全て読み込む
