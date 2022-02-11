@@ -511,7 +511,7 @@ class BanSnapshot {
     });
   }
 
-  findGyoku(owner) {
+  findGyokuByOwner(owner) {
     return this.banKomas.find(
       (item) => item.owner === owner && item.koma instanceof KomaGyoku,
     );
@@ -554,8 +554,8 @@ async function main() {
   const json = await readFileAsJson(sample_filename);
   const ban = loadBanSnapshot(json);
 
-  console.log(ban.findGyoku(OWNER_SENTE));
-  console.log(ban.findGyoku(OWNER_GOTE));
+  console.log(ban.findGyokuByOwner(OWNER_SENTE));
+  console.log(ban.findGyokuByOwner(OWNER_GOTE));
 
   //   ban.debug();
 
