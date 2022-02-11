@@ -56,6 +56,15 @@ class Koma {
       nari: this.nari,
     };
   }
+
+  beNari() {
+    if (!this.canBeNari) {
+      throw new Error('nari不可');
+    }
+    const cloned = this.clone();
+    cloned.nari = true;
+    return cloned;
+  }
 }
 
 class KomaFu extends Koma {
@@ -77,7 +86,7 @@ class KomaFu extends Koma {
 
   possibleStepVectors() {
     if (this.nari) {
-      [
+      return [
         [0, 1],
         [-1, 1],
         [1, 1],
@@ -86,7 +95,7 @@ class KomaFu extends Koma {
         [-1, 0],
       ];
     } else {
-      [[0, 1]];
+      return [[0, 1]];
     }
   }
 
@@ -114,7 +123,7 @@ class KomaKyo extends Koma {
 
   possibleStepVectors() {
     if (this.nari) {
-      [
+      return [
         [0, 1],
         [-1, 1],
         [1, 1],
@@ -123,7 +132,7 @@ class KomaKyo extends Koma {
         [-1, 0],
       ];
     } else {
-      [
+      return [
         [0, 1],
         [0, 2],
         [0, 3],
@@ -160,7 +169,7 @@ class KomaKei extends Koma {
 
   possibleStepVectors() {
     if (this.nari) {
-      [
+      return [
         [0, 1],
         [-1, 1],
         [1, 1],
@@ -169,7 +178,7 @@ class KomaKei extends Koma {
         [-1, 0],
       ];
     } else {
-      [
+      return [
         [1, 2],
         [-1, 2],
       ];
@@ -234,7 +243,7 @@ class KomaKaku extends Koma {
       [-8, -8],
     ];
     if (this.nari) {
-      [...steps, [0, 1], [0, -1], [-1, 0], [1, 0]];
+      return [...steps, [0, 1], [0, -1], [-1, 0], [1, 0]];
     } else {
       return steps;
     }
@@ -298,7 +307,7 @@ class KomaHisha extends Koma {
       [-8, 0],
     ];
     if (this.nari) {
-      [...steps, [-1, 1], [1, 1], [-1, -1], [1, -1]];
+      return [...steps, [-1, 1], [1, 1], [-1, -1], [1, -1]];
     } else {
       return steps;
     }
@@ -357,7 +366,7 @@ class KomaGin extends Koma {
 
   possibleStepVectors() {
     if (this.nari) {
-      [
+      return [
         [0, 1],
         [-1, 1],
         [1, 1],
@@ -366,7 +375,7 @@ class KomaGin extends Koma {
         [-1, 0],
       ];
     } else {
-      [
+      return [
         [0, 1],
         [-1, 1],
         [1, 1],
@@ -504,9 +513,17 @@ class BanKoma {
     this.banPoint = banPoint;
   }
 
+  get isOnBoard() {
+    return !!this.banPoint;
+  }
+
+  get isCaptured() {
+    return !this.isOnBoard;
+  }
+
   // その駒を動かして王手にできる手の配列(BanCommand[])を返す
   // TODO: 実装
-  findNextOtes(banSnapshot, gyokuBanKoma) {
+  findNextMovingOtes(banSnapshot, gyokuBanKoma) {
     // 制約条件
     // 盤の範囲内であること
     // 盤に自分側の駒がないこと
@@ -514,26 +531,58 @@ class BanKoma {
     //　成るかどうかは呼び出し側で決める
     // 二歩でないこと ← いったん無視
     //  歩で詰かどうかは呼び出し側でチェックする ← 一番最後に実装
-    const stepVectors = this.koma.possibleStepVectors();
-
     const mySide = gyokuBanKoma.side.opposite();
 
-    // 盤の範囲内の点
-    const validRangeBanPoints = stepVectors
-      .map((stepVector) => this.banPoint.applyStepVencor(stepVector))
-      .filter((item) => item);
+    // 盤の範囲内で移動できる点
+    const nextValidRangeBanPoints = this.nextValidRangeBanPoints();
 
     // 自分の駒がいない点
-    const notOccupyingPoints = validRangeBanPoints.filter((banPoint) => {
-      const occupyingBanKoma = banSnapshot.findBanKomaByBanPoint(banPoint);
-      if (!occupyingBanKoma) {
-        return true;
-      }
-      return !occupyingBanKoma.equals(mySide);
-    });
+    const notOccupyingPoints = nextValidRangeBanPoints.filter((banPoint) =>
+      banSnapshot.canPutAtBanPointBySide(banPoint, mySide),
+    );
 
     // 移動してみて成る場合とならない場合のBanKomaを生成してみる
+    const nextPossibleBanKomas = [];
+    notOccupyingPoints.forEach((banPoint) =>
+      nextPossibleBanKomas.push(...this.moveToBanPoint(banPoint)),
+    );
+
     // そのBanKomaの移動先の点が敵玉の点と一致すること
+    const nextOtePossibleBanKomas = nextPossibleBanKomas.filter((nextBanKoma) =>
+      nextBanKoma.isInPownerOfMove(gyokuBanKoma),
+    );
+
+    console.log('王手');
+    console.log(this);
+    console.log(nextOtePossibleBanKomas);
+  }
+
+  findNextPuttingOtes() {
+    // TODO: 実装する
+  }
+
+  // この駒が次に移動できる先
+  nextValidRangeBanPoints() {
+    const stepVectors = this.koma.possibleStepVectors();
+    return stepVectors
+      .map((stepVector) => this.banPoint.applyStepVencor(stepVector))
+      .filter((item) => item);
+  }
+
+  // この駒の効きに引数の駒が入っているかどうか
+  isInPownerOfMove(otherBanKoma) {
+    return this.nextValidRangeBanPoints().some((banPoint) =>
+      otherBanKoma.banPoint.equals(banPoint),
+    );
+  }
+
+  moveToBanPoint(banPoint) {
+    const result = [];
+    if (this.koma.canBeNari) {
+      result.push(new BanKoma(this.koma.beNari(), this.side, banPoint));
+    }
+    result.push(new BanKoma(this.koma, this.side, banPoint));
+    return result;
   }
 }
 
@@ -568,10 +617,19 @@ class BanSnapshot {
     return this;
   }
 
+  canPutAtBanPointBySide(banPoint, banSide) {
+    const occupyingBanKoma = this.findBanKomaByBanPoint(banPoint);
+    return !occupyingBanKoma || !occupyingBanKoma.side.equals(banSide);
+  }
+
   findBanKomaByBanPoint(banPoint) {
-    return this.banKomas.find((banKoma) => {
-      banKoma.banPoint.equals(banPoint);
-    });
+    return this.banKomas.find((banKoma) => banKoma.banPoint?.equals(banPoint));
+  }
+
+  findOnBoardBanKomasBySide(side) {
+    return this.banKomas.filter(
+      (banKoma) => banKoma.side.equals(side) && banKoma.isOnBoard,
+    );
   }
 
   findGyokuBySide(side) {
@@ -617,10 +675,16 @@ async function main() {
   const json = await readFileAsJson(sample_filename);
   const ban = loadBanSnapshot(json);
 
-  console.log(ban.findGyokuBySide(BanSide.createSenteSide()));
-  console.log(ban.findGyokuBySide(BanSide.createGoteSide()));
+  const mySide = BanSide.createSenteSide();
+  const enemySide = mySide.opposite();
 
-  //   ban.debug();
+  const enemyGyoku = ban.findGyokuBySide(enemySide);
+  console.log(enemyGyoku);
+
+  const myOnBoardBanKomas = ban.findOnBoardBanKomasBySide(mySide);
+  myOnBoardBanKomas.forEach((myOnBoardBanKoma) => {
+    myOnBoardBanKoma.findNextMovingOtes(ban, enemyGyoku);
+  });
 
   // 作戦
   // banに状態を全て読み込む
