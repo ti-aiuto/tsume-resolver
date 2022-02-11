@@ -471,19 +471,37 @@ class BanPoint {
   }
 }
 
-class BanKoma {
-  constructor(koma, owner, banPoint) {
-    this.koma = koma;
-    this.owner = owner;
-    this.banPoint = banPoint;
+class BanSide {
+  constructor(side) {
+    this.side = side;
   }
 
-  oppositeSide() {
-    if (this.owner === OWNER_GOTE) {
-      return OWNER_SENTE;
+  equals(other) {
+    return this.side === other.side;
+  }
+
+  opposite() {
+    if (this.side === OWNER_SENTE) {
+      return BanSide.createGoteSide();
     } else {
-      return OWNER_GOTE;
+      return BanSide.createSenteSide();
     }
+  }
+
+  static createSenteSide() {
+    return new BanSide(OWNER_SENTE);
+  }
+
+  static createGoteSide() {
+    return new BanSide(OWNER_GOTE);
+  }
+}
+
+class BanKoma {
+  constructor(koma, side, banPoint) {
+    this.koma = koma;
+    this.side = side;
+    this.banPoint = banPoint;
   }
 
   // その駒を動かして王手にできる手の配列(BanCommand[])を返す
@@ -494,25 +512,28 @@ class BanKoma {
     // 盤に自分側の駒がないこと
     // その移動が王手であること
     //　成るかどうかは呼び出し側で決める
-    // 二歩でないこと
-    //  歩で詰かどうかは呼び出し側でチェックする
+    // 二歩でないこと ← いったん無視
+    //  歩で詰かどうかは呼び出し側でチェックする ← 一番最後に実装
     const stepVectors = this.koma.possibleStepVectors();
 
-    const mySide = gyokuBanKoma.oppositeSide();
+    const mySide = gyokuBanKoma.side.opposite();
 
     // 盤の範囲内の点
     const validRangeBanPoints = stepVectors
       .map((stepVector) => this.banPoint.applyStepVencor(stepVector))
       .filter((item) => item);
 
-      // 自分の駒がいない点
-      const notOccupyingPoints = validRangeBanPoints.filter((banPoint) => {
-        const occupyingBanKoma = banSnapshot.findBanKomaByBanPoint(banPoint);
-        if (!occupyingBanKoma) {
-          return true;
-        }
-        return occupyingBanKoma.owner !== mySide;
-      });
+    // 自分の駒がいない点
+    const notOccupyingPoints = validRangeBanPoints.filter((banPoint) => {
+      const occupyingBanKoma = banSnapshot.findBanKomaByBanPoint(banPoint);
+      if (!occupyingBanKoma) {
+        return true;
+      }
+      return !occupyingBanKoma.equals(mySide);
+    });
+
+    // 移動してみて成る場合とならない場合のBanKomaを生成してみる
+    // そのBanKomaの移動先の点が敵玉の点と一致すること
   }
 }
 
@@ -525,7 +546,7 @@ class BanSnapshot {
     if (this.findBanKomaByBanPoint(banPoint)) {
       new Error('既に駒が存在');
     }
-    this.banKomas.push(new BanKoma(koma, OWNER_SENTE, banPoint));
+    this.banKomas.push(new BanKoma(koma, BanSide.createSenteSide(), banPoint));
     return this;
   }
 
@@ -533,17 +554,17 @@ class BanSnapshot {
     if (this.findBanKomaByBanPoint(banPoint)) {
       new Error('既に駒が存在');
     }
-    this.banKomas.push(new BanKoma(koma, OWNER_GOTE, banPoint));
+    this.banKomas.push(new BanKoma(koma, BanSide.createGoteSide(), banPoint));
     return this;
   }
 
   addSenteCaptured(koma) {
-    this.banKomas.push(new BanKoma(koma, OWNER_SENTE));
+    this.banKomas.push(new BanKoma(koma, BanSide.createSenteSide()));
     return this;
   }
 
   addGoteCaptured(koma) {
-    this.banKomas.push(new BanKoma(koma, OWNER_GOTE));
+    this.banKomas.push(new BanKoma(koma, BanSide.createGoteSide()));
     return this;
   }
 
@@ -553,9 +574,9 @@ class BanSnapshot {
     });
   }
 
-  findGyokuByOwner(owner) {
+  findGyokuBySide(side) {
     return this.banKomas.find(
-      (item) => item.owner === owner && item.koma instanceof KomaGyoku,
+      (item) => item.side.equals(side) && item.koma instanceof KomaGyoku,
     );
   }
 
@@ -596,8 +617,8 @@ async function main() {
   const json = await readFileAsJson(sample_filename);
   const ban = loadBanSnapshot(json);
 
-  console.log(ban.findGyokuByOwner(OWNER_SENTE));
-  console.log(ban.findGyokuByOwner(OWNER_GOTE));
+  console.log(ban.findGyokuBySide(BanSide.createSenteSide()));
+  console.log(ban.findGyokuBySide(BanSide.createGoteSide()));
 
   //   ban.debug();
 
