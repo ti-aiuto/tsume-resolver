@@ -436,12 +436,38 @@ function createKoma(name, nari) {
 
 class BanPoint {
   constructor(suji, dan) {
-    this.suji = suji;
-    this.dan = dan;
+    if (BanPoint.isValidSuji(suji)) {
+      this.suji = suji;
+    } else {
+      throw new Error(`suji: ${suji}は不正な値`);
+    }
+    if (BanPoint.isValidDan(dan)) {
+      this.dan = dan;
+    } else {
+      throw new Error(`dan: ${dan}は不正な値`);
+    }
   }
 
   equals(banPoint) {
     return this.suji === banPoint.suji && this.dan === banPoint.dan;
+  }
+
+  applyStepVencor(vector) {
+    const nextSuji = this.suji + vector[0];
+    const nextDan = this.dan + vector[1];
+    if (BanPoint.isValidSuji(nextSuji) && BanPoint.isValidDan(nextDan)) {
+      return new BanPoint(nextSuji, nextDan);
+    } else {
+      return null;
+    }
+  }
+
+  static isValidSuji(suji) {
+    return [1, 2, 3, 4, 5, 6, 7, 8, 9].includes(suji);
+  }
+
+  static isValidDan(dan) {
+    return this.isValidSuji(dan); // 同じロジックでOK
   }
 }
 
@@ -452,6 +478,7 @@ class BanKoma {
     this.banPoint = banPoint;
   }
 
+  // その駒を動かして王手にできる手の配列(BanCommand[])を返す
   // TODO: 実装
   findNextOtes(banSnapshot, gyokuBanKoma) {
     // 制約条件
@@ -463,14 +490,6 @@ class BanKoma {
     //  歩で詰かどうかは呼び出し側でチェックする
     const stepVectors = this.koma.possibleStepVectors();
     return [];
-  }
-
-  applyStep(stepVector) {
-    // 盤の範囲内で動けるなら動いた先を返す
-    // 動けないならnullを返す
-    const [sujiD, danD] = stepVector;
-    const nextSuji = this.suji + sujiD;
-    const nextDan = this.dan + danD;
   }
 }
 
