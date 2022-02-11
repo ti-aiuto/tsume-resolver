@@ -607,8 +607,8 @@ class BanKoma {
 }
 
 class BanSnapshot {
-  constructor() {
-    this.banKomas = [];
+  constructor(banKomas = []) {
+    this.banKomas = banKomas;
   }
 
   initPutOnBoard(banPoint, koma, side) {
@@ -622,6 +622,58 @@ class BanSnapshot {
   initAddCaptured(koma, side) {
     this.banKomas.push(new BanKoma(koma, side));
     return this;
+  }
+
+  // 駒を移動する
+  moveKomaTo(banPoint, koma, side) {
+    const cloned = this.clone();
+    const existingBanKoma = cloned.findBanKomaByBanPoint(banPoint);
+    if (existingBanKoma.side.equals(side)) {
+      throw new Error('既に自分の駒が存在');
+    }
+    this.addOnBoardBanKoma(banPoint, koma, side);
+    this.removeOnBoardBanKoma(existingBanKoma);
+    this.addCapturedBanKoma(existingBanKoma.koma, side);
+    return cloned;
+  }
+
+  // 駒を打つ
+  putKoma(banPoint, koma, side) {
+    const cloned = this.clone();
+    if (cloned.findBanKomaByBanPoint(banPoint)) {
+      new Error('既に駒が存在');
+    }
+    cloned.addOnBoardBanKoma(banPoint, koma, side);
+    cloned.removeCapturedBanKoma(koma, side);
+    return cloned;
+  }
+
+  // private
+  addOnBoardBanKoma(banPoint, koma, side) {
+    this.banKomas.push(new BanKoma(koma, side, banPoint));
+  }
+
+  // private
+  removeOnBoardBanKoma(banKoma) {
+    const index = this.banKomas.indexOf(banKoma);
+    this.banKomas.splice(index, 1);
+  }
+
+  addCapturedBanKoma(koma, side) {
+    this.initAddCaptured(koma, side);
+  }
+
+  // private
+  removeCapturedBanKoma(koma, side) {
+    const capturedBanKoma = this.findDistictCapturedBanKomasBySide(side);
+    const banKoma = capturedBanKoma.find((banKoma) =>
+      banKoma.koma.equals(koma),
+    );
+    if (!banKoma) {
+      throw new Error('持ち駒に駒がない');
+    }
+    const index = this.banKomas.indexOf(banKoma);
+    this.banKomas.splice(index, 1);
   }
 
   canPutAtBanPointBySide(banPoint, banSide) {
@@ -710,6 +762,10 @@ class BanSnapshot {
       });
     });
     return Object.freeze(result);
+  }
+
+  clone() {
+    return new BanSnapshot([...this.banKomas]);
   }
 
   debug() {
