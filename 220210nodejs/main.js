@@ -514,6 +514,7 @@ class BanPoint {
       return result;
     } else if (sujiD === 1 && danD === 2) {
       // 桂馬は間の駒を飛び越えてOK
+      return [];
     } else {
       throw new Error(`想定外の移動パターン ${sujiD} ${danD}`);
     }
@@ -682,9 +683,20 @@ class BanSnapshot {
   }
 
   canMoveToBanPointBySide(fromBanPoint, toBanPoint, banSide) {
-    // いったん移動先一点だけ見る
-    return this.canPutAtBanPointBySide(toBanPoint, banSide);
-    // TODO: fromからtoの間の駒の一覧を出して、その中に自駒・敵駒がないかをチェックする
+    // 移動先に自分の駒があったら移動不可
+    const destinationPointCheck = this.canPutAtBanPointBySide(
+      toBanPoint,
+      banSide,
+    );
+    if (!destinationPointCheck) {
+      return false;
+    }
+
+    // 移動先までの間に自分・敵どちらかの駒があったら今回の行先には移動不可
+    const pointsBetween = fromBanPoint.pointsBetween(toBanPoint);
+    return pointsBetween.every(
+      (pointBetween) => !this.findBanKomaByBanPoint(pointBetween),
+    );
   }
 
   findBanKomaByBanPoint(banPoint) {
