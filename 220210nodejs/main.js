@@ -785,8 +785,6 @@ class TeResolver {
       }
     });
 
-    // TODO: ここで二歩をチェック
-
     if (nextOtePossibleBanKomas.length) {
       console.log(`${banKoma.koma.label}を次に打つ：`);
       nextOtePossibleBanKomas.forEach((banKoma) => {
