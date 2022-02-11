@@ -478,6 +478,14 @@ class BanKoma {
     this.banPoint = banPoint;
   }
 
+  oppositeSide() {
+    if (this.owner === OWNER_GOTE) {
+      return OWNER_SENTE;
+    } else {
+      return OWNER_GOTE;
+    }
+  }
+
   // その駒を動かして王手にできる手の配列(BanCommand[])を返す
   // TODO: 実装
   findNextOtes(banSnapshot, gyokuBanKoma) {
@@ -489,7 +497,22 @@ class BanKoma {
     // 二歩でないこと
     //  歩で詰かどうかは呼び出し側でチェックする
     const stepVectors = this.koma.possibleStepVectors();
-    return [];
+
+    const mySide = gyokuBanKoma.oppositeSide();
+
+    // 盤の範囲内の点
+    const validRangeBanPoints = stepVectors
+      .map((stepVector) => this.banPoint.applyStepVencor(stepVector))
+      .filter((item) => item);
+
+      // 自分の駒がいない点
+      const notOccupyingPoints = validRangeBanPoints.filter((banPoint) => {
+        const occupyingBanKoma = banSnapshot.findBanKomaByBanPoint(banPoint);
+        if (!occupyingBanKoma) {
+          return true;
+        }
+        return occupyingBanKoma.owner !== mySide;
+      });
   }
 }
 
