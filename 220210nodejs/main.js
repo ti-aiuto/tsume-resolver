@@ -483,10 +483,39 @@ class BanPoint {
       return [];
     } else if ((sujiD === 0 && danD > 0) || (sujiD > 0 && danD === 0)) {
       // 飛車・香車
+      if (sujiD) {
+        const sujiUnit = (other.suji - this.suji) / sujiD;
+        const result = [];
+        // 縦移動
+        // 3マス先に移動だったら1, 2マス目を返してほしい
+        for (let i = 1; i < sujiD; i++) {
+          result.push(new BanPoint(this.suji + sujiUnit * i, this.dan));
+        }
+        return result;
+      } else {
+        const danUnit = (other.dan - this.dan) / danD;
+        const result = [];
+        // 横移動
+        for (let j = 1; j < danD; j++) {
+          result.push(new BanPoint(this.suji, this.dan + danUnit * j));
+        }
+        return result;
+      }
     } else if (sujiD === danD) {
       // 角
+      const sujiUnit = (other.suji - this.suji) / sujiD;
+      const danUnit = (other.dan - this.dan) / danD;
+      const result = [];
+      for (let i = 1; i < Math.abs(sujiD); i++) {
+        result.push(
+          new BanPoint(this.suji + sujiUnit * i, this.dan + danUnit * i),
+        );
+      }
+      return result;
+    } else if (sujiD === 1 && danD === 2) {
+      // 桂馬は間の駒を飛び越えてOK
     } else {
-      throw new Error('想定外の移動パターン');
+      throw new Error(`想定外の移動パターン ${sujiD} ${danD}`);
     }
   }
 
@@ -566,7 +595,7 @@ class BanKoma {
     // 自分の駒がいない点
     // TODO: 間に自分の駒・敵の駒がある場合に取り除く処理が必要
     const notOccupyingPoints = nextValidRangeBanPoints.filter((banPoint) =>
-      banSnapshot.canMoveToBanPointBySide(this.koma.banPoint, banPoint, mySide),
+      banSnapshot.canMoveToBanPointBySide(this.banPoint, banPoint, mySide),
     );
 
     // 移動してみて成る場合とならない場合のBanKomaを生成してみる
