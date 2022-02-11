@@ -443,7 +443,14 @@ class BanKoma {
   }
 
   // TODO: 実装
-  findNextOtes() {
+  findNextOtes(banSnapshot, gyokuBanKoma) {
+    // 制約条件
+    // 盤の範囲内であること
+    // 盤に自分側の駒がないこと
+    // その移動が王手であること
+    //　成るかどうかは呼び出し側で決める
+    // 二歩でないこと
+    //  歩で詰かどうかは呼び出し側でチェックする
     return [];
   }
 }
