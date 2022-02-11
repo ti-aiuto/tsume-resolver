@@ -71,6 +71,10 @@ class Koma {
     cloned.nari = true;
     return cloned;
   }
+
+  equals(other) {
+    return this.label === other.label && this.nari === other.nari;
+  }
 }
 
 class KomaFu extends Koma {
@@ -727,10 +731,17 @@ class BanSnapshot {
     );
   }
 
-  findCapturedBanKomasBySide(side) {
-    return this.banKomas.filter(
+  findDistictCapturedBanKomasBySide(side) {
+    const result = [];
+    const banKomas = this.banKomas.filter(
       (banKoma) => banKoma.side.equals(side) && banKoma.isCaptured,
     );
+    banKomas.forEach((banKoma) => {
+      if (!result.find((resultKoma) => resultKoma.koma.equals(banKoma.koma))) {
+        result.push(banKoma);
+      }
+    });
+    return result;
   }
 
   findGyokuBySide(side) {
@@ -802,7 +813,7 @@ async function main() {
     myOnBoardBanKoma.findNextMovingOtes(ban, enemyGyoku);
   });
 
-  const myCapturedBanKomas = ban.findCapturedBanKomasBySide(mySide);
+  const myCapturedBanKomas = ban.findDistictCapturedBanKomasBySide(mySide);
   myCapturedBanKomas.forEach((myOnBoardBanKoma) => {
     myOnBoardBanKoma.findNextPuttingOtes(ban, enemyGyoku);
   });
