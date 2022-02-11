@@ -9,22 +9,22 @@ async function readFileAsJson(filename) {
   return JSON.parse(body);
 }
 
-const KOMA_FU = 'FU';
-const KOMA_KYO = 'KYO';
-const KOMA_KEI = 'KEI';
-const KOMA_KAKU = 'KAKU';
-const KOMA_HISHA = 'HISHA';
-const KOMA_KIN = 'KIN';
-const KOMA_GIN = 'GIN';
-const KOMA_GYOKU = 'GYOKU';
-const KOMA_TOKIN = 'TOKIN';
-const KOMA_NARI_KYO = 'NARI_KYO';
-const KOMA_NARI_KEI = 'NARI_KEI';
-const KOMA_UMA = 'UMA';
-const KOMA_RYU = 'RYU';
-const KOMA_NARI_GIN = 'NARI_GIN';
-const OWNER_SENTE = 'SENTE';
-const OWNER_GOTE = 'GOTE';
+const KOMA_FU = '歩';
+const KOMA_KYO = '香';
+const KOMA_KEI = '桂';
+const KOMA_KAKU = '角';
+const KOMA_HISHA = '飛';
+const KOMA_KIN = '金';
+const KOMA_GIN = '銀';
+const KOMA_GYOKU = '玉';
+const KOMA_TOKIN = 'と金';
+const KOMA_NARI_KYO = '成香';
+const KOMA_NARI_KEI = '成桂';
+const KOMA_UMA = '馬';
+const KOMA_RYU = '竜';
+const KOMA_NARI_GIN = '成銀';
+const OWNER_SENTE = '先手';
+const OWNER_GOTE = '後手';
 const SUJI_OPTIONS = Object.freeze([1, 2, 3, 4, 5, 6, 7, 8, 9]);
 const DAN_OPTIONS = SUJI_OPTIONS;
 
@@ -534,6 +534,10 @@ class BanPoint {
     return Math.abs(this.dan - other.dan);
   }
 
+  toString() {
+    return `筋：${this.suji}, 段：${this.dan}`;
+  }
+
   static isValidSuji(suji) {
     return [1, 2, 3, 4, 5, 6, 7, 8, 9].includes(suji);
   }
@@ -606,9 +610,10 @@ class BanKoma {
     );
 
     if (nextOtePossibleBanKomas.length) {
-      console.log('王手');
-      console.log(this);
-      console.log(nextOtePossibleBanKomas);
+      console.log(`${this.koma.label}を次へ移動：`);
+      nextOtePossibleBanKomas.forEach((banKoma) => {
+        console.log(banKoma.banPoint.toString());
+      });
     }
   }
 
@@ -628,9 +633,10 @@ class BanKoma {
     // TODO: ここで二歩をチェック
 
     if (nextOtePossibleBanKomas.length) {
-      console.log('王手');
-      console.log(this);
-      console.log(nextOtePossibleBanKomas);
+      console.log(`${this.koma.label}を次に打つ：`);
+      nextOtePossibleBanKomas.forEach((banKoma) => {
+        console.log(banKoma.banPoint.toString());
+      });
     }
   }
 
