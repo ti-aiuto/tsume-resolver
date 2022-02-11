@@ -42,7 +42,7 @@ class Koma {
     throw new Error('NotImplemented');
   }
 
-  possibleSteps() {
+  possibleStepVectors() {
     throw new Error('NotImplemented');
   }
 
@@ -75,7 +75,7 @@ class KomaFu extends Koma {
     return true;
   }
 
-  possibleSteps() {
+  possibleStepVectors() {
     if (this.nari) {
       [
         [0, 1],
@@ -112,7 +112,7 @@ class KomaKyo extends Koma {
     return true;
   }
 
-  possibleSteps() {
+  possibleStepVectors() {
     if (this.nari) {
       [
         [0, 1],
@@ -158,7 +158,7 @@ class KomaKei extends Koma {
     return true;
   }
 
-  possibleSteps() {
+  possibleStepVectors() {
     if (this.nari) {
       [
         [0, 1],
@@ -198,7 +198,7 @@ class KomaKaku extends Koma {
     return true;
   }
 
-  possibleSteps() {
+  possibleStepVectors() {
     const steps = [
       [1, 1],
       [2, 2],
@@ -262,7 +262,7 @@ class KomaHisha extends Koma {
     return true;
   }
 
-  possibleSteps() {
+  possibleStepVectors() {
     const steps = [
       [0, 1],
       [0, 2],
@@ -322,7 +322,7 @@ class KomaKin extends Koma {
     return false;
   }
 
-  possibleSteps() {
+  possibleStepVectors() {
     return [
       [0, 1],
       [-1, 1],
@@ -355,7 +355,7 @@ class KomaGin extends Koma {
     return true;
   }
 
-  possibleSteps() {
+  possibleStepVectors() {
     if (this.nari) {
       [
         [0, 1],
@@ -394,7 +394,7 @@ class KomaGyoku extends Koma {
     return false;
   }
 
-  possibleSteps() {
+  possibleStepVectors() {
     return [
       [0, 1],
       [-1, 1],
