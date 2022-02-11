@@ -434,12 +434,22 @@ function createKoma(name, nari) {
   }
 }
 
-class BanKoma {
-  constructor(koma, owner, suji, dan) {
-    this.koma = koma;
-    this.owner = owner;
+class BanPoint {
+  constructor(suji, dan) {
     this.suji = suji;
     this.dan = dan;
+  }
+
+  equals(banPoint) {
+    return this.suji === banPoint.suji && this.dan === banPoint.dan;
+  }
+}
+
+class BanKoma {
+  constructor(koma, owner, banPoint) {
+    this.koma = koma;
+    this.owner = owner;
+    this.banPoint = banPoint;
   }
 
   // TODO: 実装
@@ -451,7 +461,16 @@ class BanKoma {
     //　成るかどうかは呼び出し側で決める
     // 二歩でないこと
     //  歩で詰かどうかは呼び出し側でチェックする
+    const stepVectors = this.koma.possibleStepVectors();
     return [];
+  }
+
+  applyStep(stepVector) {
+    // 盤の範囲内で動けるなら動いた先を返す
+    // 動けないならnullを返す
+    const [sujiD, danD] = stepVector;
+    const nextSuji = this.suji + sujiD;
+    const nextDan = this.dan + danD;
   }
 }
 
@@ -460,19 +479,19 @@ class BanSnapshot {
     this.banKomas = [];
   }
 
-  putSenteOnBoard(suji, dan, koma) {
-    if (this.findBanKomaBySujiAndDan(suji, dan)) {
+  putSenteOnBoard(banPoint, koma) {
+    if (this.findBanKomaByBanPoint(banPoint)) {
       new Error('既に駒が存在');
     }
-    this.banKomas.push(new BanKoma(koma, OWNER_SENTE, suji, dan));
+    this.banKomas.push(new BanKoma(koma, OWNER_SENTE, banPoint));
     return this;
   }
 
-  putGoteOnBoard(suji, dan, koma) {
-    if (this.findBanKomaBySujiAndDan(suji, dan)) {
+  putGoteOnBoard(banPoint, koma) {
+    if (this.findBanKomaByBanPoint(banPoint)) {
       new Error('既に駒が存在');
     }
-    this.banKomas.push(new BanKoma(koma, OWNER_GOTE, suji, dan));
+    this.banKomas.push(new BanKoma(koma, OWNER_GOTE, banPoint));
     return this;
   }
 
@@ -486,9 +505,9 @@ class BanSnapshot {
     return this;
   }
 
-  findBanKomaBySujiAndDan(suji, dan) {
+  findBanKomaByBanPoint(banPoint) {
     return this.banKomas.find((banKoma) => {
-      banKoma.suji === suji && banKoma.dan === dan;
+      banKoma.banPoint.equals(banPoint);
     });
   }
 
@@ -508,16 +527,14 @@ function loadBanSnapshot(json) {
 
   json['initial_koma']['on_board']['sente'].forEach((koma) => {
     banSnapshot.putSenteOnBoard(
-      koma['suji'],
-      koma['dan'],
+      new BanPoint(koma['suji'], koma['dan']),
       createKoma(koma['name'], koma['nari']),
     );
   });
 
   json['initial_koma']['on_board']['gote'].forEach((koma) => {
     banSnapshot.putGoteOnBoard(
-      koma['suji'],
-      koma['dan'],
+      new BanPoint(koma['suji'], koma['dan']),
       createKoma(koma['name'], koma['nari']),
     );
   });
