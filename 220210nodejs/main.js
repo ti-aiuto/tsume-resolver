@@ -588,70 +588,6 @@ class BanKoma {
     return !this.isOnBoard;
   }
 
-  // その駒を動かして王手にできる手の配列(BanCommand[])を返す
-  findNextMovingOtes(banSnapshot, gyokuBanKoma) {
-    const mySide = gyokuBanKoma.side.opposite();
-    // 盤の範囲内で移動できる点
-    const nextValidRangeBanPoints = this.nextValidRangeBanPoints();
-
-    // 自分の駒がいない点
-    const notOccupyingPoints = nextValidRangeBanPoints.filter((banPoint) =>
-      banSnapshot.canMoveToBanPointBySide(this.banPoint, banPoint, mySide),
-    );
-
-    // 移動してみて成る場合とならない場合のBanKomaを生成してみる
-    const nextPossibleBanKomas = [];
-    notOccupyingPoints.forEach((banPoint) =>
-      nextPossibleBanKomas.push(...this.moveToBanPoint(banPoint)),
-    );
-    // そのBanKomaの移動先の点が敵玉の点と一致すること
-    const nextOtePossibleBanKomas = nextPossibleBanKomas.filter((nextBanKoma) =>
-      banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma),
-    );
-
-    if (nextOtePossibleBanKomas.length) {
-      console.log(`${this.koma.label}を次へ移動：`);
-      nextOtePossibleBanKomas.forEach((banKoma) => {
-        console.log(banKoma.banPoint.toString());
-      });
-    }
-  }
-
-  findNextPuttingOtes(banSnapshot, gyokuBanKoma) {
-    const mySide = gyokuBanKoma.side.opposite();
-
-    const emptyBanPoints = banSnapshot.findEmptyPoints();
-    const nextOtePossibleBanKomas = [];
-
-    emptyBanPoints.forEach((banPoint) => {
-      const nextBanKoma = new BanKoma(this.koma, mySide, banPoint);
-
-      if (this.koma instanceof KomaFu) {
-        // 二歩のチェック
-        if (
-          banSnapshot
-            .findBanKomasBySideAndSuji(mySide, banPoint.suji)
-            .find((banKoma) => banKoma.koma.equals(this.koma))
-        ) {
-          return false;
-        }
-      }
-
-      if (banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma)) {
-        nextOtePossibleBanKomas.push(nextBanKoma);
-      }
-    });
-
-    // TODO: ここで二歩をチェック
-
-    if (nextOtePossibleBanKomas.length) {
-      console.log(`${this.koma.label}を次に打つ：`);
-      nextOtePossibleBanKomas.forEach((banKoma) => {
-        console.log(banKoma.banPoint.toString());
-      });
-    }
-  }
-
   // この駒が次に移動できる先
   nextValidRangeBanPoints() {
     const stepVectors = this.koma.possibleStepVectors();
@@ -794,6 +730,72 @@ class BanSnapshot {
   }
 }
 
+class TeResolver {
+  // その駒を動かして王手にできる手の配列(BanCommand[])を返す
+  findNextMovingOtesOf(banSnapshot, gyokuBanKoma, banKoma) {
+    const mySide = gyokuBanKoma.side.opposite();
+    // 盤の範囲内で移動できる点
+    const nextValidRangeBanPoints = banKoma.nextValidRangeBanPoints();
+
+    // 自分の駒がいない点
+    const notOccupyingPoints = nextValidRangeBanPoints.filter((banPoint) =>
+      banSnapshot.canMoveToBanPointBySide(banKoma.banPoint, banPoint, mySide),
+    );
+
+    // 移動してみて成る場合とならない場合のBanKomaを生成してみる
+    const nextPossibleBanKomas = [];
+    notOccupyingPoints.forEach((banPoint) =>
+      nextPossibleBanKomas.push(...banKoma.moveToBanPoint(banPoint)),
+    );
+    // そのBanKomaの移動先の点が敵玉の点と一致すること
+    const nextOtePossibleBanKomas = nextPossibleBanKomas.filter((nextBanKoma) =>
+      banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma),
+    );
+
+    if (nextOtePossibleBanKomas.length) {
+      console.log(`${banKoma.koma.label}を次へ移動：`);
+      nextOtePossibleBanKomas.forEach((banKoma) => {
+        console.log(banKoma.banPoint.toString());
+      });
+    }
+  }
+
+  findNextPuttingOtesOf(banSnapshot, gyokuBanKoma, banKoma) {
+    const mySide = gyokuBanKoma.side.opposite();
+
+    const emptyBanPoints = banSnapshot.findEmptyPoints();
+    const nextOtePossibleBanKomas = [];
+
+    emptyBanPoints.forEach((banPoint) => {
+      const nextBanKoma = new BanKoma(banKoma.koma, mySide, banPoint);
+
+      if (banKoma.koma instanceof KomaFu) {
+        // 二歩のチェック
+        if (
+          banSnapshot
+            .findBanKomasBySideAndSuji(mySide, banPoint.suji)
+            .find((banKoma) => banKoma.koma.equals(banKoma.koma))
+        ) {
+          return false;
+        }
+      }
+
+      if (banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma)) {
+        nextOtePossibleBanKomas.push(nextBanKoma);
+      }
+    });
+
+    // TODO: ここで二歩をチェック
+
+    if (nextOtePossibleBanKomas.length) {
+      console.log(`${banKoma.koma.label}を次に打つ：`);
+      nextOtePossibleBanKomas.forEach((banKoma) => {
+        console.log(banKoma.banPoint.toString());
+      });
+    }
+  }
+}
+
 function loadBanSnapshot(json) {
   const banSnapshot = new BanSnapshot();
 
@@ -832,14 +834,16 @@ async function main() {
   const enemyGyoku = ban.findGyokuBySide(enemySide);
   console.log(enemyGyoku);
 
+  const teResolver = new TeResolver();
+
   const myOnBoardBanKomas = ban.findOnBoardBanKomasBySide(mySide);
   myOnBoardBanKomas.forEach((myOnBoardBanKoma) => {
-    myOnBoardBanKoma.findNextMovingOtes(ban, enemyGyoku);
+    teResolver.findNextMovingOtesOf(ban, enemyGyoku, myOnBoardBanKoma);
   });
 
   const myCapturedBanKomas = ban.findDistictCapturedBanKomasBySide(mySide);
   myCapturedBanKomas.forEach((myOnBoardBanKoma) => {
-    myOnBoardBanKoma.findNextPuttingOtes(ban, enemyGyoku);
+    teResolver.findNextPuttingOtesOf(ban, enemyGyoku, myOnBoardBanKoma);
   });
 
   // 作戦
