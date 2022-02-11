@@ -606,6 +606,14 @@ class BanKoma {
   }
 }
 
+class BanCommand {
+  constructor(banKoma, beforeBanSnapshot, afterBanSnapshot) {
+    this.banKoma = banKoma;
+    this.beforeBanSnapshot = beforeBanSnapshot;
+    this.afterBanSnapshot = afterBanSnapshot;
+  }
+}
+
 class BanSnapshot {
   constructor(banKomas = []) {
     this.banKomas = banKomas;
