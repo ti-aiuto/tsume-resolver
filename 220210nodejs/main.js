@@ -541,6 +541,7 @@ class BanKoma {
     const nextValidRangeBanPoints = this.nextValidRangeBanPoints();
 
     // 自分の駒がいない点
+    // TODO: 間に自分の駒・敵の駒がある場合に取り除く処理が必要
     const notOccupyingPoints = nextValidRangeBanPoints.filter((banPoint) =>
       banSnapshot.canPutAtBanPointBySide(banPoint, mySide),
     );
