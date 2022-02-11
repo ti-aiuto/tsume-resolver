@@ -475,17 +475,27 @@ class BanPoint {
     }
   }
 
-  pointsBetween(toBanPoint) {
+  pointsBetween(other) {
+    const [sujiD, danD] = [this.sujiDistance(other), this.danDistance(other)];
     // 一マス移動の場合
-    if (
-      Math.abs(this.suji - toBanPoint.suji) <= 1 &&
-      Math.abs(this.dan - toBanPoint.dan) <= 1
-    ) {
-      return [toBanPoint];
+    if (sujiD <= 1 && danD <= 1) {
+      // 間のマスはない
+      return [];
+    } else if ((sujiD === 0 && danD > 0) || (sujiD > 0 && danD === 0)) {
+      // 飛車・香車
+    } else if (sujiD === danD) {
+      // 角
+    } else {
+      throw new Error('想定外の移動パターン');
     }
-    // 直線移動の場合
-    // 斜め移動の場合
-    return [toBanPoint];
+  }
+
+  sujiDistance(other) {
+    return Math.abs(this.suji - other.suji);
+  }
+
+  danDistance(other) {
+    return Math.abs(this.dan - other.dan);
   }
 
   static isValidSuji(suji) {
@@ -643,6 +653,8 @@ class BanSnapshot {
   }
 
   canMoveToBanPointBySide(fromBanPoint, toBanPoint, banSide) {
+    // いったん移動先一点だけ見る
+    return this.canPutAtBanPointBySide(toBanPoint, banSide);
     // TODO: fromからtoの間の駒の一覧を出して、その中に自駒・敵駒がないかをチェックする
   }
 
