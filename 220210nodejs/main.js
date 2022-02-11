@@ -552,9 +552,11 @@ class BanKoma {
       nextBanKoma.isInPownerOfMove(gyokuBanKoma),
     );
 
-    console.log('王手');
-    console.log(this);
-    console.log(nextOtePossibleBanKomas);
+    if (nextOtePossibleBanKomas.length) {
+      console.log('王手');
+      console.log(this);
+      console.log(nextOtePossibleBanKomas);  
+    }
   }
 
   findNextPuttingOtes() {
