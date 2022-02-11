@@ -611,7 +611,7 @@ class BanSnapshot {
     this.banKomas = [];
   }
 
-  putSenteOnBoard(banPoint, koma) {
+  initPutSenteOnBoard(banPoint, koma) {
     if (this.findBanKomaByBanPoint(banPoint)) {
       new Error('既に駒が存在');
     }
@@ -619,7 +619,7 @@ class BanSnapshot {
     return this;
   }
 
-  putGoteOnBoard(banPoint, koma) {
+  initPutGoteOnBoard(banPoint, koma) {
     if (this.findBanKomaByBanPoint(banPoint)) {
       new Error('既に駒が存在');
     }
@@ -627,12 +627,12 @@ class BanSnapshot {
     return this;
   }
 
-  addSenteCaptured(koma) {
+  initAddSenteCaptured(koma) {
     this.banKomas.push(new BanKoma(koma, BanSide.createSenteSide()));
     return this;
   }
 
-  addGoteCaptured(koma) {
+  initAddGoteCaptured(koma) {
     this.banKomas.push(new BanKoma(koma, BanSide.createGoteSide()));
     return this;
   }
@@ -798,25 +798,25 @@ function loadBanSnapshot(json) {
   const banSnapshot = new BanSnapshot();
 
   json['initial_koma']['on_board']['sente'].forEach((koma) => {
-    banSnapshot.putSenteOnBoard(
+    banSnapshot.initPutSenteOnBoard(
       new BanPoint(koma['suji'], koma['dan']),
       createKoma(koma['name'], koma['nari']),
     );
   });
 
   json['initial_koma']['on_board']['gote'].forEach((koma) => {
-    banSnapshot.putGoteOnBoard(
+    banSnapshot.initPutGoteOnBoard(
       new BanPoint(koma['suji'], koma['dan']),
       createKoma(koma['name'], koma['nari']),
     );
   });
 
   json['initial_koma']['captured']['sente'].forEach((koma) =>
-    banSnapshot.addSenteCaptured(createKoma(koma['name'], false)),
+    banSnapshot.initAddSenteCaptured(createKoma(koma['name'], false)),
   );
 
   json['initial_koma']['captured']['gote'].forEach((koma) =>
-    banSnapshot.addGoteCaptured(createKoma(koma['name'], false)),
+    banSnapshot.initAddGoteCaptured(createKoma(koma['name'], false)),
   );
 
   return banSnapshot;
