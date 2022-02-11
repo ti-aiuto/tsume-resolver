@@ -9,20 +9,20 @@ async function readFileAsJson(filename) {
   return JSON.parse(body);
 }
 
-const KOMA_FU = '歩';
-const KOMA_KYO = '香';
-const KOMA_KEI = '桂';
-const KOMA_KAKU = '角';
-const KOMA_HISHA = '飛';
-const KOMA_KIN = '金';
-const KOMA_GIN = '銀';
-const KOMA_GYOKU = '玉';
-const KOMA_TOKIN = 'と金';
-const KOMA_NARI_KYO = '成香';
-const KOMA_NARI_KEI = '成桂';
-const KOMA_UMA = '馬';
-const KOMA_RYU = '竜';
-const KOMA_NARI_GIN = '成銀';
+const KOMA_FU = '_歩';
+const KOMA_KYO = '_香';
+const KOMA_KEI = '_桂';
+const KOMA_KAKU = '_角';
+const KOMA_HISHA = '_飛';
+const KOMA_KIN = '_金';
+const KOMA_GIN = '_銀';
+const KOMA_GYOKU = '_玉';
+const KOMA_TOKIN = 'ﾄ金';
+const KOMA_NARI_KYO = 'ﾄ香';
+const KOMA_NARI_KEI = 'ﾄ桂';
+const KOMA_UMA = '_馬';
+const KOMA_RYU = '_竜';
+const KOMA_NARI_GIN = 'ﾄ銀';
 const OWNER_SENTE = '先手';
 const OWNER_GOTE = '後手';
 const SUJI_OPTIONS = Object.freeze([1, 2, 3, 4, 5, 6, 7, 8, 9]);
