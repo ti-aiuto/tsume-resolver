@@ -607,7 +607,7 @@ class BanKoma {
 
     // そのBanKomaの移動先の点が敵玉の点と一致すること
     const nextOtePossibleBanKomas = nextPossibleBanKomas.filter((nextBanKoma) =>
-      nextBanKoma.isInPownerOfMove(gyokuBanKoma),
+      banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma),
     );
 
     if (nextOtePossibleBanKomas.length) {
@@ -627,13 +627,6 @@ class BanKoma {
     return stepVectors
       .map((stepVector) => this.banPoint.applyStepVencor(stepVector))
       .filter((item) => item);
-  }
-
-  // この駒の効きに引数の駒が入っているかどうか
-  isInPownerOfMove(otherBanKoma) {
-    return this.nextValidRangeBanPoints().some((banPoint) =>
-      otherBanKoma.banPoint.equals(banPoint),
-    );
   }
 
   moveToBanPoint(banPoint) {
@@ -694,6 +687,22 @@ class BanSnapshot {
 
     // 移動先までの間に自分・敵どちらかの駒があったら今回の行先には移動不可
     const pointsBetween = fromBanPoint.pointsBetween(toBanPoint);
+    return pointsBetween.every(
+      (pointBetween) => !this.findBanKomaByBanPoint(pointBetween),
+    );
+  }
+
+  // 第一引数の駒の効きに第二引数の駒が入っているかどうか
+  isInPownerOfMove(banKoma, otherBanKoma) {
+    const gyokuInInPowerOfMove = banKoma
+      .nextValidRangeBanPoints()
+      .some((banPoint) => otherBanKoma.banPoint.equals(banPoint));
+    if (!gyokuInInPowerOfMove) {
+      return false;
+    }
+
+    // 中間に邪魔する駒がないか
+    const pointsBetween = banKoma.banPoint.pointsBetween(otherBanKoma.banPoint);
     return pointsBetween.every(
       (pointBetween) => !this.findBanKomaByBanPoint(pointBetween),
     );
