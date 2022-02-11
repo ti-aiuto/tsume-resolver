@@ -475,6 +475,19 @@ class BanPoint {
     }
   }
 
+  pointsBetween(toBanPoint) {
+    // 一マス移動の場合
+    if (
+      Math.abs(this.suji - toBanPoint.suji) <= 1 &&
+      Math.abs(this.dan - toBanPoint.dan) <= 1
+    ) {
+      return [toBanPoint];
+    }
+    // 直線移動の場合
+    // 斜め移動の場合
+    return [toBanPoint];
+  }
+
   static isValidSuji(suji) {
     return [1, 2, 3, 4, 5, 6, 7, 8, 9].includes(suji);
   }
@@ -560,7 +573,7 @@ class BanKoma {
     if (nextOtePossibleBanKomas.length) {
       console.log('王手');
       console.log(this);
-      console.log(nextOtePossibleBanKomas);  
+      console.log(nextOtePossibleBanKomas);
     }
   }
 
