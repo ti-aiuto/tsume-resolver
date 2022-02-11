@@ -42,6 +42,10 @@ class Koma {
     throw new Error('NotImplemented');
   }
 
+  get canBecomeNari() {
+    return this.canBeNari && !this.nari;
+  }
+
   possibleStepVectors() {
     throw new Error('NotImplemented');
   }
@@ -58,7 +62,7 @@ class Koma {
   }
 
   beNari() {
-    if (!this.canBeNari) {
+    if (!this.canBecomeNari) {
       throw new Error('nari不可');
     }
     const cloned = this.clone();
@@ -580,7 +584,7 @@ class BanKoma {
 
   moveToBanPoint(banPoint) {
     const result = [];
-    if (this.koma.canBeNari) {
+    if (this.koma.canBecomeNari) {
       result.push(new BanKoma(this.koma.beNari(), this.side, banPoint));
     }
     result.push(new BanKoma(this.koma, this.side, banPoint));
