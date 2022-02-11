@@ -625,6 +625,18 @@ class BanKoma {
 
     emptyBanPoints.forEach((banPoint) => {
       const nextBanKoma = new BanKoma(this.koma, mySide, banPoint);
+
+      if (this.koma instanceof KomaFu) {
+        // 二歩のチェック
+        if (
+          banSnapshot
+            .findBanKomasBySideAndSuji(mySide, banPoint.suji)
+            .find((banKoma) => banKoma.koma.equals(this.koma))
+        ) {
+          return false;
+        }
+      }
+
       if (banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma)) {
         nextOtePossibleBanKomas.push(nextBanKoma);
       }
@@ -729,6 +741,12 @@ class BanSnapshot {
 
   findBanKomaByBanPoint(banPoint) {
     return this.banKomas.find((banKoma) => banKoma.banPoint?.equals(banPoint));
+  }
+
+  findBanKomasBySideAndSuji(side, suji) {
+    return this.banKomas.filter(
+      (banKoma) => banKoma.side.equals(side) && banKoma.banPoint?.suji === suji,
+    );
   }
 
   findOnBoardBanKomasBySide(side) {
