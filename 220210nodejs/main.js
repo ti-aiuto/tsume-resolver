@@ -9,19 +9,19 @@ async function readFileAsJson(filename) {
   return JSON.parse(body);
 }
 
-const KOMA_FU = '_歩';
-const KOMA_KYO = '_香';
-const KOMA_KEI = '_桂';
-const KOMA_KAKU = '_角';
-const KOMA_HISHA = '_飛';
-const KOMA_KIN = '_金';
-const KOMA_GIN = '_銀';
-const KOMA_GYOKU = '_玉';
+const KOMA_FU = ' 歩';
+const KOMA_KYO = ' 香';
+const KOMA_KEI = ' 桂';
+const KOMA_KAKU = ' 角';
+const KOMA_HISHA = ' 飛';
+const KOMA_KIN = ' 金';
+const KOMA_GIN = ' 銀';
+const KOMA_GYOKU = ' 玉';
 const KOMA_TOKIN = 'ﾄ金';
 const KOMA_NARI_KYO = 'ﾄ香';
 const KOMA_NARI_KEI = 'ﾄ桂';
-const KOMA_UMA = '_馬';
-const KOMA_RYU = '_竜';
+const KOMA_UMA = ' 馬';
+const KOMA_RYU = ' 竜';
 const KOMA_NARI_GIN = 'ﾄ銀';
 const OWNER_SENTE = '先手';
 const OWNER_GOTE = '後手';
@@ -557,11 +557,27 @@ class BanSide {
   }
 
   opposite() {
-    if (this.side === OWNER_SENTE) {
+    if (this.isSente) {
       return BanSide.createGoteSide();
     } else {
       return BanSide.createSenteSide();
     }
+  }
+
+  get label() {
+    return this.side;
+  }
+
+  get shortLabel() {
+    if (this.isSente) {
+      return '@';
+    } else {
+      return 'o';
+    }
+  }
+
+  get isSente() {
+    return this.side === OWNER_SENTE;
   }
 
   static createSenteSide() {
@@ -777,7 +793,21 @@ class BanSnapshot {
   }
 
   debug() {
-    console.log('banKomas', JSON.stringify(this.banKomas, null, '  '));
+    let text = '';
+    [...DAN_OPTIONS].reverse().forEach((dan) => {
+      SUJI_OPTIONS.forEach((suji) => {
+        const banPoint = new BanPoint(suji, dan);
+        const banKoma = this.findBanKomaByBanPoint(banPoint);
+        if (banKoma) {
+          text += banKoma.side.shortLabel + banKoma.koma.label;
+        } else {
+          text += '  　';
+        }
+        text += ' | ';
+      });
+      text += '\n';
+    });
+    console.log(text);
   }
 }
 
@@ -880,25 +910,37 @@ function loadBanSnapshot(json) {
 
 async function main() {
   const json = await readFileAsJson(sample_filename);
-  const ban = loadBanSnapshot(json);
+  const initialBanSnapshot = loadBanSnapshot(json);
 
   const mySide = BanSide.createSenteSide();
   const enemySide = mySide.opposite();
 
-  const enemyGyoku = ban.findGyokuBySide(enemySide);
+  const enemyGyoku = initialBanSnapshot.findGyokuBySide(enemySide);
   console.log(enemyGyoku);
 
   const teResolver = new TeResolver();
 
-  const myOnBoardBanKomas = ban.findOnBoardBanKomasBySide(mySide);
+  const myOnBoardBanKomas =
+    initialBanSnapshot.findOnBoardBanKomasBySide(mySide);
   myOnBoardBanKomas.forEach((myOnBoardBanKoma) => {
-    teResolver.findNextMovingOtesOf(ban, enemyGyoku, myOnBoardBanKoma);
+    teResolver.findNextMovingOtesOf(
+      initialBanSnapshot,
+      enemyGyoku,
+      myOnBoardBanKoma,
+    );
   });
 
-  const myCapturedBanKomas = ban.findDistictCapturedBanKomasBySide(mySide);
+  const myCapturedBanKomas =
+    initialBanSnapshot.findDistictCapturedBanKomasBySide(mySide);
   myCapturedBanKomas.forEach((myOnBoardBanKoma) => {
-    teResolver.findNextPuttingOtesOf(ban, enemyGyoku, myOnBoardBanKoma);
+    teResolver.findNextPuttingOtesOf(
+      initialBanSnapshot,
+      enemyGyoku,
+      myOnBoardBanKoma,
+    );
   });
+
+  initialBanSnapshot.debug();
 
   // 作戦
   // banに状態を全て読み込む
