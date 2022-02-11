@@ -543,7 +543,7 @@ class BanKoma {
     // 自分の駒がいない点
     // TODO: 間に自分の駒・敵の駒がある場合に取り除く処理が必要
     const notOccupyingPoints = nextValidRangeBanPoints.filter((banPoint) =>
-      banSnapshot.canPutAtBanPointBySide(banPoint, mySide),
+      banSnapshot.canMoveToBanPointBySide(this.koma.banPoint, banPoint, mySide),
     );
 
     // 移動してみて成る場合とならない場合のBanKomaを生成してみる
@@ -627,6 +627,10 @@ class BanSnapshot {
   canPutAtBanPointBySide(banPoint, banSide) {
     const occupyingBanKoma = this.findBanKomaByBanPoint(banPoint);
     return !occupyingBanKoma || !occupyingBanKoma.side.equals(banSide);
+  }
+
+  canMoveToBanPointBySide(fromBanPoint, toBanPoint, banSide) {
+    // TODO: fromからtoの間の駒の一覧を出して、その中に自駒・敵駒がないかをチェックする
   }
 
   findBanKomaByBanPoint(banPoint) {
