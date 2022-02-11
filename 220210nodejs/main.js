@@ -1,7 +1,7 @@
 // 220210の目標：いったんテストコード無しで動くロジックを書いてみる
 
 // TODO: コマンドライン引数でとる
-const sample_filename = '../sample/horoki2.json';
+const sample_filename = '../sample/horoki2nifu_debug.json';
 
 async function readFileAsJson(filename) {
   const fs = require('fs').promises;
