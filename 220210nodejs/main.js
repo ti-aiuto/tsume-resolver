@@ -1,7 +1,7 @@
 // 220210の目標：いったんテストコード無しで動くロジックを書いてみる
 
 // TODO: コマンドライン引数でとる
-const sample_filename = '../sample/horoki1.json';
+const sample_filename = '../sample/horoki2.json';
 
 async function readFileAsJson(filename) {
   const fs = require('fs').promises;
@@ -1007,9 +1007,9 @@ async function main() {
     teResolver
       .findNextOteEscaping(banTe.banKyokumen.banSnapshot, enemyGyoku)
       .forEach((banTe) => {
-        console.log("逃げ手順例");
-        console.log(banTe.banKoma.toString());
-        console.log(banTe.banKyokumen.banSnapshot.toString());
+        // console.log("逃げ手順例");
+        // console.log(banTe.banKoma.toString());
+        // console.log(banTe.banKyokumen.banSnapshot.toString());
       });
   });
 
