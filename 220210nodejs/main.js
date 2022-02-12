@@ -535,7 +535,7 @@ class BanKoma {
 
   moveToBanPoint(banPoint) {
     const result = [];
-    const nextBanKoma = new BanKoma(this.koma, this.side, banPoint);
+    const nextBanKoma = new BanKoma(this.koma, this.side, banPoint, this.nari);
     if (this.canBecomeNari) {
       result.push(nextBanKoma.becomeNari());
     }
@@ -572,30 +572,41 @@ class BanSnapshot {
     this.banKomas = banKomas;
   }
 
-  initPutOnBoard(banPoint, koma, side) {
+  initPutOnBoard(banPoint, koma, side, nari) {
     if (this.findBanKomaByBanPoint(banPoint)) {
       new Error('既に駒が存在');
     }
-    this.banKomas.push(new BanKoma(koma, side, banPoint));
+    this.banKomas.push(new BanKoma(koma, side, banPoint, nari));
     return this;
   }
 
   initAddCaptured(koma, side) {
-    this.banKomas.push(new BanKoma(koma, side));
+    this.banKomas.push(new BanKoma(koma, side, null, false));
     return this;
   }
 
   // 駒を移動する
-  moveKomaTo(banPoint, koma, side) {
+  moveKomaTo(fromBanPoint, toBanPoint, nari) {
     const cloned = this.clone();
-    const existingBanKoma = cloned.findBanKomaByBanPoint(banPoint);
-    if (existingBanKoma && existingBanKoma.side.equals(side)) {
+
+    const targetBanKoma = cloned.findBanKomaByBanPoint(fromBanPoint);
+    if (!targetBanKoma) {
+      throw new Error("動かす対象の駒が存在しない");
+    }
+
+    const mySide = targetBanKoma.side;
+
+    const existingBanKoma = cloned.findBanKomaByBanPoint(toBanPoint);
+    if (existingBanKoma && existingBanKoma.side.equals(mySide)) {
       throw new Error('既に自分の駒が存在');
     }
-    cloned.addOnBoardBanKoma(banPoint, koma, side);
+
+    cloned.addOnBoardBanKoma(targetBanKoma.koma, mySide, toBanPoint, nari);
+    cloned.removeOnBoardBanKoma(targetBanKoma);
+
     if (existingBanKoma) {
       cloned.removeOnBoardBanKoma(existingBanKoma);
-      cloned.addCapturedBanKoma(existingBanKoma.koma, side);
+      cloned.addCapturedBanKoma(existingBanKoma.koma, mySide);
     }
     return cloned;
   }
@@ -606,27 +617,28 @@ class BanSnapshot {
     if (cloned.findBanKomaByBanPoint(banPoint)) {
       new Error('既に駒が存在');
     }
-    cloned.addOnBoardBanKoma(banPoint, koma, side);
+    cloned.addOnBoardBanKoma(koma, side, banPoint, false);
     cloned.removeCapturedBanKoma(koma, side);
     return cloned;
   }
 
-  // private
-  addOnBoardBanKoma(banPoint, koma, side) {
-    this.banKomas.push(new BanKoma(koma, side, banPoint));
-  }
-
-  // private
+  // protected
   removeOnBoardBanKoma(banKoma) {
     const index = this.banKomas.indexOf(banKoma);
     this.banKomas.splice(index, 1);
   }
 
+  // protected
+  addOnBoardBanKoma(koma, side, banPoint, nari) {
+    this.banKomas.push(new BanKoma(koma, side, banPoint, nari));
+  }
+
+  // protected
   addCapturedBanKoma(koma, side) {
     this.initAddCaptured(koma, side);
   }
 
-  // private
+  // protected
   removeCapturedBanKoma(koma, side) {
     const capturedBanKoma = this.findDistictCapturedBanKomasBySide(side);
     const banKoma = capturedBanKoma.find((banKoma) =>
@@ -810,9 +822,9 @@ class TeResolver {
 
     return oteBanKomas.map((oteBanKoma) => {
       const nextBanShapshot = banSnapshot.moveKomaTo(
+        banKoma.banPoint,
         oteBanKoma.banPoint,
-        oteBanKoma.koma,
-        oteBanKoma.side,
+        oteBanKoma.nari
       );
       const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
       return new BanTe(oteBanKoma, nextBanKyokumen);
@@ -900,25 +912,27 @@ function loadBanSnapshot(json) {
   json['initial_koma']['on_board']['sente'].forEach((koma) => {
     banSnapshot.initPutOnBoard(
       new BanPoint(koma['suji'], koma['dan']),
-      createKoma(koma['name'], koma['nari']),
+      createKoma(koma['name']),
       sente,
+      koma['nari']
     );
   });
 
   json['initial_koma']['on_board']['gote'].forEach((koma) => {
     banSnapshot.initPutOnBoard(
       new BanPoint(koma['suji'], koma['dan']),
-      createKoma(koma['name'], koma['nari']),
+      createKoma(koma['name']),
       gote,
+      koma['nari']
     );
   });
 
   json['initial_koma']['captured']['sente'].forEach((koma) =>
-    banSnapshot.initAddCaptured(createKoma(koma['name'], false), sente),
+    banSnapshot.initAddCaptured(createKoma(koma['name']), sente),
   );
 
   json['initial_koma']['captured']['gote'].forEach((koma) =>
-    banSnapshot.initAddCaptured(createKoma(koma['name'], false), gote),
+    banSnapshot.initAddCaptured(createKoma(koma['name']), gote),
   );
 
   return banSnapshot;
