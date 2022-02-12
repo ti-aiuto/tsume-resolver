@@ -746,7 +746,7 @@ class BanSnapshot {
     return Object.freeze(result);
   }
 
-  isOtedFor(side) {
+  makingOteBanKomasTo(side) {
     const gyokuBanKoma = this.findGyokuBySide(side);
     const enemySide = side.opposite();
     const enemyBanKomas = this.findOnBoardBanKomasBySide(enemySide);
@@ -907,7 +907,7 @@ class TeResolver {
         return new BanTe(nextBanKoma, banKyokumen);
       })
       .filter((nextBanTe) => {
-        return !nextBanTe.banKyokumen.banSnapshot.isOtedFor(mySide);
+        return !nextBanTe.banKyokumen.banSnapshot.makingOteBanKomasTo(mySide);
       });
   }
 
@@ -1010,6 +1010,14 @@ async function main() {
         // console.log("逃げ手順例");
         // console.log(banTe.banKoma.toString());
         // console.log(banTe.banKyokumen.banSnapshot.toString());
+      });
+
+    teResolver
+      .findNextOteRemoving(banTe.banKyokumen.banSnapshot, enemyGyoku)
+      .forEach((banTe) => {
+        console.log("取る手順例");
+        console.log(banTe.banKoma.toString());
+        console.log(banTe.banKyokumen.banSnapshot.toString());
       });
   });
 
