@@ -746,11 +746,11 @@ class BanSnapshot {
     return Object.freeze(result);
   }
 
-  makingOteBanKomasTo(side) {
+  causingOteBanKomasTo(side) {
     const gyokuBanKoma = this.findGyokuBySide(side);
     const enemySide = side.opposite();
     const enemyBanKomas = this.findOnBoardBanKomasBySide(enemySide);
-    return enemyBanKomas.some((banKoma) => {
+    return enemyBanKomas.filter((banKoma) => {
       return this.isInPownerOfMove(banKoma, gyokuBanKoma.banPoint);
     });
   }
@@ -907,11 +907,28 @@ class TeResolver {
         return new BanTe(nextBanKoma, banKyokumen);
       })
       .filter((nextBanTe) => {
-        return !nextBanTe.banKyokumen.banSnapshot.makingOteBanKomasTo(mySide);
+        return !nextBanTe.banKyokumen.banSnapshot.causingOteBanKomasTo(mySide)
+          .length;
       });
   }
 
   findNextOteRemoving(banSnapshot, gyokuBanKoma) {
+    const mySide = gyokuBanKoma.side;
+    const enemyCausingOteBanKomas = banSnapshot.causingOteBanKomasTo(mySide);
+    const myBanKomas = banSnapshot
+      .findOnBoardBanKomasBySide(mySide)
+      .filter((item) => !(item.koma instanceof KomaGyoku));
+    // 玉でとるパターンはescapingの方で処理する
+
+    // 王手をかけている駒を取れる駒の一覧
+    const myBanKomasToRemoveEnemyBanKomas = myBanKomas.filter((myBanKoma) => {
+      return enemyCausingOteBanKomas.some((enemyBanKoma) => {
+        return banSnapshot.isInPownerOfMove(myBanKoma, enemyBanKoma.banPoint);
+      });
+    });
+
+    console.log(myBanKomasToRemoveEnemyBanKomas);
+
     // 王手をかけている駒を玉以外の駒で取るパターン
     return [];
   }
@@ -1004,10 +1021,10 @@ async function main() {
   initialBanKyokumen.banTes.forEach((banTe) => {
     console.log(banTe.banKoma.toString());
     console.log(banTe.banKyokumen.banSnapshot.toString());
+    // console.log("逃げ手順例");
     teResolver
       .findNextOteEscaping(banTe.banKyokumen.banSnapshot, enemyGyoku)
       .forEach((banTe) => {
-        // console.log("逃げ手順例");
         // console.log(banTe.banKoma.toString());
         // console.log(banTe.banKyokumen.banSnapshot.toString());
       });
@@ -1015,7 +1032,7 @@ async function main() {
     teResolver
       .findNextOteRemoving(banTe.banKyokumen.banSnapshot, enemyGyoku)
       .forEach((banTe) => {
-        console.log("取る手順例");
+        console.log('取る手順例');
         console.log(banTe.banKoma.toString());
         console.log(banTe.banKyokumen.banSnapshot.toString());
       });
