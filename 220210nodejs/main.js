@@ -438,7 +438,7 @@ class BanPoint {
       // 桂馬は間の駒を飛び越えてOK
       return [];
     } else {
-      throw new Error(`想定外の移動パターン ${sujiD} ${danD}`);
+      throw new Error(`想定外の移動パターン ${sujiD} ${danD} ${this} ${other}`);
     }
   }
 
@@ -846,6 +846,10 @@ class BanKyokumen {
   markAsTsumi() {
     this.isTsumi = true;
   }
+
+  get isToContinue() {
+    return !this.isNoOte && !this.isTsumi;
+  }
 }
 
 class TeResolver {
@@ -1066,6 +1070,7 @@ function loadBanSnapshot(json) {
 
 function nextOte(teResolver, banKyokumen, enemySide) {
   const banSnapshot = banKyokumen.banSnapshot;
+  const mySide = enemySide.opposite();
   const enemyGyoku = banSnapshot.findGyokuBySide(enemySide);
 
   const myOnBoardBanKomas = banSnapshot.findOnBoardBanKomasBySide(mySide);
@@ -1077,7 +1082,7 @@ function nextOte(teResolver, banKyokumen, enemySide) {
     );
 
     nextBanTes.forEach((banTe) => {
-      initialBanKyokumen.addBanTe(banTe);
+      banKyokumen.addBanTe(banTe);
     });
   });
 
@@ -1091,7 +1096,7 @@ function nextOte(teResolver, banKyokumen, enemySide) {
     );
 
     nextBanTes.forEach((banTe) => {
-      initialBanKyokumen.addBanTe(banTe);
+      banKyokumen.addBanTe(banTe);
     });
   });
 
@@ -1133,14 +1138,43 @@ function nextSurvival(teResolver, banKyokumen, enemySide) {
   }
 }
 
+function oteRecursively(depth, teResolver, banKyokumen, enemySide) {
+  if (depth > 30) {
+    console.log("階層が深いため中止");
+    return;
+  }
+  // console.log(`${depth}階層目の王手`);
+  if (nextOte(teResolver, banKyokumen, enemySide)) {
+    // 次の階層
+    for (let banTe of banKyokumen.banTes) {
+      surviveRecursively(depth + 1, teResolver, banTe.banKyokumen, enemySide);
+    }
+  } else {
+    console.log("逃げられた")
+  }
+}
+
+function surviveRecursively(depth, teResolver, banKyokumen, enemySide) {
+  // console.log(`${depth}階層目の回避`);
+  if (nextSurvival(teResolver, banKyokumen, enemySide)) {
+    // 次の階層
+    for (let banTe of banKyokumen.banTes) {
+      oteRecursively(depth + 1, teResolver, banTe.banKyokumen, enemySide);
+    }
+  } else {
+    console.log("詰み")
+  }
+}
+
 async function main() {
   const json = await readFileAsJson(sample_filename);
   const initialBanSnapshot = loadBanSnapshot(json);
-
-  const mySide = BanSide.createSenteSide();
-  const enemySide = mySide.opposite();
-
+  const initialBanKyokumen = new BanKyokumen(initialBanSnapshot);
   console.log(initialBanSnapshot.toString());
 
+  const enemySide = BanSide.createGoteSide();
+  const teResolver = new TeResolver();
+
+  oteRecursively(1, teResolver, initialBanKyokumen, enemySide);
 }
 main();
