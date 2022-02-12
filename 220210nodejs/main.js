@@ -903,6 +903,21 @@ class TeResolver {
 
     return nextOtePossibleBanKomas;
   }
+
+  findNextOteEscaping(banSnapshot, gyokuBanKoma) {
+    // 玉が逃げるパターン
+    return [];
+  }
+
+  findNextOteRemoving(banSnapshot, gyokuBanKoma) {
+    // 王手をかけている駒を取るパターン
+    return [];
+  }
+
+  findNextOteAigoma(banSnapshot, gyokuBanKoma) { 
+    // 王手をかけている駒との間に間駒するパターン
+    return [];
+  }
 }
 
 function loadBanSnapshot(json) {
