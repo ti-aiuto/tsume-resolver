@@ -622,14 +622,6 @@ class BanKoma {
   }
 }
 
-class BanCommand {
-  constructor(banKoma, beforeBanSnapshot, afterBanSnapshot) {
-    this.banKoma = banKoma;
-    this.beforeBanSnapshot = beforeBanSnapshot;
-    this.afterBanSnapshot = afterBanSnapshot;
-  }
-}
-
 class BanSnapshot {
   constructor(banKomas = []) {
     this.banKomas = banKomas;
@@ -646,6 +638,14 @@ class BanSnapshot {
   initAddCaptured(koma, side) {
     this.banKomas.push(new BanKoma(koma, side));
     return this;
+  }
+
+  applyBanKoma(banPoint, koma, side) {
+    if (koma.banPoint) {
+      this.moveKomaTo(banPoint, koma, side);
+    } else {
+      this.putKoma(banPoint, koma, side);
+    }
   }
 
   // 駒を移動する
@@ -800,7 +800,7 @@ class BanSnapshot {
     const sente = BanSide.createSenteSide();
     const gote = sente.opposite();
     let text = '';
-    text += `${gote.shortLabel}: `;
+    text += `${gote.shortLabel}:`;
     this.findCapturedBanKomasBySide(gote).forEach((banKoma) => {
       text += banKoma.koma.label;
     });
@@ -818,12 +818,33 @@ class BanSnapshot {
       });
       text += '\n';
     });
-    text += `${sente.shortLabel}: `;
+    text += `${sente.shortLabel}:`;
     this.findCapturedBanKomasBySide(sente).forEach((banKoma) => {
       text += banKoma.koma.label;
     });
     text += '\n';
     return text;
+  }
+}
+
+class BanTe {
+  constructor(banKoma, banKyokumen) {
+    this.banKoma = banKoma;
+    this.banKyokumen = banKyokumen;
+  }
+}
+
+class BanKyokumen {
+  constructor(banSnapshot) {
+    this.banSnapshot = banSnapshot;
+    this.banTes = [];
+  }
+
+  addBanTe(banKoma) {
+    const nextBanSnapshot = this.banSnapshot.applyBanKoma(banKoma);
+    const nextBanKyokumen = new BanKyokumen(nextBanSnapshot);
+    const banTe = new BanTe(banKoma, nextBanKyokumen);
+    this.banTes.push(banTe);
   }
 }
 
@@ -958,11 +979,10 @@ async function main() {
 
   console.log(initialBanSnapshot.toString());
 
-  // 作戦
-  // banに状態を全て読み込む
-  // banに対して「王手」となる操作を行う
-  //   制約：その操作が王手であること、反則でないこと、
-  // 王手が続いて最後に「詰み」となった場合、その「操作」の一覧を返却する
-  //   「王手」が続かない場合はそれ以上探索しない
+  // BanKyokumen
+  //  banSnapshot
+  //  BanCommands の配列を持つ
+  //    banKoma
+  //    banKyokumen
 }
 main();
