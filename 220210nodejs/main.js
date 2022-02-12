@@ -452,9 +452,9 @@ class BanPoint {
 
   isTekiJinFor(side) {
     if (side.isSente) {
-      return [7, 8, 9].includes(this.suji);
+      return [7, 8, 9].includes(this.dan);
     } else {
-      return [1, 2, 3].includes(this.suji);
+      return [1, 2, 3].includes(this.dan);
     }
   }
 
