@@ -1,7 +1,7 @@
 // 220210の目標：いったんテストコード無しで動くロジックを書いてみる
 
 // TODO: コマンドライン引数でとる
-const sample_filename = '../sample/horoki2_aigoma_debug.json';
+const sample_filename = '../sample/horoki1.json';
 
 async function readFileAsJson(filename) {
   const fs = require('fs').promises;
@@ -831,10 +831,20 @@ class BanKyokumen {
   constructor(banSnapshot) {
     this.banSnapshot = banSnapshot;
     this.banTes = [];
+    this.isNoOte = false;
+    this.isTsumi = false;
   }
 
   addBanTe(banTe) {
     this.banTes.push(banTe);
+  }
+
+  markAsNoOte() {
+    this.isNoOte = true;
+  }
+
+  markAsTsumi() {
+    this.isTsumi = true;
   }
 }
 
@@ -986,24 +996,32 @@ class TeResolver {
   findNextOteAigoma(banSnapshot, gyokuBanKoma) {
     const mySide = gyokuBanKoma.side;
     const enemyCausingOteBanKomas = banSnapshot.causingOteBanKomasTo(mySide);
-    const myCapturedBanKomas = banSnapshot.findDistictCapturedBanKomasBySide(mySide);
-    
+    const myCapturedBanKomas =
+      banSnapshot.findDistictCapturedBanKomasBySide(mySide);
+
     const nextBanTes = [];
     enemyCausingOteBanKomas.filter((enemyBanKoma) => {
-      gyokuBanKoma.banPoint.pointsBetween(enemyBanKoma.banPoint).forEach((banPoint) => {
-        myCapturedBanKomas.forEach((capturedBanKoma) => {
-          const nextBanKoma =  new BanKoma(capturedBanKoma.koma, mySide, banPoint, false);
-          const nextBanShapshot = banSnapshot.putKoma(
-            banPoint,
-            capturedBanKoma.koma,
-            mySide,
-          );
-          const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
-          nextBanTes.push(new BanTe(nextBanKoma, nextBanKyokumen));  
+      gyokuBanKoma.banPoint
+        .pointsBetween(enemyBanKoma.banPoint)
+        .forEach((banPoint) => {
+          myCapturedBanKomas.forEach((capturedBanKoma) => {
+            const nextBanKoma = new BanKoma(
+              capturedBanKoma.koma,
+              mySide,
+              banPoint,
+              false,
+            );
+            const nextBanShapshot = banSnapshot.putKoma(
+              banPoint,
+              capturedBanKoma.koma,
+              mySide,
+            );
+            const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
+            nextBanTes.push(new BanTe(nextBanKoma, nextBanKyokumen));
+          });
         });
-      });
     });
-    
+
     return nextBanTes.filter((nextBanTe) => {
       return !nextBanTe.banKyokumen.banSnapshot.causingOteBanKomasTo(mySide)
         .length;
@@ -1046,25 +1064,14 @@ function loadBanSnapshot(json) {
   return banSnapshot;
 }
 
-async function main() {
-  const json = await readFileAsJson(sample_filename);
-  const initialBanSnapshot = loadBanSnapshot(json);
+function nextOte(teResolver, banKyokumen, enemySide) {
+  const banSnapshot = banKyokumen.banSnapshot;
+  const enemyGyoku = banSnapshot.findGyokuBySide(enemySide);
 
-  const mySide = BanSide.createSenteSide();
-  const enemySide = mySide.opposite();
-
-  const enemyGyoku = initialBanSnapshot.findGyokuBySide(enemySide);
-  console.log(enemyGyoku);
-
-  const teResolver = new TeResolver();
-
-  const initialBanKyokumen = new BanKyokumen(initialBanSnapshot);
-
-  const myOnBoardBanKomas =
-    initialBanSnapshot.findOnBoardBanKomasBySide(mySide);
+  const myOnBoardBanKomas = banSnapshot.findOnBoardBanKomasBySide(mySide);
   myOnBoardBanKomas.forEach((myOnBoardBanKoma) => {
     const nextBanTes = teResolver.findNextMovingOtesOf(
-      initialBanSnapshot,
+      banSnapshot,
       enemyGyoku,
       myOnBoardBanKoma,
     );
@@ -1075,10 +1082,10 @@ async function main() {
   });
 
   const myCapturedBanKomas =
-    initialBanSnapshot.findDistictCapturedBanKomasBySide(mySide);
+    banSnapshot.findDistictCapturedBanKomasBySide(mySide);
   myCapturedBanKomas.forEach((myOnBoardBanKoma) => {
     const nextBanTes = teResolver.findNextPuttingOtesOf(
-      initialBanSnapshot,
+      banSnapshot,
       enemyGyoku,
       myOnBoardBanKoma,
     );
@@ -1088,40 +1095,52 @@ async function main() {
     });
   });
 
+  if (banKyokumen.banTes.length) {
+    return true;
+  } else {
+    banKyokumen.markAsNoOte();
+    return false;
+  }
+}
+
+function nextSurvival(teResolver, banKyokumen, enemySide) {
+  const banSnapshot = banKyokumen.banSnapshot;
+  const enemyGyoku = banSnapshot.findGyokuBySide(enemySide);
+
+  teResolver
+    .findNextOteEscaping(banKyokumen.banSnapshot, enemyGyoku)
+    .forEach((banTe) => {
+      banKyokumen.addBanTe(banTe);
+    });
+
+  teResolver
+    .findNextOteRemoving(banKyokumen.banSnapshot, enemyGyoku)
+    .forEach((banTe) => {
+      banKyokumen.addBanTe(banTe);
+    });
+
+  teResolver
+    .findNextOteAigoma(banKyokumen.banSnapshot, enemyGyoku)
+    .forEach((banTe) => {
+      banKyokumen.addBanTe(banTe);
+    });
+
+  if (banKyokumen.banTes.length) {
+    return true;
+  } else {
+    banKyokumen.markAsTsumi();
+    return false;
+  }
+}
+
+async function main() {
+  const json = await readFileAsJson(sample_filename);
+  const initialBanSnapshot = loadBanSnapshot(json);
+
+  const mySide = BanSide.createSenteSide();
+  const enemySide = mySide.opposite();
+
   console.log(initialBanSnapshot.toString());
 
-  initialBanKyokumen.banTes.forEach((banTe) => {
-    console.log(banTe.banKoma.toString());
-    console.log(banTe.banKyokumen.banSnapshot.toString());
-    teResolver
-      .findNextOteEscaping(banTe.banKyokumen.banSnapshot, enemyGyoku)
-      .forEach((banTe) => {
-        // console.log("逃げ手順例");
-        // console.log(banTe.banKoma.toString());
-        // console.log(banTe.banKyokumen.banSnapshot.toString());
-      });
-
-    teResolver
-      .findNextOteRemoving(banTe.banKyokumen.banSnapshot, enemyGyoku)
-      .forEach((banTe) => {
-        // console.log('取る手順例');
-        // console.log(banTe.banKoma.toString());
-        // console.log(banTe.banKyokumen.banSnapshot.toString());
-      });
-
-      teResolver
-        .findNextOteAigoma(banTe.banKyokumen.banSnapshot, enemyGyoku)
-        .forEach((banTe) => {
-          console.log('間駒の手順例');
-          console.log(banTe.banKoma.toString());
-          console.log(banTe.banKyokumen.banSnapshot.toString());
-        });
-  });
-
-  // BanKyokumen
-  //  banSnapshot
-  //  BanCommands の配列を持つ
-  //    banKoma
-  //    banKyokumen
 }
 main();
