@@ -527,7 +527,7 @@ class BanKoma {
 
   // この駒が次に移動できる先
   nextValidRangeBanPoints() {
-    const stepVectors = this.koma.possibleStepVectors();
+    const stepVectors = this.koma.possibleStepVectors(this.nari);
     return stepVectors
       .map((stepVector) => this.banPoint.applyStepVencor(stepVector))
       .filter((item) => item);
@@ -751,7 +751,7 @@ class BanSnapshot {
     const enemySide = side.opposite();
     const enemyBanKomas = this.findOnBoardBanKomasBySide(enemySide);
     return enemyBanKomas.some((banKoma) => {
-      this.isInPownerOfMove(banKoma, gyokuBanKoma.banPoint);
+      return this.isInPownerOfMove(banKoma, gyokuBanKoma.banPoint);
     });
   }
 
