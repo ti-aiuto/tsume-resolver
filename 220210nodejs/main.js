@@ -1208,6 +1208,6 @@ async function main() {
     // 歩打ちで詰みは禁止
     return !(!lastTe.beforeBanKoma && lastTe.banKoma.koma instanceof KomaFu)
   });
-  console.log(`歩で詰みを除く：${rawTsumiTejuns.length}`);
+  console.log(`歩で詰みを除く：${tsumiTejuns.length}`);
 }
 main();
