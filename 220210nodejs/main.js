@@ -721,16 +721,16 @@ class BanSnapshot {
   }
 
   // 第一引数の駒の効きに第二引数の駒が入っているかどうか
-  isInPownerOfMove(banKoma, otherBanKoma) {
+  isInPownerOfMove(banKoma, otherBanPoint) {
     const gyokuInInPowerOfMove = banKoma
       .nextValidRangeBanPoints()
-      .some((banPoint) => otherBanKoma.banPoint.equals(banPoint));
+      .some((banPoint) => otherBanPoint.equals(banPoint));
     if (!gyokuInInPowerOfMove) {
       return false;
     }
 
     // 中間に邪魔する駒がないか
-    const pointsBetween = banKoma.banPoint.pointsBetween(otherBanKoma.banPoint);
+    const pointsBetween = banKoma.banPoint.pointsBetween(otherBanPoint);
     return pointsBetween.every(
       (pointBetween) => !this.findBanKomaByBanPoint(pointBetween),
     );
@@ -872,7 +872,7 @@ class TeResolver {
     );
     // そのBanKomaの移動先の点が敵玉の点と一致すること
     return nextPossibleBanKomas.filter((nextBanKoma) =>
-      banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma),
+      banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma.banPoint),
     );
   }
 
@@ -896,7 +896,7 @@ class TeResolver {
         }
       }
 
-      if (banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma)) {
+      if (banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma.banPoint)) {
         nextOtePossibleBanKomas.push(nextBanKoma);
       }
     });
@@ -904,13 +904,29 @@ class TeResolver {
     return nextOtePossibleBanKomas;
   }
 
+    // 玉が逃げる・取るパターン
   findNextOteEscaping(banSnapshot, gyokuBanKoma) {
-    // 玉が逃げるパターン
+    const mySide = gyokuBanKoma.side;
+    const enemySide = mySide.opposite();
+
+    // 盤の範囲内で移動できる点
+    const nextValidRangeBanPoints = gyokuBanKoma.nextValidRangeBanPoints();
+
+    // 自分の駒がいない点
+    const notOccupyingPoints = nextValidRangeBanPoints.filter((banPoint) =>
+      banSnapshot.canMoveToBanPointBySide(gyokuBanKoma.banPoint, banPoint, mySide),
+    );
+
+    // 移動したときに王手がかかっていない点
+    const safeBanPoints = notOccupyingPoints.filter((banPoint) => {
+      // TODO: 実装      
+    });
+
     return [];
   }
 
   findNextOteRemoving(banSnapshot, gyokuBanKoma) {
-    // 王手をかけている駒を取るパターン
+    // 王手をかけている駒を玉以外の駒で取るパターン
     return [];
   }
 
@@ -1000,6 +1016,7 @@ async function main() {
   initialBanKyokumen.banTes.forEach((banTe) => {
     console.log(banTe.banKoma.toString());
     console.log(banTe.banKyokumen.banSnapshot.toString());
+    console.log(teResolver.findNextOteEscaping(banTe.banKyokumen.banSnapshot, enemyGyoku));
   });
 
   // BanKyokumen
