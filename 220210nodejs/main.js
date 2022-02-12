@@ -528,6 +528,15 @@ class BanKoma {
   // この駒が次に移動できる先
   nextValidRangeBanPoints() {
     const stepVectors = this.koma.possibleStepVectors(this.nari);
+
+    // 後手の場合は回転する
+    if (this.side.equals(BanSide.createGoteSide())) {
+      stepVectors.forEach((item) => {
+        item[0] *= -1;
+        item[1] *= -1;
+      });
+    }
+
     return stepVectors
       .map((stepVector) => this.banPoint.applyStepVencor(stepVector))
       .filter((item) => item);
