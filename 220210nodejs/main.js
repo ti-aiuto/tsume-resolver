@@ -450,6 +450,14 @@ class BanPoint {
     return Math.abs(this.dan - other.dan);
   }
 
+  isTekiJinFor(side) {
+    if (side.isSente) {
+      return [7, 8, 9].includes(this.suji);
+    } else {
+      return [1, 2, 3].includes(this.suji);
+    }
+  }
+
   toString() {
     return `筋：${this.suji}, 段：${this.dan}`;
   }
@@ -496,6 +504,10 @@ class BanSide {
     return this.side === OWNER_SENTE;
   }
 
+  get isGote() {
+    return !this.isSente;
+  }
+
   static createSenteSide() {
     return new BanSide(OWNER_SENTE);
   }
@@ -530,7 +542,7 @@ class BanKoma {
     const stepVectors = this.koma.possibleStepVectors(this.nari);
 
     // 後手の場合は回転する
-    if (this.side.equals(BanSide.createGoteSide())) {
+    if (this.side.isGote) {
       stepVectors.forEach((item) => {
         item[0] *= -1;
         item[1] *= -1;
@@ -542,27 +554,36 @@ class BanKoma {
       .filter((item) => item);
   }
 
-  moveOrMoveAndNariToBanPoint(fromBanPoint, toBanPoint) {
+  moveOrMoveAndNariToBanPoint(toBanPoint) {
     const result = [];
-    const nextBanKoma = new BanKoma(this.koma, this.side, toBanPoint, this.nari);
-    if (this.canBecomeNari) {
-      result.push(nextBanKoma.becomeNari());
+    const nextBanKoma = new BanKoma(
+      this.koma,
+      this.side,
+      toBanPoint,
+      this.nari,
+    );
+    if (this.canBecomeNari(this.banPoint, toBanPoint)) {
+      result.push(nextBanKoma.becomeNari(this.banPoint, toBanPoint));
     }
     result.push(nextBanKoma);
     return result;
   }
 
-  get canBecomeNari() {
-    // TODO: ここで位置を使った判定も必要
-    return this.koma.canBeNari && !this.nari;
+  canBecomeNari(fromBanPoint, toBanPoint) {
+    return (
+      this.koma.canBeNari &&
+      !this.nari &&
+      (fromBanPoint.isTekiJinFor(this.side) ||
+        toBanPoint.isTekiJinFor(this.side))
+    );
   }
 
   clone() {
     return new BanKoma(this.koma, this.side, this.banPoint, this.nari);
   }
 
-  becomeNari() {
-    if (!this.canBecomeNari) {
+  becomeNari(fromBanPoint, toBanPoint) {
+    if (!this.canBecomeNari(fromBanPoint, toBanPoint)) {
       throw new Error('nari不可');
     }
     const cloned = this.clone();
@@ -833,7 +854,7 @@ class TeResolver {
     const nextPossibleBanKomas = [];
     notOccupyingPoints.forEach((banPoint) =>
       nextPossibleBanKomas.push(
-        ...banKoma.moveOrMoveAndNariToBanPoint(banKoma.banPoint, banPoint),
+        ...banKoma.moveOrMoveAndNariToBanPoint(banPoint),
       ),
     );
     // そのBanKomaの移動先の点が敵玉の点と一致すること
@@ -903,10 +924,7 @@ class TeResolver {
     return notOccupyingPoints
       .map((banPoint) => {
         // 玉を移動させてみて、その状態で王手じゃないかをチェックする
-        const nextBanKomas = gyokuBanKoma.moveOrMoveAndNariToBanPoint(
-          gyokuBanKoma.banPoint,
-          banPoint,
-        );
+        const nextBanKomas = gyokuBanKoma.moveOrMoveAndNariToBanPoint(banPoint);
         const nextBanKoma = nextBanKomas[0]; // 玉は成らない
         const nextBanSnapshot = banSnapshot.moveKomaTo(
           gyokuBanKoma.banPoint,
@@ -945,10 +963,7 @@ class TeResolver {
           )
         ) {
           myBanKoma
-            .moveOrMoveAndNariToBanPoint(
-              myBanKoma.banPoint,
-              enemyBanKoma.banPoint,
-            )
+            .moveOrMoveAndNariToBanPoint(enemyBanKoma.banPoint)
             .forEach((nextBanKoma) => {
               const nextBanShapshot = banSnapshot.moveKomaTo(
                 myBanKoma.banPoint,
