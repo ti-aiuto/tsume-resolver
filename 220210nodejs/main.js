@@ -984,8 +984,30 @@ class TeResolver {
   }
 
   findNextOteAigoma(banSnapshot, gyokuBanKoma) {
-    // 王手をかけている駒との間に間駒するパターン
-    return [];
+    const mySide = gyokuBanKoma.side;
+    const enemyCausingOteBanKomas = banSnapshot.causingOteBanKomasTo(mySide);
+    const myCapturedBanKomas = banSnapshot.findDistictCapturedBanKomasBySide(mySide);
+    
+    const nextBanTes = [];
+    enemyCausingOteBanKomas.filter((enemyBanKoma) => {
+      gyokuBanKoma.banPoint.pointsBetween(enemyBanKoma.banPoint).forEach((banPoint) => {
+        myCapturedBanKomas.forEach((capturedBanKoma) => {
+          const nextBanKoma =  new BanKoma(capturedBanKoma.koma, mySide, banPoint, false);
+          const nextBanShapshot = banSnapshot.putKoma(
+            banPoint,
+            capturedBanKoma.koma,
+            mySide,
+          );
+          const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
+          nextBanTes.push(new BanTe(nextBanKoma, nextBanKyokumen));  
+        });
+      });
+    });
+    
+    return nextBanTes.filter((nextBanTe) => {
+      return !nextBanTe.banKyokumen.banSnapshot.causingOteBanKomasTo(mySide)
+        .length;
+    });
   }
 }
 
@@ -1071,21 +1093,29 @@ async function main() {
   initialBanKyokumen.banTes.forEach((banTe) => {
     console.log(banTe.banKoma.toString());
     console.log(banTe.banKyokumen.banSnapshot.toString());
-    // console.log("逃げ手順例");
     teResolver
       .findNextOteEscaping(banTe.banKyokumen.banSnapshot, enemyGyoku)
       .forEach((banTe) => {
+        // console.log("逃げ手順例");
         // console.log(banTe.banKoma.toString());
         // console.log(banTe.banKyokumen.banSnapshot.toString());
       });
 
-      // console.log('取る手順例');
-      teResolver
+    teResolver
       .findNextOteRemoving(banTe.banKyokumen.banSnapshot, enemyGyoku)
       .forEach((banTe) => {
+        // console.log('取る手順例');
         // console.log(banTe.banKoma.toString());
         // console.log(banTe.banKyokumen.banSnapshot.toString());
       });
+
+      teResolver
+        .findNextOteAigoma(banTe.banKyokumen.banSnapshot, enemyGyoku)
+        .forEach((banTe) => {
+          console.log('間駒の手順例');
+          console.log(banTe.banKoma.toString());
+          console.log(banTe.banKyokumen.banSnapshot.toString());
+        });
   });
 
   // BanKyokumen
