@@ -620,6 +620,10 @@ class BanKoma {
     result.push(new BanKoma(this.koma, this.side, banPoint));
     return result;
   }
+
+  toString() {
+    return `筋:${this.banPoint.suji} 段:${this.banPoint.dan} ${this.koma.label}`;
+  }
 }
 
 class BanSnapshot {
@@ -977,6 +981,11 @@ async function main() {
   });
 
   console.log(initialBanSnapshot.toString());
+
+  initialBanKyokumen.banTes.forEach((banTe) => {
+    console.log(banTe.banKoma.toString());
+    console.log(banTe.banKyokumen.banSnapshot.toString());
+  });
 
   // BanKyokumen
   //  banSnapshot
