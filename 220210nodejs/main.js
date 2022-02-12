@@ -829,6 +829,17 @@ class BanTe {
     this.banKyokumen = banKyokumen;
     this.beforeBanKoma = beforeBanKoma;
   }
+
+  toString() {
+    let result = '';
+    if (this.beforeBanKoma) {
+      result += `${this.banKoma.toString()}\n`;
+    } else {
+      result += `${this.banKoma.toString()} 打ち\n`;
+    }
+    result += this.banKyokumen.banSnapshot.toString();
+    return result;
+  }
 }
 
 class BanKyokumen {
@@ -991,7 +1002,9 @@ class TeResolver {
                 nextBanKoma.nari,
               );
               const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
-              nextBanTes.push(new BanTe(nextBanKoma, nextBanKyokumen, myBanKoma));
+              nextBanTes.push(
+                new BanTe(nextBanKoma, nextBanKyokumen, myBanKoma),
+              );
             });
         }
       });
@@ -1082,7 +1095,7 @@ function nextOte(teResolver, banKyokumen, enemySide) {
   const myOnBoardBanKomas = banSnapshot.findOnBoardBanKomasBySide(mySide);
   // 自分が王手になっていないことのチェックも入れたほうがよさそう
   myOnBoardBanKomas
-    .filter((banKoma) => banKoma.koma instanceof KomaGyoku) 
+    .filter((banKoma) => banKoma.koma instanceof KomaGyoku)
     .forEach((myOnBoardBanKoma) => {
       const nextBanTes = teResolver.findNextMovingOtesOf(
         banSnapshot,
@@ -1180,8 +1193,12 @@ function extractTsumiTejunAsArray(result, currentPath, banKyokumen) {
   if (banKyokumen.isTsumi) {
     result.push(currentPath);
   }
-  for (let banTe of banKyokumen.banTes)  {
-    extractTsumiTejunAsArray(result, [...currentPath, banTe], banTe.banKyokumen);
+  for (let banTe of banKyokumen.banTes) {
+    extractTsumiTejunAsArray(
+      result,
+      [...currentPath, banTe],
+      banTe.banKyokumen,
+    );
   }
 }
 
@@ -1189,7 +1206,6 @@ async function main() {
   const json = await readFileAsJson(sample_filename);
   const initialBanSnapshot = loadBanSnapshot(json);
   const initialBanKyokumen = new BanKyokumen(initialBanSnapshot);
-  console.log(initialBanSnapshot.toString());
 
   const enemySide = BanSide.createGoteSide();
   const teResolver = new TeResolver();
@@ -1200,14 +1216,33 @@ async function main() {
 
   const rawTsumiTejuns = [];
   extractTsumiTejunAsArray(rawTsumiTejuns, [], initialBanKyokumen);
-  
+
   console.log(`総手順：${rawTsumiTejuns.length}`);
 
   const tsumiTejuns = rawTsumiTejuns.filter((tsumiTejun) => {
     const lastTe = tsumiTejun[tsumiTejun.length - 1];
     // 歩打ちで詰みは禁止
-    return !(!lastTe.beforeBanKoma && lastTe.banKoma.koma instanceof KomaFu)
+    return !(!lastTe.beforeBanKoma && lastTe.banKoma.koma instanceof KomaFu);
   });
   console.log(`歩で詰みを除く：${tsumiTejuns.length}`);
+
+  tsumiTejuns.sort(function (a, b) {
+    return Math.sign(a.length - b.length);
+  });
+
+  console.log('最良手数の場合：');
+
+  console.log(initialBanSnapshot.toString());
+  const tejunBest = tsumiTejuns[0];
+  tejunBest.forEach((banTe) => {
+    console.log(banTe.toString());
+  });
+
+  console.log('最悪手数（再帰制約内）の場合：');
+  console.log(initialBanSnapshot.toString());
+  const tejunWorst = tsumiTejuns[tsumiTejuns.length - 1];
+  tejunWorst.forEach((banTe) => {
+    console.log(banTe.toString());
+  });
 }
 main();
