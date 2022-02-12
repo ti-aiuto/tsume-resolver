@@ -1,7 +1,7 @@
 // 220210の目標：いったんテストコード無しで動くロジックを書いてみる
 
 // TODO: コマンドライン引数でとる
-const sample_filename = '../sample/horoki2.json';
+const sample_filename = '../sample/horoki2_aigoma_debug.json';
 
 async function readFileAsJson(filename) {
   const fs = require('fs').promises;
@@ -1079,12 +1079,12 @@ async function main() {
         // console.log(banTe.banKyokumen.banSnapshot.toString());
       });
 
-    teResolver
+      // console.log('取る手順例');
+      teResolver
       .findNextOteRemoving(banTe.banKyokumen.banSnapshot, enemyGyoku)
       .forEach((banTe) => {
-        console.log('取る手順例');
-        console.log(banTe.banKoma.toString());
-        console.log(banTe.banKyokumen.banSnapshot.toString());
+        // console.log(banTe.banKoma.toString());
+        // console.log(banTe.banKyokumen.banSnapshot.toString());
       });
   });
 
