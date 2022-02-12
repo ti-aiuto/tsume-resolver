@@ -969,7 +969,9 @@ class TeResolver {
     const nextBanTes = [];
     myBanKomasToRemoveEnemyBanKomas.forEach((myBanKoma) => {
       enemyCausingOteBanKomas.forEach((enemyBanKoma) => {
+        // 王手をかけている駒が複数ある場合もあるので利きの範囲内か先にチェックする
         if (
+          banSnapshot.isInPownerOfMove(myBanKoma, enemyBanKoma.banPoint) && 
           banSnapshot.canMoveToBanPointBySide(
             myBanKoma.banPoint,
             enemyBanKoma.banPoint,
@@ -1139,11 +1141,10 @@ function nextSurvival(teResolver, banKyokumen, enemySide) {
 }
 
 function oteRecursively(depth, teResolver, banKyokumen, enemySide) {
-  if (depth > 30) {
-    console.log("階層が深いため中止");
+  if (depth > 15) {
+    // console.log("階層が深いため中止");
     return;
   }
-  // console.log(`${depth}階層目の王手`);
   if (nextOte(teResolver, banKyokumen, enemySide)) {
     // 次の階層
     for (let banTe of banKyokumen.banTes) {
@@ -1155,7 +1156,6 @@ function oteRecursively(depth, teResolver, banKyokumen, enemySide) {
 }
 
 function surviveRecursively(depth, teResolver, banKyokumen, enemySide) {
-  // console.log(`${depth}階層目の回避`);
   if (nextSurvival(teResolver, banKyokumen, enemySide)) {
     // 次の階層
     for (let banTe of banKyokumen.banTes) {
