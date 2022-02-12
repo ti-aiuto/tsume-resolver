@@ -893,13 +893,9 @@ class TeResolver {
     // 盤の範囲内で移動できる点
     const nextValidRangeBanPoints = gyokuBanKoma.nextValidRangeBanPoints();
 
-    // 自分の駒がいない点
+    // 駒がいない点
     const notOccupyingPoints = nextValidRangeBanPoints.filter((banPoint) =>
-      banSnapshot.canMoveToBanPointBySide(
-        gyokuBanKoma.banPoint,
-        banPoint,
-        mySide,
-      ),
+      !banSnapshot.findBanKomaByBanPoint(banPoint),
     );
 
     return notOccupyingPoints
@@ -924,10 +920,7 @@ class TeResolver {
   findNextOteRemoving(banSnapshot, gyokuBanKoma) {
     const mySide = gyokuBanKoma.side;
     const enemyCausingOteBanKomas = banSnapshot.causingOteBanKomasTo(mySide);
-    const myBanKomas = banSnapshot
-      .findOnBoardBanKomasBySide(mySide)
-      .filter((item) => !(item.koma instanceof KomaGyoku));
-    // 玉でとるパターンはescapingの方で処理する
+    const myBanKomas = banSnapshot.findOnBoardBanKomasBySide(mySide);
 
     // 王手をかけている駒を取れる駒の一覧
     const myBanKomasToRemoveEnemyBanKomas = myBanKomas.filter((myBanKoma) => {
