@@ -542,9 +542,9 @@ class BanKoma {
       .filter((item) => item);
   }
 
-  moveOrMoveAndNariToBanPoint(banPoint) {
+  moveOrMoveAndNariToBanPoint(fromBanPoint, toBanPoint) {
     const result = [];
-    const nextBanKoma = new BanKoma(this.koma, this.side, banPoint, this.nari);
+    const nextBanKoma = new BanKoma(this.koma, this.side, toBanPoint, this.nari);
     if (this.canBecomeNari) {
       result.push(nextBanKoma.becomeNari());
     }
@@ -832,7 +832,9 @@ class TeResolver {
     // 移動してみて成る場合とならない場合のBanKomaを生成してみる
     const nextPossibleBanKomas = [];
     notOccupyingPoints.forEach((banPoint) =>
-      nextPossibleBanKomas.push(...banKoma.moveOrMoveAndNariToBanPoint(banPoint)),
+      nextPossibleBanKomas.push(
+        ...banKoma.moveOrMoveAndNariToBanPoint(banKoma.banPoint, banPoint),
+      ),
     );
     // そのBanKomaの移動先の点が敵玉の点と一致すること
     const oteBanKomas = nextPossibleBanKomas.filter((nextBanKoma) =>
@@ -894,14 +896,17 @@ class TeResolver {
     const nextValidRangeBanPoints = gyokuBanKoma.nextValidRangeBanPoints();
 
     // 駒がいない点
-    const notOccupyingPoints = nextValidRangeBanPoints.filter((banPoint) =>
-      !banSnapshot.findBanKomaByBanPoint(banPoint),
+    const notOccupyingPoints = nextValidRangeBanPoints.filter(
+      (banPoint) => !banSnapshot.findBanKomaByBanPoint(banPoint),
     );
 
     return notOccupyingPoints
       .map((banPoint) => {
         // 玉を移動させてみて、その状態で王手じゃないかをチェックする
-        const nextBanKomas = gyokuBanKoma.moveOrMoveAndNariToBanPoint(banPoint);
+        const nextBanKomas = gyokuBanKoma.moveOrMoveAndNariToBanPoint(
+          gyokuBanKoma.banPoint,
+          banPoint,
+        );
         const nextBanKoma = nextBanKomas[0]; // 玉は成らない
         const nextBanSnapshot = banSnapshot.moveKomaTo(
           gyokuBanKoma.banPoint,
@@ -932,16 +937,27 @@ class TeResolver {
     const nextBanTes = [];
     myBanKomasToRemoveEnemyBanKomas.forEach((myBanKoma) => {
       enemyCausingOteBanKomas.forEach((enemyBanKoma) => {
-        if (banSnapshot.canMoveToBanPointBySide(myBanKoma.banPoint, enemyBanKoma.banPoint, mySide) ) {
-          myBanKoma.moveOrMoveAndNariToBanPoint(enemyBanKoma.banPoint).forEach((nextBanKoma) => {
-            const nextBanShapshot = banSnapshot.moveKomaTo(
+        if (
+          banSnapshot.canMoveToBanPointBySide(
+            myBanKoma.banPoint,
+            enemyBanKoma.banPoint,
+            mySide,
+          )
+        ) {
+          myBanKoma
+            .moveOrMoveAndNariToBanPoint(
               myBanKoma.banPoint,
-              nextBanKoma.banPoint,
-              nextBanKoma.nari,
-            );
-            const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
-            nextBanTes.push(new BanTe(nextBanKoma, nextBanKyokumen));
-          });
+              enemyBanKoma.banPoint,
+            )
+            .forEach((nextBanKoma) => {
+              const nextBanShapshot = banSnapshot.moveKomaTo(
+                myBanKoma.banPoint,
+                nextBanKoma.banPoint,
+                nextBanKoma.nari,
+              );
+              const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
+              nextBanTes.push(new BanTe(nextBanKoma, nextBanKyokumen));
+            });
         }
       });
     });
