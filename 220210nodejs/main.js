@@ -29,23 +29,12 @@ const SUJI_OPTIONS = Object.freeze([1, 2, 3, 4, 5, 6, 7, 8, 9]);
 const DAN_OPTIONS = SUJI_OPTIONS;
 
 class Koma {
-  constructor(nari = false) {
-    if (!this.canBeNari && nari) {
-      throw new Error('nari不可');
-    }
-    this.nari = nari;
-  }
-
-  get label() {
+  label(nari) {
     throw new Error('NotImplemented');
   }
 
   get canBeNari() {
     throw new Error('NotImplemented');
-  }
-
-  get canBecomeNari() {
-    return this.canBeNari && !this.nari;
   }
 
   possibleStepVectors() {
@@ -63,27 +52,14 @@ class Koma {
     };
   }
 
-  beNari() {
-    if (!this.canBecomeNari) {
-      throw new Error('nari不可');
-    }
-    const cloned = this.clone();
-    cloned.nari = true;
-    return cloned;
-  }
-
   equals(other) {
     return this.label === other.label && this.nari === other.nari;
   }
 }
 
 class KomaFu extends Koma {
-  constructor(nari) {
-    super(nari);
-  }
-
-  get label() {
-    if (this.nari) {
+  label(nari) {
+    if (nari) {
       return KOMA_TOKIN;
     } else {
       return KOMA_FU;
@@ -94,8 +70,8 @@ class KomaFu extends Koma {
     return true;
   }
 
-  possibleStepVectors() {
-    if (this.nari) {
+  possibleStepVectors(nari) {
+    if (nari) {
       return [
         [0, 1],
         [-1, 1],
@@ -115,12 +91,8 @@ class KomaFu extends Koma {
 }
 
 class KomaKyo extends Koma {
-  constructor(nari) {
-    super(nari);
-  }
-
-  get label() {
-    if (this.nari) {
+  label(nari) {
+    if (nari) {
       return KOMA_NARI_KYO;
     } else {
       return KOMA_KYO;
@@ -131,8 +103,8 @@ class KomaKyo extends Koma {
     return true;
   }
 
-  possibleStepVectors() {
-    if (this.nari) {
+  possibleStepVectors(nari) {
+    if (nari) {
       return [
         [0, 1],
         [-1, 1],
@@ -161,12 +133,8 @@ class KomaKyo extends Koma {
 }
 
 class KomaKei extends Koma {
-  constructor(nari) {
-    super(nari);
-  }
-
-  get label() {
-    if (this.nari) {
+  label(nari) {
+    if (nari) {
       return KOMA_NARI_KEI;
     } else {
       return KOMA_KEI;
@@ -177,8 +145,8 @@ class KomaKei extends Koma {
     return true;
   }
 
-  possibleStepVectors() {
-    if (this.nari) {
+  possibleStepVectors(nari) {
+    if (nari) {
       return [
         [0, 1],
         [-1, 1],
@@ -201,12 +169,8 @@ class KomaKei extends Koma {
 }
 
 class KomaKaku extends Koma {
-  constructor(nari) {
-    super(nari);
-  }
-
-  get label() {
-    if (this.nari) {
+  label(nari) {
+    if (nari) {
       return KOMA_UMA;
     } else {
       return KOMA_KAKU;
@@ -217,7 +181,7 @@ class KomaKaku extends Koma {
     return true;
   }
 
-  possibleStepVectors() {
+  possibleStepVectors(nari) {
     const steps = [
       [1, 1],
       [2, 2],
@@ -252,7 +216,7 @@ class KomaKaku extends Koma {
       [-7, -7],
       [-8, -8],
     ];
-    if (this.nari) {
+    if (nari) {
       return [...steps, [0, 1], [0, -1], [-1, 0], [1, 0]];
     } else {
       return steps;
@@ -265,12 +229,8 @@ class KomaKaku extends Koma {
 }
 
 class KomaHisha extends Koma {
-  constructor(nari) {
-    super(nari);
-  }
-
-  get label() {
-    if (this.nari) {
+  label(nari) {
+    if (nari) {
       return KOMA_RYU;
     } else {
       return KOMA_HISHA;
@@ -281,7 +241,7 @@ class KomaHisha extends Koma {
     return true;
   }
 
-  possibleStepVectors() {
+  possibleStepVectors(nari) {
     const steps = [
       [0, 1],
       [0, 2],
@@ -316,7 +276,7 @@ class KomaHisha extends Koma {
       [-7, 0],
       [-8, 0],
     ];
-    if (this.nari) {
+    if (nari) {
       return [...steps, [-1, 1], [1, 1], [-1, -1], [1, -1]];
     } else {
       return steps;
@@ -329,11 +289,7 @@ class KomaHisha extends Koma {
 }
 
 class KomaKin extends Koma {
-  constructor(nari) {
-    super(nari);
-  }
-
-  get label() {
+  label(nari) {
     return KOMA_KIN;
   }
 
@@ -341,7 +297,7 @@ class KomaKin extends Koma {
     return false;
   }
 
-  possibleStepVectors() {
+  possibleStepVectors(nari) {
     return [
       [0, 1],
       [-1, 1],
@@ -358,12 +314,8 @@ class KomaKin extends Koma {
 }
 
 class KomaGin extends Koma {
-  constructor(nari) {
-    super(nari);
-  }
-
-  get label() {
-    if (this.nari) {
+  label(nari) {
+    if (nari) {
       return KOMA_NARI_GIN;
     } else {
       return KOMA_GIN;
@@ -374,8 +326,8 @@ class KomaGin extends Koma {
     return true;
   }
 
-  possibleStepVectors() {
-    if (this.nari) {
+  possibleStepVectors(nari) {
+    if (nari) {
       return [
         [0, 1],
         [-1, 1],
@@ -401,11 +353,7 @@ class KomaGin extends Koma {
 }
 
 class KomaGyoku extends Koma {
-  constructor(nari) {
-    super(nari);
-  }
-
-  get label() {
+  label(nari) {
     return KOMA_GYOKU;
   }
 
@@ -413,7 +361,7 @@ class KomaGyoku extends Koma {
     return false;
   }
 
-  possibleStepVectors() {
+  possibleStepVectors(nari) {
     return [
       [0, 1],
       [-1, 1],
@@ -590,10 +538,15 @@ class BanSide {
 }
 
 class BanKoma {
-  constructor(koma, side, banPoint) {
+  constructor(koma, side, banPoint, nari) {
     this.koma = koma;
     this.side = side;
     this.banPoint = banPoint;
+    this.nari = nari;
+
+    if (!this.koma.canBeNari && nari) {
+      throw new Error('nari不可');
+    }
   }
 
   get isOnBoard() {
@@ -614,15 +567,35 @@ class BanKoma {
 
   moveToBanPoint(banPoint) {
     const result = [];
-    if (this.koma.canBecomeNari) {
-      result.push(new BanKoma(this.koma.beNari(), this.side, banPoint));
+    const nextBanKoma = new BanKoma(this.koma, this.side, banPoint);
+    if (this.canBecomeNari) {
+      result.push(nextBanKoma.becomeNari());
     }
-    result.push(new BanKoma(this.koma, this.side, banPoint));
+    result.push(nextBanKoma);
     return result;
   }
 
+  get canBecomeNari() {
+    return this.koma.canBeNari && !this.nari;
+  }
+
+  clone() {
+    return new BanKoma(this.koma, this.side, this.banPoint, this.nari);
+  }
+
+  becomeNari() {
+    if (!this.canBecomeNari) {
+      throw new Error('nari不可');
+    }
+    const cloned = this.clone();
+    cloned.nari = true;
+    return cloned;
+  }
+
   toString() {
-    return `筋:${this.banPoint.suji} 段:${this.banPoint.dan} ${this.koma.label}`;
+    return `筋:${this.banPoint.suji} 段:${this.banPoint.dan} ${
+      this.koma.label(this.nari)
+    } ${this.nari ? '成' : '不成'}`;
   }
 }
 
@@ -802,7 +775,7 @@ class BanSnapshot {
     let text = '';
     text += `${gote.shortLabel}:`;
     this.findCapturedBanKomasBySide(gote).forEach((banKoma) => {
-      text += banKoma.koma.label;
+      text += banKoma.koma.label(banKoma.nari);
     });
     text += '\n';
     [...DAN_OPTIONS].reverse().forEach((dan) => {
@@ -810,7 +783,7 @@ class BanSnapshot {
         const banPoint = new BanPoint(suji, dan);
         const banKoma = this.findBanKomaByBanPoint(banPoint);
         if (banKoma) {
-          text += banKoma.side.shortLabel + banKoma.koma.label;
+          text += banKoma.side.shortLabel + banKoma.koma.label(banKoma.nari);
         } else {
           text += '  　';
         }
@@ -820,7 +793,7 @@ class BanSnapshot {
     });
     text += `${sente.shortLabel}:`;
     this.findCapturedBanKomasBySide(sente).forEach((banKoma) => {
-      text += banKoma.koma.label;
+      text += banKoma.koma.label(banKoma.nari);
     });
     text += '\n';
     return text;
