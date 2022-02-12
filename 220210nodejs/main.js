@@ -84,10 +84,6 @@ class KomaFu extends Koma {
       return [[0, 1]];
     }
   }
-
-  clone() {
-    return new KomaFu(this.nari);
-  }
 }
 
 class KomaKyo extends Koma {
@@ -126,10 +122,6 @@ class KomaKyo extends Koma {
       ];
     }
   }
-
-  clone() {
-    return new KomaKyo(this.nari);
-  }
 }
 
 class KomaKei extends Koma {
@@ -161,10 +153,6 @@ class KomaKei extends Koma {
         [-1, 2],
       ];
     }
-  }
-
-  clone() {
-    return new KomaKei(this.nari);
   }
 }
 
@@ -222,10 +210,6 @@ class KomaKaku extends Koma {
       return steps;
     }
   }
-
-  clone() {
-    return new KomaKaku(this.nari);
-  }
 }
 
 class KomaHisha extends Koma {
@@ -282,10 +266,6 @@ class KomaHisha extends Koma {
       return steps;
     }
   }
-
-  clone() {
-    return new KomaHisha(this.nari);
-  }
 }
 
 class KomaKin extends Koma {
@@ -306,10 +286,6 @@ class KomaKin extends Koma {
       [1, 0],
       [-1, 0],
     ];
-  }
-
-  clone() {
-    return new KomaKin(this.nari);
   }
 }
 
@@ -346,10 +322,6 @@ class KomaGin extends Koma {
       ];
     }
   }
-
-  clone() {
-    return new KomaGin(this.nari);
-  }
 }
 
 class KomaGyoku extends Koma {
@@ -372,10 +344,6 @@ class KomaGyoku extends Koma {
       [1, -1],
       [-1, -1],
     ];
-  }
-
-  clone() {
-    return new KomaGyoku(this.nari);
   }
 }
 
