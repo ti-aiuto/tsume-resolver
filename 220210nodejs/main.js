@@ -929,10 +929,27 @@ class TeResolver {
       });
     });
 
-    console.log(myBanKomasToRemoveEnemyBanKomas);
+    const nextBanTes = [];
+    myBanKomasToRemoveEnemyBanKomas.forEach((myBanKoma) => {
+      enemyCausingOteBanKomas.forEach((enemyBanKoma) => {
+        if (banSnapshot.canMoveToBanPointBySide(myBanKoma.banPoint, enemyBanKoma.banPoint, mySide) ) {
+          myBanKoma.moveToBanPoint(enemyBanKoma.banPoint).forEach((nextBanKoma) => {
+            const nextBanShapshot = banSnapshot.moveKomaTo(
+              myBanKoma.banPoint,
+              nextBanKoma.banPoint,
+              nextBanKoma.nari,
+            );
+            const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
+            nextBanTes.push(new BanTe(nextBanKoma, nextBanKyokumen));
+          });
+        }
+      });
+    });
 
-    // 王手をかけている駒を玉以外の駒で取るパターン
-    return [];
+    return nextBanTes.filter((nextBanTe) => {
+      return !nextBanTe.banKyokumen.banSnapshot.causingOteBanKomasTo(mySide)
+        .length;
+    });
   }
 
   findNextOteAigoma(banSnapshot, gyokuBanKoma) {
