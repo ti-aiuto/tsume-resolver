@@ -824,9 +824,10 @@ class BanSnapshot {
 }
 
 class BanTe {
-  constructor(banKoma, banKyokumen) {
+  constructor(banKoma, banKyokumen, beforeBanKoma) {
     this.banKoma = banKoma;
     this.banKyokumen = banKyokumen;
+    this.beforeBanKoma = beforeBanKoma;
   }
 }
 
@@ -886,7 +887,7 @@ class TeResolver {
         oteBanKoma.nari,
       );
       const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
-      return new BanTe(oteBanKoma, nextBanKyokumen);
+      return new BanTe(oteBanKoma, nextBanKyokumen, banKoma);
     });
   }
 
@@ -922,7 +923,7 @@ class TeResolver {
         oteBanKoma.side,
       );
       const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
-      return new BanTe(oteBanKoma, nextBanKyokumen);
+      return new BanTe(oteBanKoma, nextBanKyokumen, null);
     });
   }
 
@@ -949,7 +950,7 @@ class TeResolver {
           false,
         );
         const banKyokumen = new BanKyokumen(nextBanSnapshot);
-        return new BanTe(nextBanKoma, banKyokumen);
+        return new BanTe(nextBanKoma, banKyokumen, gyokuBanKoma);
       })
       .filter((nextBanTe) => {
         return !nextBanTe.banKyokumen.banSnapshot.causingOteBanKomasTo(mySide)
@@ -990,7 +991,7 @@ class TeResolver {
                 nextBanKoma.nari,
               );
               const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
-              nextBanTes.push(new BanTe(nextBanKoma, nextBanKyokumen));
+              nextBanTes.push(new BanTe(nextBanKoma, nextBanKyokumen, myBanKoma));
             });
         }
       });
