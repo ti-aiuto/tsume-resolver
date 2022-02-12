@@ -1158,7 +1158,7 @@ function oteRecursively(depth, teResolver, banKyokumen, enemySide) {
       surviveRecursively(depth + 1, teResolver, banTe.banKyokumen, enemySide);
     }
   } else {
-    console.log('逃げられた');
+    // 逃げられた
   }
 }
 
@@ -1169,7 +1169,19 @@ function surviveRecursively(depth, teResolver, banKyokumen, enemySide) {
       oteRecursively(depth + 1, teResolver, banTe.banKyokumen, enemySide);
     }
   } else {
-    console.log('詰み');
+    // 詰み
+  }
+}
+
+function extractTsumiTejunAsArray(result, currentPath, banKyokumen) {
+  if (banKyokumen.isNoOte) {
+    return; // 逃げられた
+  }
+  if (banKyokumen.isTsumi) {
+    result.push(currentPath);
+  }
+  for (let banTe of banKyokumen.banTes)  {
+    extractTsumiTejunAsArray(result, [...currentPath, banTe], banTe.banKyokumen);
   }
 }
 
@@ -1182,6 +1194,20 @@ async function main() {
   const enemySide = BanSide.createGoteSide();
   const teResolver = new TeResolver();
 
+  console.log('探索を開始');
   oteRecursively(1, teResolver, initialBanKyokumen, enemySide);
+  console.log('探索完了');
+
+  const rawTsumiTejuns = [];
+  extractTsumiTejunAsArray(rawTsumiTejuns, [], initialBanKyokumen);
+  
+  console.log(`総手順：${rawTsumiTejuns.length}`);
+
+  const tsumiTejuns = rawTsumiTejuns.filter((tsumiTejun) => {
+    const lastTe = tsumiTejun[tsumiTejun.length - 1];
+    // 歩打ちで詰みは禁止
+    return !(!lastTe.beforeBanKoma && lastTe.banKoma.koma instanceof KomaFu)
+  });
+  console.log(`歩で詰みを除く：${rawTsumiTejuns.length}`);
 }
 main();
