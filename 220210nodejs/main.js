@@ -593,7 +593,7 @@ class BanKoma {
   }
 
   toString() {
-    return `筋:${this.banPoint.suji} 段:${this.banPoint.dan} ${
+    return `${this.side.shortLabel} 筋:${this.banPoint.suji} 段:${this.banPoint.dan} ${
       this.koma.label(this.nari)
     } ${this.nari ? '成' : '不成'}`;
   }
