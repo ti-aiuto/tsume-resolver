@@ -640,24 +640,18 @@ class BanSnapshot {
     return this;
   }
 
-  applyBanKoma(banPoint, koma, side) {
-    if (koma.banPoint) {
-      this.moveKomaTo(banPoint, koma, side);
-    } else {
-      this.putKoma(banPoint, koma, side);
-    }
-  }
-
   // 駒を移動する
   moveKomaTo(banPoint, koma, side) {
     const cloned = this.clone();
     const existingBanKoma = cloned.findBanKomaByBanPoint(banPoint);
-    if (existingBanKoma.side.equals(side)) {
+    if (existingBanKoma && existingBanKoma.side.equals(side)) {
       throw new Error('既に自分の駒が存在');
     }
-    this.addOnBoardBanKoma(banPoint, koma, side);
-    this.removeOnBoardBanKoma(existingBanKoma);
-    this.addCapturedBanKoma(existingBanKoma.koma, side);
+    cloned.addOnBoardBanKoma(banPoint, koma, side);
+    if (existingBanKoma) {
+      cloned.removeOnBoardBanKoma(existingBanKoma);
+      cloned.addCapturedBanKoma(existingBanKoma.koma, side);  
+    }
     return cloned;
   }
 
@@ -739,7 +733,7 @@ class BanSnapshot {
   }
 
   findBanKomaByBanPoint(banPoint) {
-    return this.banKomas.find((banKoma) => banKoma.banPoint?.equals(banPoint));
+    return this.banKomas.find((banKoma) => banKoma.banPoint && banKoma.banPoint.equals(banPoint));
   }
 
   findBanKomasBySideAndSuji(side, suji) {
@@ -840,8 +834,15 @@ class BanKyokumen {
     this.banTes = [];
   }
 
-  addBanTe(banKoma) {
-    const nextBanSnapshot = this.banSnapshot.applyBanKoma(banKoma);
+  addMovingBanTeByBanKoma(banKoma) {
+    const nextBanSnapshot = this.banSnapshot.moveKomaTo(banKoma.banPoint, banKoma.koma, banKoma.side);
+    const nextBanKyokumen = new BanKyokumen(nextBanSnapshot);
+    const banTe = new BanTe(banKoma, nextBanKyokumen);
+    this.banTes.push(banTe);
+  }
+
+  addPuttingBanTeByBanKoma(banKoma) {
+    const nextBanSnapshot = this.banSnapshot.putKoma(banKoma.banPoint, banKoma.koma, banKoma.side);
     const nextBanKyokumen = new BanKyokumen(nextBanSnapshot);
     const banTe = new BanTe(banKoma, nextBanKyokumen);
     this.banTes.push(banTe);
@@ -866,16 +867,9 @@ class TeResolver {
       nextPossibleBanKomas.push(...banKoma.moveToBanPoint(banPoint)),
     );
     // そのBanKomaの移動先の点が敵玉の点と一致すること
-    const nextOtePossibleBanKomas = nextPossibleBanKomas.filter((nextBanKoma) =>
+    return nextPossibleBanKomas.filter((nextBanKoma) =>
       banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma),
     );
-
-    if (nextOtePossibleBanKomas.length) {
-      console.log(`${banKoma.koma.label}を次へ移動：`);
-      nextOtePossibleBanKomas.forEach((banKoma) => {
-        console.log(banKoma.banPoint.toString());
-      });
-    }
   }
 
   findNextPuttingOtesOf(banSnapshot, gyokuBanKoma, banKoma) {
@@ -903,12 +897,7 @@ class TeResolver {
       }
     });
 
-    if (nextOtePossibleBanKomas.length) {
-      console.log(`${banKoma.koma.label}を次に打つ：`);
-      nextOtePossibleBanKomas.forEach((banKoma) => {
-        console.log(banKoma.banPoint.toString());
-      });
-    }
+    return nextOtePossibleBanKomas;
   }
 }
 
@@ -957,24 +946,34 @@ async function main() {
 
   const teResolver = new TeResolver();
 
+  const initialBanKyokumen = new BanKyokumen(initialBanSnapshot);
+
   const myOnBoardBanKomas =
     initialBanSnapshot.findOnBoardBanKomasBySide(mySide);
   myOnBoardBanKomas.forEach((myOnBoardBanKoma) => {
-    teResolver.findNextMovingOtesOf(
+    const nextBanKomas = teResolver.findNextMovingOtesOf(
       initialBanSnapshot,
       enemyGyoku,
       myOnBoardBanKoma,
     );
+
+    nextBanKomas.forEach((banKoma) => {
+      initialBanKyokumen.addMovingBanTeByBanKoma(banKoma);
+    });
   });
 
   const myCapturedBanKomas =
     initialBanSnapshot.findDistictCapturedBanKomasBySide(mySide);
   myCapturedBanKomas.forEach((myOnBoardBanKoma) => {
-    teResolver.findNextPuttingOtesOf(
+    const nextBanKomas = teResolver.findNextPuttingOtesOf(
       initialBanSnapshot,
       enemyGyoku,
       myOnBoardBanKoma,
     );
+
+    nextBanKomas.forEach((banKoma) => {
+      initialBanKyokumen.addPuttingBanTeByBanKoma(banKoma);
+    });
   });
 
   console.log(initialBanSnapshot.toString());
