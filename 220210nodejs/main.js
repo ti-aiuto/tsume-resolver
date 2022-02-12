@@ -1160,8 +1160,10 @@ function nextSurvival(teResolver, banKyokumen, enemySide) {
   }
 }
 
+const DEPTH_LIMIT = 15;
+
 function oteRecursively(depth, teResolver, banKyokumen, enemySide) {
-  if (depth > 15) {
+  if (depth > DEPTH_LIMIT) {
     // console.log("階層が深いため中止");
     return;
   }
@@ -1211,6 +1213,7 @@ async function main() {
   const teResolver = new TeResolver();
 
   console.log('探索を開始');
+  console.log(`再帰上限：${DEPTH_LIMIT}`);
   oteRecursively(1, teResolver, initialBanKyokumen, enemySide);
   console.log('探索完了');
 
