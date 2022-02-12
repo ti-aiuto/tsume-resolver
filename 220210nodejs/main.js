@@ -667,7 +667,7 @@ class BanSnapshot {
   // protected
   addCapturedBanKoma(koma, side) {
     if (koma instanceof KomaGyoku) {
-      throw new Error("玉を持ち駒にしている！");
+      throw new Error('玉を持ち駒にしている！');
     }
     this.initAddCaptured(koma, side);
   }
@@ -974,7 +974,7 @@ class TeResolver {
       enemyCausingOteBanKomas.forEach((enemyBanKoma) => {
         // 王手をかけている駒が複数ある場合もあるので利きの範囲内か先にチェックする
         if (
-          banSnapshot.isInPownerOfMove(myBanKoma, enemyBanKoma.banPoint) && 
+          banSnapshot.isInPownerOfMove(myBanKoma, enemyBanKoma.banPoint) &&
           banSnapshot.canMoveToBanPointBySide(
             myBanKoma.banPoint,
             enemyBanKoma.banPoint,
@@ -1079,17 +1079,20 @@ function nextOte(teResolver, banKyokumen, enemySide) {
   const enemyGyoku = banSnapshot.findGyokuBySide(enemySide);
 
   const myOnBoardBanKomas = banSnapshot.findOnBoardBanKomasBySide(mySide);
-  myOnBoardBanKomas.forEach((myOnBoardBanKoma) => {
-    const nextBanTes = teResolver.findNextMovingOtesOf(
-      banSnapshot,
-      enemyGyoku,
-      myOnBoardBanKoma,
-    );
+  // 自分が王手になっていないことのチェックも入れたほうがよさそう
+  myOnBoardBanKomas
+    .filter((banKoma) => banKoma.koma instanceof KomaGyoku) 
+    .forEach((myOnBoardBanKoma) => {
+      const nextBanTes = teResolver.findNextMovingOtesOf(
+        banSnapshot,
+        enemyGyoku,
+        myOnBoardBanKoma,
+      );
 
-    nextBanTes.forEach((banTe) => {
-      banKyokumen.addBanTe(banTe);
+      nextBanTes.forEach((banTe) => {
+        banKyokumen.addBanTe(banTe);
+      });
     });
-  });
 
   const myCapturedBanKomas =
     banSnapshot.findDistictCapturedBanKomasBySide(mySide);
@@ -1154,7 +1157,7 @@ function oteRecursively(depth, teResolver, banKyokumen, enemySide) {
       surviveRecursively(depth + 1, teResolver, banTe.banKyokumen, enemySide);
     }
   } else {
-    console.log("逃げられた")
+    console.log('逃げられた');
   }
 }
 
@@ -1165,7 +1168,7 @@ function surviveRecursively(depth, teResolver, banKyokumen, enemySide) {
       oteRecursively(depth + 1, teResolver, banTe.banKyokumen, enemySide);
     }
   } else {
-    console.log("詰み")
+    console.log('詰み');
   }
 }
 
