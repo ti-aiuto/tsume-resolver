@@ -666,6 +666,9 @@ class BanSnapshot {
 
   // protected
   addCapturedBanKoma(koma, side) {
+    if (koma instanceof KomaGyoku) {
+      throw new Error("玉を持ち駒にしている！");
+    }
     this.initAddCaptured(koma, side);
   }
 
