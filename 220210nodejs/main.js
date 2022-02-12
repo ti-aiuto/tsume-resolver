@@ -754,11 +754,15 @@ class BanSnapshot {
     );
   }
 
-  findDistictCapturedBanKomasBySide(side) {
-    const result = [];
-    const banKomas = this.banKomas.filter(
+  findCapturedBanKomasBySide(side) {
+    return this.banKomas.filter(
       (banKoma) => banKoma.side.equals(side) && banKoma.isCaptured,
     );
+  }
+
+  findDistictCapturedBanKomasBySide(side) {
+    const result = [];
+    const banKomas = this.findCapturedBanKomasBySide(side);
     banKomas.forEach((banKoma) => {
       if (!result.find((resultKoma) => resultKoma.koma.equals(banKoma.koma))) {
         result.push(banKoma);
@@ -792,8 +796,15 @@ class BanSnapshot {
     return new BanSnapshot([...this.banKomas]);
   }
 
-  debug() {
+  toString() {
+    const sente = BanSide.createSenteSide();
+    const gote = sente.opposite();
     let text = '';
+    text += `${gote.shortLabel}: `;
+    this.findCapturedBanKomasBySide(gote).forEach((banKoma) => {
+      text += banKoma.koma.label;
+    });
+    text += '\n';
     [...DAN_OPTIONS].reverse().forEach((dan) => {
       SUJI_OPTIONS.forEach((suji) => {
         const banPoint = new BanPoint(suji, dan);
@@ -807,7 +818,12 @@ class BanSnapshot {
       });
       text += '\n';
     });
-    console.log(text);
+    text += `${sente.shortLabel}: `;
+    this.findCapturedBanKomasBySide(sente).forEach((banKoma) => {
+      text += banKoma.koma.label;
+    });
+    text += '\n';
+    return text;
   }
 }
 
@@ -940,7 +956,7 @@ async function main() {
     );
   });
 
-  initialBanSnapshot.debug();
+  console.log(initialBanSnapshot.toString());
 
   // 作戦
   // banに状態を全て読み込む
