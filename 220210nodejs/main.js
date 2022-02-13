@@ -55,7 +55,7 @@ function nextSurvival(teResolver, banKyokumen, tumasareSide) {
   }
 }
 
-const DEPTH_LIMIT = 15;
+const DEPTH_LIMIT = 10;
 
 function oteRecursively(depth, teResolver, banKyokumen, tumasareSide) {
   if (depth > DEPTH_LIMIT) {
