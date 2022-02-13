@@ -24,10 +24,10 @@ exports.BanKoma = class BanKoma {
 
     // 後手の場合は回転する
     if (this.side.isGote) {
-      stepVectors.forEach((item) => {
+      for (let item of stepVectors) {
         item[0] *= -1;
         item[1] *= -1;
-      });
+      }
     }
 
     return stepVectors
@@ -42,8 +42,14 @@ exports.BanKoma = class BanKoma {
     }
 
     // 移動後成・成らずどちらか分からないためより大きく動けるほうを使う
-    const afterMoveMaximumSujiStep = Math.max(this.koma.maximumSujiStepLength(false), this.koma.maximumSujiStepLength(true));
-    const afterMoveMaximumDanStep = Math.max(this.koma.maximumDanStepLength(false), this.koma.maximumDanStepLength(true));
+    const afterMoveMaximumSujiStep = Math.max(
+      this.koma.maximumSujiStepLength(false),
+      this.koma.maximumSujiStepLength(true),
+    );
+    const afterMoveMaximumDanStep = Math.max(
+      this.koma.maximumDanStepLength(false),
+      this.koma.maximumDanStepLength(true),
+    );
 
     return (
       this.banPoint.sujiDistance(otherBanPoint) <=
