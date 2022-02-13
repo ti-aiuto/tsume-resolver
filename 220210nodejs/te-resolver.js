@@ -137,6 +137,10 @@ exports.TeResolver = class TeResolver {
       banSnapshot.causingOteBanKomasTo(tumasareSide);
     const myBanKomas = banSnapshot.findOnBoardBanKomasBySide(tumasareSide);
 
+    if (enemyCausingOteBanKomas.length ==- 0) {
+      throw new Error("王手がかかっていない");
+    }
+
     const result = [];
 
     for (let myBanKoma of myBanKomas) {
@@ -150,7 +154,7 @@ exports.TeResolver = class TeResolver {
       }
 
       enemyCausingOteBanKomas.forEach((enemyBanKoma) => {
-        // 王手をかけている駒が複数ある場合もあるので利きの範囲内か先にチェックする
+        // 王手をかけている駒が複数ある場合は利きの範囲内か先にチェックする
         if (
           banSnapshot.isInPownerOfMove(myBanKoma, enemyBanKoma.banPoint) &&
           banSnapshot.canMoveToBanPointBySide(
