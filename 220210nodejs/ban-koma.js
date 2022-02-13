@@ -1,5 +1,4 @@
-exports.BanKoma = 
-class BanKoma {
+exports.BanKoma = class BanKoma {
   constructor(koma, side, banPoint, nari) {
     this.koma = koma;
     this.side = side;
@@ -34,6 +33,19 @@ class BanKoma {
     return stepVectors
       .map((stepVector) => this.banPoint.applyStepVencor(stepVector))
       .filter((item) => item);
+  }
+
+  // 引数の地点が移動した後の利きの範囲に成り得るかどうか
+  afterMoveNearPointOf(otherBanPoint) {
+    if (!this.banPoint) {
+      return null;
+    }
+    return (
+      this.banPoint.sujiDistance(otherBanPoint) <=
+        this.koma.maximumSujiStepLength(this.nari) * 2 &&
+      this.banPoint.danDistance(otherBanPoint) <=
+        this.koma.maximumDanStepLength(this.nari) * 2
+    );
   }
 
   moveOrMoveAndNariToBanPoint(toBanPoint) {
@@ -78,4 +90,4 @@ class BanKoma {
       this.banPoint.dan
     } ${this.koma.label(this.nari)} ${this.nari ? '成' : '不成'}`;
   }
-}
+};

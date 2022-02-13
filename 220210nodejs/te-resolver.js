@@ -19,6 +19,11 @@ exports.TeResolver = class TeResolver {
         continue;
         // 玉で王手を掛けるとこちらが王手になってしまう
       }
+      if (!banKoma.afterMoveNearPointOf(gyokuBanKoma.banPoint)) {
+        // 遠い駒は飛ばす
+        continue;
+      }
+
       // 盤の範囲内で移動できる点
       const nextValidRangeBanPoints = banKoma.nextValidRangeBanPoints();
 
