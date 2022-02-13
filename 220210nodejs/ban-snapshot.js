@@ -230,11 +230,21 @@ exports.BanSnapshot = class BanSnapshot {
   }
 
   addBanKoma(banKoma) {
+    if (banKoma.banPoint) {
+      this.sujiDanBanKomaMap[this.sujiDanKeyOf(banKoma.banPoint)] = banKoma;
+    }
     this.banKomas.push(banKoma);
   }
 
   removeBanKoma(banKoma) {
+    if (banKoma.banPoint) {
+      this.sujiDanBanKomaMap[this.sujiDanKeyOf(banKoma.banPoint)] = null;
+    }
     const index = this.banKomas.indexOf(banKoma);
     this.banKomas.splice(index, 1);
+  }
+
+  sujiDanKeyOf(banPoint) {
+    return `${banPoint.suji}-${banPoint.dan}`;
   }
 };
