@@ -61,23 +61,15 @@ function nextOte(teResolver, banKyokumen, tumasareSide) {
 }
 
 function nextSurvival(teResolver, banKyokumen, tumasareSide) {
-  teResolver
-    .findNextOteEscaping(banKyokumen.banSnapshot, tumasareSide)
-    .forEach((banTe) => {
-      banKyokumen.addBanTe(banTe);
-    });
-
-  teResolver
-    .findNextOteRemoving(banKyokumen.banSnapshot, tumasareSide)
-    .forEach((banTe) => {
-      banKyokumen.addBanTe(banTe);
-    });
-
-  teResolver
-    .findNextOteAigoma(banKyokumen.banSnapshot, tumasareSide)
-    .forEach((banTe) => {
-      banKyokumen.addBanTe(banTe);
-    });
+  banKyokumen.addBanTe(
+    ...teResolver.findNextOteEscaping(banKyokumen.banSnapshot, tumasareSide),
+  );
+  banKyokumen.addBanTe(
+    ...teResolver.findNextOteRemoving(banKyokumen.banSnapshot, tumasareSide),
+  );
+  banKyokumen.addBanTe(
+    ...teResolver.findNextOteAigoma(banKyokumen.banSnapshot, tumasareSide),
+  );
 
   if (banKyokumen.banTes.length) {
     return true;
@@ -97,7 +89,12 @@ function oteRecursively(depth, teResolver, banKyokumen, tumasareSide) {
   if (nextOte(teResolver, banKyokumen, tumasareSide)) {
     // 次の階層
     for (let banTe of banKyokumen.banTes) {
-      surviveRecursively(depth + 1, teResolver, banTe.banKyokumen, tumasareSide);
+      surviveRecursively(
+        depth + 1,
+        teResolver,
+        banTe.banKyokumen,
+        tumasareSide,
+      );
     }
   } else {
     // 逃げられた
@@ -133,7 +130,7 @@ function extractTsumiTejunAsArray(result, currentPath, banKyokumen) {
 
 async function main() {
   const json = await readFileAsJson(sample_filename);
-  const initialBanSnapshot = (new JsonBanLoader()).load(json);
+  const initialBanSnapshot = new JsonBanLoader().load(json);
   const initialBanKyokumen = new BanKyokumen(initialBanSnapshot);
 
   const enemySide = BanSide.createGoteSide();

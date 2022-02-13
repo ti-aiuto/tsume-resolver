@@ -6,8 +6,8 @@ exports.BanKyokumen = class BanKyokumen {
     this.isTsumi = false;
   }
 
-  addBanTe(banTe) {
-    this.banTes.push(banTe);
+  addBanTe(...banTes) {
+    this.banTes.push(...banTes);
   }
 
   markAsNoOte() {
