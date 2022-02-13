@@ -105,27 +105,31 @@ exports.TeResolver = class TeResolver {
     // 盤の範囲内で移動できる点
     const nextValidRangeBanPoints = gyokuBanKoma.nextValidRangeBanPoints();
 
-    // 駒がいない点
-    const notOccupyingPoints = nextValidRangeBanPoints.filter(
-      (banPoint) => !banSnapshot.findBanKomaByBanPoint(banPoint),
-    );
+    const result = [];
+    for (let banPoint of nextValidRangeBanPoints) {
+      // 駒がいない点
+      if (banSnapshot.findBanKomaByBanPoint(banPoint)) {
+        continue;
+      }
 
-    return notOccupyingPoints
-      .map((banPoint) => {
-        // 玉を移動させてみて、その状態で王手じゃないかをチェックする
-        const nextBanKomas = gyokuBanKoma.moveOrMoveAndNariToBanPoint(banPoint);
-        const nextBanKoma = nextBanKomas[0]; // 玉は成らない
-        const nextBanSnapshot = banSnapshot.moveKomaTo(
-          gyokuBanKoma.banPoint,
-          banPoint,
-          false,
-        );
-        const banKyokumen = new BanKyokumen(nextBanSnapshot);
-        return new BanTe(nextBanKoma, banKyokumen, gyokuBanKoma);
-      })
-      .filter((nextBanTe) => {
-        return !nextBanTe.banKyokumen.banSnapshot.isOtedFor(tumasareSide);
-      });
+      // 玉を移動させてみて、その状態で王手じゃないかをチェックする
+      const nextBanKomas = gyokuBanKoma.moveOrMoveAndNariToBanPoint(banPoint);
+      const nextBanKoma = nextBanKomas[0]; // 玉は成らない
+      const nextBanSnapshot = banSnapshot.moveKomaTo(
+        gyokuBanKoma.banPoint,
+        banPoint,
+        false,
+      );
+      const banKyokumen = new BanKyokumen(nextBanSnapshot);
+      const nextBanTe = new BanTe(nextBanKoma, banKyokumen, gyokuBanKoma);
+
+      // 王手を回避できる手
+      if (!nextBanTe.banKyokumen.banSnapshot.isOtedFor(tumasareSide)) {
+        result.push(nextBanTe);
+      }
+    }
+
+    return result;
   }
 
   findNextOteRemoving(banSnapshot, tumasareSide) {
