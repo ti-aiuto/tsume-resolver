@@ -31,4 +31,8 @@ exports.BanKyokumen = class BanKyokumen {
   get isToContinue() {
     return !this.isNoOte && !this.isTsumi;
   }
+
+  toString() {
+    return `isNoOte: ${this.isNoOte} isTsumi: ${this.isTsumi}, isOneOfThemNoOte: ${this.isOneOfThemNoOte}, isOneOfThemCompleteTsumi: ${this.isOneOfThemCompleteTsumi}`;
+  }
 };
