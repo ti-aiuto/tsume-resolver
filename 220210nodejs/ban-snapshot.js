@@ -194,6 +194,11 @@ exports.BanSnapshot = class BanSnapshot {
     });
   }
 
+  isOtedFor(tumasareSide) {
+    // 王手をかけている駒があるかどうか
+    return this.causingOteBanKomasTo(tumasareSide).length;
+  }
+
   clone() {
     return new BanSnapshot([...this.banKomas]);
   }

@@ -103,8 +103,7 @@ exports.TeResolver = class TeResolver {
         return new BanTe(nextBanKoma, banKyokumen, gyokuBanKoma);
       })
       .filter((nextBanTe) => {
-        return !nextBanTe.banKyokumen.banSnapshot.causingOteBanKomasTo(tumasareSide)
-          .length;
+        return !nextBanTe.banKyokumen.banSnapshot.isOtedFor(tumasareSide);
       });
   }
 
@@ -149,8 +148,7 @@ exports.TeResolver = class TeResolver {
     });
 
     return nextBanTes.filter((nextBanTe) => {
-      return !nextBanTe.banKyokumen.banSnapshot.causingOteBanKomasTo(tumasareSide)
-        .length;
+      return !nextBanTe.banKyokumen.banSnapshot.isOtedFor(tumasareSide);
     });
   }
 
@@ -184,8 +182,7 @@ exports.TeResolver = class TeResolver {
     });
 
     return nextBanTes.filter((nextBanTe) => {
-      return !nextBanTe.banKyokumen.banSnapshot.causingOteBanKomasTo(tumasareSide)
-        .length;
+      return !nextBanTe.banKyokumen.banSnapshot.isOtedFor(tumasareSide);
     });
   }
 };
