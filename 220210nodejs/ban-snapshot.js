@@ -38,13 +38,14 @@ exports.BanSnapshot = class BanSnapshot {
       throw new Error('既に自分の駒が存在');
     }
 
-    cloned.addOnBoardBanKoma(targetBanKoma.koma, mySide, toBanPoint, nari);
-    cloned.removeBanKoma(targetBanKoma);
-
     if (existingBanKoma) {
       cloned.removeBanKoma(existingBanKoma);
       cloned.addCapturedBanKoma(existingBanKoma.koma, mySide);
     }
+
+    cloned.addOnBoardBanKoma(targetBanKoma.koma, mySide, toBanPoint, nari);
+    cloned.removeBanKoma(targetBanKoma);
+
     return cloned;
   }
 
@@ -125,9 +126,7 @@ exports.BanSnapshot = class BanSnapshot {
   }
 
   findBanKomaByBanPoint(banPoint) {
-    return this.banKomas.find(
-      (banKoma) => banKoma.banPoint && banKoma.banPoint.equals(banPoint),
-    );
+    return this.sujiDanBanKomaMap[this.sujiDanKeyOf(banPoint)];
   }
 
   findBanKomasBySideAndSuji(side, suji) {
