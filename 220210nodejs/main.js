@@ -18,9 +18,9 @@ const BanKyokumen = require('./ban-kyokumen.js').BanKyokumen;
 
 const JsonBanLoader = require('./json-ban-loader.js').JsonBanLoader;
 
-function nextOte(teResolver, banKyokumen, enemySide) {
+function nextOte(teResolver, banKyokumen, tumasareSide) {
   const banSnapshot = banKyokumen.banSnapshot;
-  const mySide = enemySide.opposite();
+  const mySide = tumasareSide.opposite();
 
   const myOnBoardBanKomas = banSnapshot.findOnBoardBanKomasBySide(mySide);
   // 自分が王手になっていないことのチェックも入れたほうがよさそう
@@ -29,7 +29,7 @@ function nextOte(teResolver, banKyokumen, enemySide) {
     .forEach((myOnBoardBanKoma) => {
       const nextBanTes = teResolver.findNextMovingOtesOf(
         banSnapshot,
-        enemySide,
+        tumasareSide,
         myOnBoardBanKoma,
       );
 
@@ -43,7 +43,7 @@ function nextOte(teResolver, banKyokumen, enemySide) {
   myCapturedBanKomas.forEach((myOnBoardBanKoma) => {
     const nextBanTes = teResolver.findNextPuttingOtesOf(
       banSnapshot,
-      enemySide,
+      tumasareSide,
       myOnBoardBanKoma,
     );
 
@@ -60,21 +60,21 @@ function nextOte(teResolver, banKyokumen, enemySide) {
   }
 }
 
-function nextSurvival(teResolver, banKyokumen, enemySide) {
+function nextSurvival(teResolver, banKyokumen, tumasareSide) {
   teResolver
-    .findNextOteEscaping(banKyokumen.banSnapshot, enemySide)
+    .findNextOteEscaping(banKyokumen.banSnapshot, tumasareSide)
     .forEach((banTe) => {
       banKyokumen.addBanTe(banTe);
     });
 
   teResolver
-    .findNextOteRemoving(banKyokumen.banSnapshot, enemySide)
+    .findNextOteRemoving(banKyokumen.banSnapshot, tumasareSide)
     .forEach((banTe) => {
       banKyokumen.addBanTe(banTe);
     });
 
   teResolver
-    .findNextOteAigoma(banKyokumen.banSnapshot, enemySide)
+    .findNextOteAigoma(banKyokumen.banSnapshot, tumasareSide)
     .forEach((banTe) => {
       banKyokumen.addBanTe(banTe);
     });
@@ -89,26 +89,26 @@ function nextSurvival(teResolver, banKyokumen, enemySide) {
 
 const DEPTH_LIMIT = 15;
 
-function oteRecursively(depth, teResolver, banKyokumen, enemySide) {
+function oteRecursively(depth, teResolver, banKyokumen, tumasareSide) {
   if (depth > DEPTH_LIMIT) {
     // console.log("階層が深いため中止");
     return;
   }
-  if (nextOte(teResolver, banKyokumen, enemySide)) {
+  if (nextOte(teResolver, banKyokumen, tumasareSide)) {
     // 次の階層
     for (let banTe of banKyokumen.banTes) {
-      surviveRecursively(depth + 1, teResolver, banTe.banKyokumen, enemySide);
+      surviveRecursively(depth + 1, teResolver, banTe.banKyokumen, tumasareSide);
     }
   } else {
     // 逃げられた
   }
 }
 
-function surviveRecursively(depth, teResolver, banKyokumen, enemySide) {
-  if (nextSurvival(teResolver, banKyokumen, enemySide)) {
+function surviveRecursively(depth, teResolver, banKyokumen, tumasareSide) {
+  if (nextSurvival(teResolver, banKyokumen, tumasareSide)) {
     // 次の階層
     for (let banTe of banKyokumen.banTes) {
-      oteRecursively(depth + 1, teResolver, banTe.banKyokumen, enemySide);
+      oteRecursively(depth + 1, teResolver, banTe.banKyokumen, tumasareSide);
     }
   } else {
     // 詰み
