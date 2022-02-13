@@ -137,15 +137,18 @@ exports.TeResolver = class TeResolver {
       banSnapshot.causingOteBanKomasTo(tumasareSide);
     const myBanKomas = banSnapshot.findOnBoardBanKomasBySide(tumasareSide);
 
-    // 王手をかけている駒を取れる駒の一覧
-    const myBanKomasToRemoveEnemyBanKomas = myBanKomas.filter((myBanKoma) => {
-      return enemyCausingOteBanKomas.some((enemyBanKoma) => {
-        return banSnapshot.isInPownerOfMove(myBanKoma, enemyBanKoma.banPoint);
-      });
-    });
+    const result = [];
 
-    const nextBanTes = [];
-    myBanKomasToRemoveEnemyBanKomas.forEach((myBanKoma) => {
+    for (let myBanKoma of myBanKomas) {
+      // 王手をかけている駒をとれる駒
+      if (
+        !enemyCausingOteBanKomas.some((enemyBanKoma) => {
+          return banSnapshot.isInPownerOfMove(myBanKoma, enemyBanKoma.banPoint);
+        })
+      ) {
+        continue;
+      }
+
       enemyCausingOteBanKomas.forEach((enemyBanKoma) => {
         // 王手をかけている駒が複数ある場合もあるので利きの範囲内か先にチェックする
         if (
@@ -156,26 +159,31 @@ exports.TeResolver = class TeResolver {
             tumasareSide,
           )
         ) {
-          myBanKoma
-            .moveOrMoveAndNariToBanPoint(enemyBanKoma.banPoint)
-            .forEach((nextBanKoma) => {
-              const nextBanShapshot = banSnapshot.moveKomaTo(
-                myBanKoma.banPoint,
-                nextBanKoma.banPoint,
-                nextBanKoma.nari,
-              );
-              const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
-              nextBanTes.push(
-                new BanTe(nextBanKoma, nextBanKyokumen, myBanKoma),
-              );
-            });
+          for (let nextBanKoma of myBanKoma.moveOrMoveAndNariToBanPoint(
+            enemyBanKoma.banPoint,
+          )) {
+            const nextBanShapshot = banSnapshot.moveKomaTo(
+              myBanKoma.banPoint,
+              nextBanKoma.banPoint,
+              nextBanKoma.nari,
+            );
+            const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
+            const nextBanTe = new BanTe(
+              nextBanKoma,
+              nextBanKyokumen,
+              myBanKoma,
+            );
+
+            // 王手を回避できること
+            if (!nextBanTe.banKyokumen.banSnapshot.isOtedFor(tumasareSide)) {
+              result.push(nextBanTe);
+            }
+          }
         }
       });
-    });
+    }
 
-    return nextBanTes.filter((nextBanTe) => {
-      return !nextBanTe.banKyokumen.banSnapshot.isOtedFor(tumasareSide);
-    });
+    return result;
   }
 
   findNextOteAigoma(banSnapshot, tumasareSide) {
