@@ -2,7 +2,7 @@ exports.BanKyokumen = class BanKyokumen {
   constructor(banSnapshot) {
     this.banSnapshot = banSnapshot;
     this.banTes = [];
-    this.isNoOte = null;
+    this.isOte = null;
     this.isTsumi = null;
     this.isOneOfThemNoOte = null;
     this.isOneOfThemCompleteTsumi = null;
@@ -12,12 +12,20 @@ exports.BanKyokumen = class BanKyokumen {
     this.banTes.push(...banTes);
   }
 
+  markAsOte() {
+    this.isOte = true;
+  }
+
   markAsNoOte() {
-    this.isNoOte = true;
+    this.isOte = false;
   }
 
   markAsTsumi() {
     this.isTsumi = true;
+  }
+
+  markAsNotTsumi() {
+    this.isTsumi = false;
   }
 
   markAsOneOfThemNoOte() {

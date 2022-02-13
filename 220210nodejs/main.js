@@ -29,6 +29,7 @@ function nextOte(teResolver, banKyokumen, tumasareSide) {
   // TODO: 開き王手を考慮する
 
   if (banKyokumen.banTes.length) {
+    banKyokumen.markAsOte();
     return true;
   } else {
     banKyokumen.markAsNoOte();
@@ -48,6 +49,7 @@ function nextSurvival(teResolver, banKyokumen, tumasareSide) {
   );
 
   if (banKyokumen.banTes.length) {
+    banKyokumen.markAsNotTsumi();
     return true;
   } else {
     banKyokumen.markAsTsumi();
@@ -113,7 +115,7 @@ function surviveRecursively(depth, teResolver, banKyokumen, tumasareSide) {
 }
 
 function extractTsumiTejunAsArray(result, currentPath, banKyokumen) {
-  if (banKyokumen.isNoOte) {
+  if (!banKyokumen.isOte) {
     return; // 逃げられた
   }
   if (banKyokumen.isTsumi) {
