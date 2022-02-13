@@ -193,31 +193,35 @@ exports.TeResolver = class TeResolver {
     const myCapturedBanKomas =
       banSnapshot.findDistictCapturedBanKomasBySide(tumasareSide);
 
-    const nextBanTes = [];
-    enemyCausingOteBanKomas.filter((enemyBanKoma) => {
-      gyokuBanKoma.banPoint
-        .pointsBetween(enemyBanKoma.banPoint)
-        .forEach((banPoint) => {
-          myCapturedBanKomas.forEach((capturedBanKoma) => {
-            const nextBanKoma = new BanKoma(
-              capturedBanKoma.koma,
-              tumasareSide,
-              banPoint,
-              false,
-            );
-            const nextBanShapshot = banSnapshot.putKoma(
-              banPoint,
-              capturedBanKoma.koma,
-              tumasareSide,
-            );
-            const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
-            nextBanTes.push(new BanTe(nextBanKoma, nextBanKyokumen));
-          });
-        });
-    });
+    const result = [];
+    for (let enemyBanKoma of enemyCausingOteBanKomas) {
+      const aigmablePoints = gyokuBanKoma.banPoint.pointsBetween(
+        enemyBanKoma.banPoint,
+      );
+      for (let banPoint of aigmablePoints) {
+        for (let capturedBanKoma of myCapturedBanKomas) {
+          const nextBanKoma = new BanKoma(
+            capturedBanKoma.koma,
+            tumasareSide,
+            banPoint,
+            false,
+          );
+          const nextBanShapshot = banSnapshot.putKoma(
+            banPoint,
+            capturedBanKoma.koma,
+            tumasareSide,
+          );
+          const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
+          const nextBanTe = new BanTe(nextBanKoma, nextBanKyokumen);
+          
+            // 王手を回避できること
+          if (!nextBanTe.banKyokumen.banSnapshot.isOtedFor(tumasareSide)) {
+            result.push(nextBanTe);
+          }
+        }
+      }
+    }
 
-    return nextBanTes.filter((nextBanTe) => {
-      return !nextBanTe.banKyokumen.banSnapshot.isOtedFor(tumasareSide);
-    });
+    return result;
   }
 };
