@@ -6,8 +6,9 @@ const BanKyokumen = require('./ban-kyokumen.js').BanKyokumen;
 
 exports.TeResolver = class TeResolver {
   // その駒を動かして王手にできる手の配列(BanCommand[])を返す
-  findNextMovingOtesOf(banSnapshot, gyokuBanKoma, banKoma) {
-    const mySide = gyokuBanKoma.side.opposite();
+  findNextMovingOtesOf(banSnapshot, enemySide, banKoma) {
+    const gyokuBanKoma = banSnapshot.findGyokuBySide(enemySide);
+    const mySide = enemySide.opposite();
     // 盤の範囲内で移動できる点
     const nextValidRangeBanPoints = banKoma.nextValidRangeBanPoints();
 
@@ -39,7 +40,8 @@ exports.TeResolver = class TeResolver {
     });
   }
 
-  findNextPuttingOtesOf(banSnapshot, gyokuBanKoma, banKoma) {
+  findNextPuttingOtesOf(banSnapshot, enemySide, banKoma) {
+    const gyokuBanKoma = banSnapshot.findGyokuBySide(enemySide);
     const mySide = gyokuBanKoma.side.opposite();
 
     const emptyBanPoints = banSnapshot.findEmptyPoints();
@@ -76,8 +78,8 @@ exports.TeResolver = class TeResolver {
   }
 
   // 玉が逃げる・取るパターン
-  findNextOteEscaping(banSnapshot, gyokuBanKoma) {
-    const mySide = gyokuBanKoma.side;
+  findNextOteEscaping(banSnapshot, mySide) {
+    const gyokuBanKoma = banSnapshot.findGyokuBySide(mySide);
 
     // 盤の範囲内で移動できる点
     const nextValidRangeBanPoints = gyokuBanKoma.nextValidRangeBanPoints();
@@ -106,8 +108,8 @@ exports.TeResolver = class TeResolver {
       });
   }
 
-  findNextOteRemoving(banSnapshot, gyokuBanKoma) {
-    const mySide = gyokuBanKoma.side;
+  findNextOteRemoving(banSnapshot, mySide) {
+    const gyokuBanKoma = banSnapshot.findGyokuBySide(mySide);
     const enemyCausingOteBanKomas = banSnapshot.causingOteBanKomasTo(mySide);
     const myBanKomas = banSnapshot.findOnBoardBanKomasBySide(mySide);
 
@@ -153,8 +155,8 @@ exports.TeResolver = class TeResolver {
     });
   }
 
-  findNextOteAigoma(banSnapshot, gyokuBanKoma) {
-    const mySide = gyokuBanKoma.side;
+  findNextOteAigoma(banSnapshot, mySide) {
+    const gyokuBanKoma = banSnapshot.findGyokuBySide(mySide);
     const enemyCausingOteBanKomas = banSnapshot.causingOteBanKomasTo(mySide);
     const myCapturedBanKomas =
       banSnapshot.findDistictCapturedBanKomasBySide(mySide);

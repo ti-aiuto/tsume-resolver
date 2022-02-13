@@ -21,7 +21,6 @@ const JsonBanLoader = require('./json-ban-loader.js').JsonBanLoader;
 function nextOte(teResolver, banKyokumen, enemySide) {
   const banSnapshot = banKyokumen.banSnapshot;
   const mySide = enemySide.opposite();
-  const enemyGyoku = banSnapshot.findGyokuBySide(enemySide);
 
   const myOnBoardBanKomas = banSnapshot.findOnBoardBanKomasBySide(mySide);
   // 自分が王手になっていないことのチェックも入れたほうがよさそう
@@ -30,7 +29,7 @@ function nextOte(teResolver, banKyokumen, enemySide) {
     .forEach((myOnBoardBanKoma) => {
       const nextBanTes = teResolver.findNextMovingOtesOf(
         banSnapshot,
-        enemyGyoku,
+        enemySide,
         myOnBoardBanKoma,
       );
 
@@ -44,7 +43,7 @@ function nextOte(teResolver, banKyokumen, enemySide) {
   myCapturedBanKomas.forEach((myOnBoardBanKoma) => {
     const nextBanTes = teResolver.findNextPuttingOtesOf(
       banSnapshot,
-      enemyGyoku,
+      enemySide,
       myOnBoardBanKoma,
     );
 
@@ -62,23 +61,20 @@ function nextOte(teResolver, banKyokumen, enemySide) {
 }
 
 function nextSurvival(teResolver, banKyokumen, enemySide) {
-  const banSnapshot = banKyokumen.banSnapshot;
-  const enemyGyoku = banSnapshot.findGyokuBySide(enemySide);
-
   teResolver
-    .findNextOteEscaping(banKyokumen.banSnapshot, enemyGyoku)
+    .findNextOteEscaping(banKyokumen.banSnapshot, enemySide)
     .forEach((banTe) => {
       banKyokumen.addBanTe(banTe);
     });
 
   teResolver
-    .findNextOteRemoving(banKyokumen.banSnapshot, enemyGyoku)
+    .findNextOteRemoving(banKyokumen.banSnapshot, enemySide)
     .forEach((banTe) => {
       banKyokumen.addBanTe(banTe);
     });
 
   teResolver
-    .findNextOteAigoma(banKyokumen.banSnapshot, enemyGyoku)
+    .findNextOteAigoma(banKyokumen.banSnapshot, enemySide)
     .forEach((banTe) => {
       banKyokumen.addBanTe(banTe);
     });
