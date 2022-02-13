@@ -40,63 +40,67 @@ exports.TeResolver = class TeResolver {
           banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma.banPoint),
         );
 
-        banTes.push(...oteBanKomas.map((oteBanKoma) => {
-          const nextBanShapshot = banSnapshot.moveKomaTo(
-            banKoma.banPoint,
-            oteBanKoma.banPoint,
-            oteBanKoma.nari,
-          );
-          const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
-          return new BanTe(oteBanKoma, nextBanKyokumen, banKoma);
-        }));
+        banTes.push(
+          ...oteBanKomas.map((oteBanKoma) => {
+            const nextBanShapshot = banSnapshot.moveKomaTo(
+              banKoma.banPoint,
+              oteBanKoma.banPoint,
+              oteBanKoma.nari,
+            );
+            const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
+            return new BanTe(oteBanKoma, nextBanKyokumen, banKoma);
+          }),
+        );
       });
-      return banTes;
+    return banTes;
   }
 
   findNextPuttingOtesOf(banSnapshot, tumasareSide) {
     const gyokuBanKoma = banSnapshot.findGyokuBySide(tumasareSide);
     const tumaseSide = gyokuBanKoma.side.opposite();
-    
-  const myCapturedBanKomas =
-  banSnapshot.findDistictCapturedBanKomasBySide(tumaseSide);
 
-  const result = [];
+    const myCapturedBanKomas =
+      banSnapshot.findDistictCapturedBanKomasBySide(tumaseSide);
 
-  myCapturedBanKomas.forEach((banKoma) => {
-    const emptyBanPoints = banSnapshot.findEmptyPoints();
-    const nextOtePossibleBanKomas = [];
+    const result = [];
 
-    emptyBanPoints.forEach((banPoint) => {
-      const nextBanKoma = new BanKoma(banKoma.koma, tumaseSide, banPoint);
+    myCapturedBanKomas.forEach((banKoma) => {
+      const emptyBanPoints = banSnapshot.findEmptyPoints();
+      const nextOtePossibleBanKomas = [];
 
-      if (banKoma.koma instanceof KomaFu) {
-        // 二歩のチェック
-        if (
-          banSnapshot
-            .findBanKomasBySideAndSuji(tumaseSide, banPoint.suji)
-            .find((banKoma) => banKoma.koma.equals(banKoma.koma))
-        ) {
-          return false;
+      emptyBanPoints.forEach((banPoint) => {
+        const nextBanKoma = new BanKoma(banKoma.koma, tumaseSide, banPoint);
+
+        if (banKoma.koma instanceof KomaFu) {
+          // 二歩のチェック
+          if (
+            banSnapshot
+              .findBanKomasBySideAndSuji(tumaseSide, banPoint.suji)
+              .find((banKoma) => banKoma.koma.equals(banKoma.koma))
+          ) {
+            return false;
+          }
         }
-      }
 
-      if (banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma.banPoint)) {
-        nextOtePossibleBanKomas.push(nextBanKoma);
-      }
+        if (banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma.banPoint)) {
+          nextOtePossibleBanKomas.push(nextBanKoma);
+        }
+      });
+
+      result.push(
+        ...nextOtePossibleBanKomas.map((oteBanKoma) => {
+          const nextBanShapshot = banSnapshot.putKoma(
+            oteBanKoma.banPoint,
+            oteBanKoma.koma,
+            oteBanKoma.side,
+          );
+          const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
+          return new BanTe(oteBanKoma, nextBanKyokumen, null);
+        }),
+      );
     });
 
-    result.push(...nextOtePossibleBanKomas.map((oteBanKoma) => {
-      const nextBanShapshot = banSnapshot.putKoma(
-        oteBanKoma.banPoint,
-        oteBanKoma.koma,
-        oteBanKoma.side,
-      );
-      const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
-      return new BanTe(oteBanKoma, nextBanKyokumen, null);
-    }));
-  });
-
-  return result;
+    return result;
   }
 
   // 玉が逃げる・取るパターン
