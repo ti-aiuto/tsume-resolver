@@ -66,6 +66,7 @@ function oteRecursively(depth, teResolver, banKyokumen, tumasareSide) {
   }
   if (nextOte(teResolver, banKyokumen, tumasareSide)) {
     // 王手をかけることができた場合、各差し手について逃げ道があるかチェック
+    let index = 0;
     for (let banTe of banKyokumen.banTes) {
       try {
         if (
@@ -77,7 +78,8 @@ function oteRecursively(depth, teResolver, banKyokumen, tumasareSide) {
           ) === false
         ) {
           // 一つでも逃げられない手があればそのKyokumenが完全に詰みとする
-          banKyokumen.markAsOneOfThemCompleteTsumi();
+          banKyokumen.markAsNoUkeAndFutureTsumi();
+          banKyokumen.markAsOneOfThemCompleteTsumi(index);
           return true;
         }  
       } catch (e) {
@@ -87,7 +89,9 @@ function oteRecursively(depth, teResolver, banKyokumen, tumasareSide) {
           throw e;
         } 
       }
+      index ++;
     }
+    banKyokumen.markAsOneOfThemNoOte();
     return false;
   } else {
     // 逃げられた
@@ -107,6 +111,7 @@ function surviveRecursively(depth, teResolver, banKyokumen, tumasareSide) {
         return true;
       }
     }
+    banKyokumen.markAsNoUkeAndFutureTsumi();
     return false;
   } else {
     // 詰み
@@ -115,13 +120,13 @@ function surviveRecursively(depth, teResolver, banKyokumen, tumasareSide) {
 }
 
 function extractTsumiTejunAsArray(result, currentPath, banKyokumen) {
-  if (!banKyokumen.isOte) {
-    return; // 逃げられた
-  }
   if (banKyokumen.isTsumi) {
     result.push(currentPath);
   }
   for (let banTe of banKyokumen.banTes) {
+    if (!banKyokumen.isNoUkeAndFutureTsumi) {
+      continue;
+    }
     extractTsumiTejunAsArray(
       result,
       [...currentPath, banTe],
