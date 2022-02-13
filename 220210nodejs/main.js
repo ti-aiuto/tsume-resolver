@@ -45,15 +45,8 @@ class Koma {
     throw new Error('NotImplemented');
   }
 
-  toJSON() {
-    return {
-      label: this.label,
-      nari: this.nari,
-    };
-  }
-
   equals(other) {
-    return this.label === other.label && this.nari === other.nari;
+    return this.label === other.label;
   }
 }
 
@@ -750,6 +743,7 @@ class BanSnapshot {
   findDistictCapturedBanKomasBySide(side) {
     const result = [];
     const banKomas = this.findCapturedBanKomasBySide(side);
+    // 重複を除く
     banKomas.forEach((banKoma) => {
       if (!result.find((resultKoma) => resultKoma.koma.equals(banKoma.koma))) {
         result.push(banKoma);
