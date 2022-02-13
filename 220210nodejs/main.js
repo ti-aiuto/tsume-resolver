@@ -10,7 +10,6 @@ async function readFileAsJson(filename) {
 }
 
 const KomaFu = require('./koma-fu.js').KomaFu;
-const KomaGyoku = require('./koma-gyoku.js').KomaGyoku;
 
 const BanSide = require('./ban-side.js').BanSide;
 const TeResolver = require('./te-resolver.js').TeResolver;
@@ -20,19 +19,13 @@ const JsonBanLoader = require('./json-ban-loader.js').JsonBanLoader;
 
 function nextOte(teResolver, banKyokumen, tumasareSide) {
   const banSnapshot = banKyokumen.banSnapshot;
-  const mySide = tumasareSide.opposite();
 
-  teResolver
-    .findNextMovingOtesOf(banSnapshot, tumasareSide)
-    .forEach((banTe) => {
-      banKyokumen.addBanTe(banTe);
-    });
-
-  teResolver
-    .findNextPuttingOtesOf(banSnapshot, tumasareSide)
-    .forEach((banTe) => {
-      banKyokumen.addBanTe(banTe);
-    });
+  banKyokumen.addBanTe(
+    ...teResolver.findNextMovingOtesOf(banSnapshot, tumasareSide),
+  );
+  banKyokumen.addBanTe(
+    ...teResolver.findNextPuttingOtesOf(banSnapshot, tumasareSide),
+  );
 
   if (banKyokumen.banTes.length) {
     return true;
