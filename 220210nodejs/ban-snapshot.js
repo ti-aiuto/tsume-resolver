@@ -12,12 +12,12 @@ exports.BanSnapshot = class BanSnapshot {
     if (this.findBanKomaByBanPoint(banPoint)) {
       new Error('既に駒が存在');
     }
-    this.banKomas.push(new BanKoma(koma, side, banPoint, nari));
+    this.addBanKoma(new BanKoma(koma, side, banPoint, nari));
     return this;
   }
 
   initAddCaptured(koma, side) {
-    this.banKomas.push(new BanKoma(koma, side, null, false));
+    this.addBanKoma(new BanKoma(koma, side, null, false));
     return this;
   }
 
@@ -38,10 +38,10 @@ exports.BanSnapshot = class BanSnapshot {
     }
 
     cloned.addOnBoardBanKoma(targetBanKoma.koma, mySide, toBanPoint, nari);
-    cloned.removeOnBoardBanKoma(targetBanKoma);
+    cloned.removeBanKoma(targetBanKoma);
 
     if (existingBanKoma) {
-      cloned.removeOnBoardBanKoma(existingBanKoma);
+      cloned.removeBanKoma(existingBanKoma);
       cloned.addCapturedBanKoma(existingBanKoma.koma, mySide);
     }
     return cloned;
@@ -59,14 +59,8 @@ exports.BanSnapshot = class BanSnapshot {
   }
 
   // protected
-  removeOnBoardBanKoma(banKoma) {
-    const index = this.banKomas.indexOf(banKoma);
-    this.banKomas.splice(index, 1);
-  }
-
-  // protected
   addOnBoardBanKoma(koma, side, banPoint, nari) {
-    this.banKomas.push(new BanKoma(koma, side, banPoint, nari));
+    this.addBanKoma(new BanKoma(koma, side, banPoint, nari));
   }
 
   // protected
@@ -86,8 +80,6 @@ exports.BanSnapshot = class BanSnapshot {
     if (!banKoma) {
       throw new Error('持ち駒に駒がない');
     }
-    const index = this.banKomas.indexOf(banKoma);
-    this.banKomas.splice(index, 1);
   }
 
   isNotOccupiedBySide(banPoint, banSide) {
@@ -233,5 +225,14 @@ exports.BanSnapshot = class BanSnapshot {
     });
     text += '\n';
     return text;
+  }
+
+  addBanKoma(banKoma) {
+    this.banKomas.push(banKoma);
+  }
+
+  removeBanKoma(banKoma) {
+    const index = this.banKomas.indexOf(banKoma);
+    this.banKomas.splice(index, 1);
   }
 };
