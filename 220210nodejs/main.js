@@ -25,8 +25,6 @@ const KOMA_RYU = ' 竜';
 const KOMA_NARI_GIN = 'ﾄ銀';
 const OWNER_SENTE = '先手';
 const OWNER_GOTE = '後手';
-const SUJI_OPTIONS = Object.freeze([1, 2, 3, 4, 5, 6, 7, 8, 9]);
-const DAN_OPTIONS = SUJI_OPTIONS;
 
 class Koma {
   label(nari) {
@@ -456,11 +454,19 @@ class BanPoint {
   }
 
   static isValidSuji(suji) {
-    return [1, 2, 3, 4, 5, 6, 7, 8, 9].includes(suji);
+    return this.sujiOptions().includes(suji);
   }
 
   static isValidDan(dan) {
     return this.isValidSuji(dan); // 同じロジックでOK
+  }
+
+  static sujiOptions() {
+    return Object.freeze([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  }
+
+  static danOptions() {
+    return this.sujiOptions();
   }
 }
 
@@ -762,8 +768,8 @@ class BanSnapshot {
   // 計算コスト高いため覚えておくことを推奨
   findEmptyPoints() {
     const result = [];
-    SUJI_OPTIONS.forEach((suji) => {
-      DAN_OPTIONS.forEach((dan) => {
+    BanPoint.sujiOptions().forEach((suji) => {
+      BanPoint.danOptions().forEach((dan) => {
         const banPoint = new BanPoint(suji, dan);
         if (!this.findBanKomaByBanPoint(banPoint)) {
           result.push(banPoint);
@@ -795,8 +801,8 @@ class BanSnapshot {
       text += banKoma.koma.label(banKoma.nari);
     });
     text += '\n';
-    [...DAN_OPTIONS].reverse().forEach((dan) => {
-      SUJI_OPTIONS.forEach((suji) => {
+    [...BanPoint.danOptions()].reverse().forEach((dan) => {
+      BanPoint.sujiOptions().forEach((suji) => {
         const banPoint = new BanPoint(suji, dan);
         const banKoma = this.findBanKomaByBanPoint(banPoint);
         if (banKoma) {
