@@ -4,8 +4,9 @@ const BanPoint = require('./ban-point.js').BanPoint;
 const BanSide = require('./ban-side.js').BanSide;
 
 exports.BanSnapshot = class BanSnapshot {
-  constructor(banKomas = []) {
+  constructor(banKomas = [], sujiDanBanKomaMap = {}) {
     this.banKomas = banKomas;
+    this.sujiDanBanKomaMap = sujiDanBanKomaMap;
   }
 
   initPutOnBoard(banPoint, koma, side, nari) {
@@ -195,7 +196,7 @@ exports.BanSnapshot = class BanSnapshot {
   }
 
   clone() {
-    return new BanSnapshot([...this.banKomas]);
+    return new BanSnapshot([...this.banKomas], { ...this.sujiDanBanKomaMap });
   }
 
   toString() {
