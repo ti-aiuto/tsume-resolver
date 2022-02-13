@@ -10,76 +10,13 @@ async function readFileAsJson(filename) {
 }
 
 const KomaFu = require('./koma-fu.js').KomaFu;
-const KomaKyo = require('./koma-kyo.js').KomaKyo;
-const KomaKei = require('./koma-kei.js').KomaKei;
-const KomaKaku = require('./koma-kaku.js').KomaKaku;
-const KomaHisha = require('./koma-hisha.js').KomaHisha;
-const KomaKin = require('./koma-kin.js').KomaKin;
-const KomaGin = require('./koma-gin.js').KomaGin;
 const KomaGyoku = require('./koma-gyoku.js').KomaGyoku;
 
-const BanPoint = require('./ban-point.js').BanPoint;
 const BanSide = require('./ban-side.js').BanSide;
-const BanSnapshot = require('./ban-snapshot.js').BanSnapshot;
 const TeResolver = require('./te-resolver.js').TeResolver;
 const BanKyokumen = require('./ban-kyokumen.js').BanKyokumen;
 
-function createKoma(name, nari) {
-  if (name === '歩') {
-    return new KomaFu(nari);
-  } else if (name === '香') {
-    return new KomaKyo(nari);
-  } else if (name === '桂') {
-    return new KomaKei(nari);
-  } else if (name === '角') {
-    return new KomaKaku(nari);
-  } else if (name === '飛') {
-    return new KomaHisha(nari);
-  } else if (name === '金') {
-    return new KomaKin(nari);
-  } else if (name === '銀') {
-    return new KomaGin(nari);
-  } else if (name === '玉') {
-    return new KomaGyoku(nari);
-  } else {
-    throw new Error(`${name}は未定義`);
-  }
-}
-
-function loadBanSnapshot(json) {
-  const banSnapshot = new BanSnapshot();
-
-  const sente = BanSide.createSenteSide();
-  const gote = BanSide.createGoteSide();
-
-  json['initial_koma']['on_board']['sente'].forEach((koma) => {
-    banSnapshot.initPutOnBoard(
-      new BanPoint(koma['suji'], koma['dan']),
-      createKoma(koma['name']),
-      sente,
-      koma['nari'],
-    );
-  });
-
-  json['initial_koma']['on_board']['gote'].forEach((koma) => {
-    banSnapshot.initPutOnBoard(
-      new BanPoint(koma['suji'], koma['dan']),
-      createKoma(koma['name']),
-      gote,
-      koma['nari'],
-    );
-  });
-
-  json['initial_koma']['captured']['sente'].forEach((koma) =>
-    banSnapshot.initAddCaptured(createKoma(koma['name']), sente),
-  );
-
-  json['initial_koma']['captured']['gote'].forEach((koma) =>
-    banSnapshot.initAddCaptured(createKoma(koma['name']), gote),
-  );
-
-  return banSnapshot;
-}
+const JsonBanLoader = require('./json-ban-loader.js').JsonBanLoader;
 
 function nextOte(teResolver, banKyokumen, enemySide) {
   const banSnapshot = banKyokumen.banSnapshot;
@@ -200,7 +137,7 @@ function extractTsumiTejunAsArray(result, currentPath, banKyokumen) {
 
 async function main() {
   const json = await readFileAsJson(sample_filename);
-  const initialBanSnapshot = loadBanSnapshot(json);
+  const initialBanSnapshot = (new JsonBanLoader()).load(json);
   const initialBanKyokumen = new BanKyokumen(initialBanSnapshot);
 
   const enemySide = BanSide.createGoteSide();
