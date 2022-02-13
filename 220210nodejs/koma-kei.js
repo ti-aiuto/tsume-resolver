@@ -32,15 +32,11 @@ exports.KomaKei = class KomaKei extends Koma {
     }
   }
   
-  maximumSujiStepLength(nari) {
+  maximumSujiStepLength() {
     return 1;
   }
 
-  maximumDanStepLength(nari) {
-    if (nari) {
-      return 1;
-    } else {
-      return 2;
-    }
+  maximumDanStepLength() {
+    return 2;
   }
 };

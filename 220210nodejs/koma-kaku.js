@@ -56,11 +56,11 @@ exports.KomaKaku = class KomaKaku extends Koma {
     }
   }
   
-  maximumSujiStepLength(nari) {
+  maximumSujiStepLength() {
     return 8;
   }
 
-  maximumDanStepLength(nari) {
+  maximumDanStepLength() {
     return 8;
   }
 };

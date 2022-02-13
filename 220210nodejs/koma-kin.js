@@ -20,47 +20,12 @@ exports.KomaKin = class KomaKin extends Koma {
       [-1, 0],
     ];
   }
+
+  maximumSujiStepLength() {
+    return 1;
+  }
+
+  maximumDanStepLength() {
+    return 1;
+  }
 };
-
-class KomaGin extends Koma {
-  label(nari) {
-    if (nari) {
-      return banI18n.labelNariGin;
-    } else {
-      return banI18n.labelGin;
-    }
-  }
-
-  get canBeNari() {
-    return true;
-  }
-
-  possibleStepVectors(nari) {
-    if (nari) {
-      return [
-        [0, 1],
-        [-1, 1],
-        [1, 1],
-        [0, -1],
-        [1, 0],
-        [-1, 0],
-      ];
-    } else {
-      return [
-        [0, 1],
-        [-1, 1],
-        [1, 1],
-        [1, -1],
-        [-1, -1],
-      ];
-    }
-  }
-  
-  maximumSujiStepLength(nari) {
-    return 1;
-  }
-
-  maximumDanStepLength(nari) {
-    return 1;
-  }
-}

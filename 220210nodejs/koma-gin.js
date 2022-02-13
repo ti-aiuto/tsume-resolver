@@ -35,11 +35,11 @@ exports.KomaGin = class KomaGin extends Koma {
     }
   }
 
-  maximumSujiStepLength(nari) {
+  maximumSujiStepLength() {
     return 1;
   }
 
-  maximumDanStepLength(nari) {
+  maximumDanStepLength() {
     return 1;
   }
 };

@@ -29,15 +29,11 @@ exports.KomaFu = class KomaFu extends Koma {
     }
   }
 
-  maximumSujiStepLength(nari) {
-    if (nari) {
-      return 1;
-    } else {
-      return 0;
-    }
+  maximumSujiStepLength() {
+    return 1;
   }
 
-  maximumDanStepLength(nari) {
+  maximumDanStepLength() {
     return 1;
   }
 };

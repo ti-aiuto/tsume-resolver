@@ -15,7 +15,7 @@ exports.Koma = class Koma {
     throw new Error('NotImplemented');
   }
 
-  maximumDanStepLength(nari) {
+  maximumDanStepLength() {
     throw new Error('NotImplemented');
   }
 
