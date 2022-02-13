@@ -35,7 +35,7 @@ exports.TeResolver = class TeResolver {
             ...banKoma.moveOrMoveAndNariToBanPoint(banPoint),
           ),
         );
-        // そのBanKomaの移動先の点が敵玉の点と一致すること
+        // そのBanKomaの移動先でその駒が王手をかけること
         const oteBanKomas = nextPossibleBanKomas.filter((nextBanKoma) =>
           banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma.banPoint),
         );
