@@ -137,8 +137,8 @@ exports.TeResolver = class TeResolver {
       banSnapshot.causingOteBanKomasTo(tumasareSide);
     const myBanKomas = banSnapshot.findOnBoardBanKomasBySide(tumasareSide);
 
-    if (enemyCausingOteBanKomas.length ==- 0) {
-      throw new Error("王手がかかっていない");
+    if (enemyCausingOteBanKomas.length == -0) {
+      throw new Error('王手がかかっていない');
     }
 
     const result = [];
@@ -153,38 +153,43 @@ exports.TeResolver = class TeResolver {
         continue;
       }
 
-      enemyCausingOteBanKomas.forEach((enemyBanKoma) => {
-        // 王手をかけている駒が複数ある場合は利きの範囲内か先にチェックする
+      for (let enemyBanKoma of enemyCausingOteBanKomas) {
         if (
-          banSnapshot.isInPownerOfMove(myBanKoma, enemyBanKoma.banPoint) &&
-          banSnapshot.canMoveToBanPointBySide(
+          enemyCausingOteBanKomas.length >= 2 &&
+          !banSnapshot.isInPownerOfMove(myBanKoma, enemyBanKoma.banPoint)
+        ) {
+          // 王手をかけている駒が複数ある場合は利きの範囲内か先にチェックする
+          continue;
+        }
+
+        // その場所に移動できるかどうか
+        if (
+          !banSnapshot.canMoveToBanPointBySide(
             myBanKoma.banPoint,
             enemyBanKoma.banPoint,
             tumasareSide,
           )
         ) {
-          for (let nextBanKoma of myBanKoma.moveOrMoveAndNariToBanPoint(
-            enemyBanKoma.banPoint,
-          )) {
-            const nextBanShapshot = banSnapshot.moveKomaTo(
-              myBanKoma.banPoint,
-              nextBanKoma.banPoint,
-              nextBanKoma.nari,
-            );
-            const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
-            const nextBanTe = new BanTe(
-              nextBanKoma,
-              nextBanKyokumen,
-              myBanKoma,
-            );
+          continue;
+        }
 
-            // 王手を回避できること
-            if (!nextBanTe.banKyokumen.banSnapshot.isOtedFor(tumasareSide)) {
-              result.push(nextBanTe);
-            }
+        for (let nextBanKoma of myBanKoma.moveOrMoveAndNariToBanPoint(
+          enemyBanKoma.banPoint,
+        )) {
+          const nextBanShapshot = banSnapshot.moveKomaTo(
+            myBanKoma.banPoint,
+            nextBanKoma.banPoint,
+            nextBanKoma.nari,
+          );
+          const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
+          const nextBanTe = new BanTe(nextBanKoma, nextBanKyokumen, myBanKoma);
+
+          // 王手を回避できること
+          if (!nextBanTe.banKyokumen.banSnapshot.isOtedFor(tumasareSide)) {
+            result.push(nextBanTe);
           }
         }
-      });
+      }
     }
 
     return result;
@@ -194,11 +199,17 @@ exports.TeResolver = class TeResolver {
     const gyokuBanKoma = banSnapshot.findGyokuBySide(tumasareSide);
     const enemyCausingOteBanKomas =
       banSnapshot.causingOteBanKomasTo(tumasareSide);
+
+    if (enemyCausingOteBanKomas.length == -0) {
+      throw new Error('王手がかかっていない');
+    }
+
     const myCapturedBanKomas =
       banSnapshot.findDistictCapturedBanKomasBySide(tumasareSide);
 
     const result = [];
     for (let enemyBanKoma of enemyCausingOteBanKomas) {
+      // 王手をかけている駒を間駒できる場所
       const aigmablePoints = gyokuBanKoma.banPoint.pointsBetween(
         enemyBanKoma.banPoint,
       );
@@ -217,8 +228,8 @@ exports.TeResolver = class TeResolver {
           );
           const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
           const nextBanTe = new BanTe(nextBanKoma, nextBanKyokumen);
-          
-            // 王手を回避できること
+
+          // 王手を回避できること
           if (!nextBanTe.banKyokumen.banSnapshot.isOtedFor(tumasareSide)) {
             result.push(nextBanTe);
           }
