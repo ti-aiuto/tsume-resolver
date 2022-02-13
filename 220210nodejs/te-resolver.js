@@ -53,10 +53,16 @@ exports.TeResolver = class TeResolver {
       return banTes;
   }
 
-  findNextPuttingOtesOf(banSnapshot, tumasareSide, banKoma) {
+  findNextPuttingOtesOf(banSnapshot, tumasareSide) {
     const gyokuBanKoma = banSnapshot.findGyokuBySide(tumasareSide);
     const tumaseSide = gyokuBanKoma.side.opposite();
+    
+  const myCapturedBanKomas =
+  banSnapshot.findDistictCapturedBanKomasBySide(tumaseSide);
 
+  const result = [];
+
+  myCapturedBanKomas.forEach((banKoma) => {
     const emptyBanPoints = banSnapshot.findEmptyPoints();
     const nextOtePossibleBanKomas = [];
 
@@ -79,7 +85,7 @@ exports.TeResolver = class TeResolver {
       }
     });
 
-    return nextOtePossibleBanKomas.map((oteBanKoma) => {
+    result.push(...nextOtePossibleBanKomas.map((oteBanKoma) => {
       const nextBanShapshot = banSnapshot.putKoma(
         oteBanKoma.banPoint,
         oteBanKoma.koma,
@@ -87,7 +93,10 @@ exports.TeResolver = class TeResolver {
       );
       const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
       return new BanTe(oteBanKoma, nextBanKyokumen, null);
-    });
+    }));
+  });
+
+  return result;
   }
 
   // 玉が逃げる・取るパターン

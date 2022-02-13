@@ -28,19 +28,11 @@ function nextOte(teResolver, banKyokumen, tumasareSide) {
       banKyokumen.addBanTe(banTe);
     });
 
-  const myCapturedBanKomas =
-    banSnapshot.findDistictCapturedBanKomasBySide(mySide);
-  myCapturedBanKomas.forEach((myOnBoardBanKoma) => {
-    const nextBanTes = teResolver.findNextPuttingOtesOf(
-      banSnapshot,
-      tumasareSide,
-      myOnBoardBanKoma,
-    );
-
-    nextBanTes.forEach((banTe) => {
+  teResolver
+    .findNextPuttingOtesOf(banSnapshot, tumasareSide)
+    .forEach((banTe) => {
       banKyokumen.addBanTe(banTe);
     });
-  });
 
   if (banKyokumen.banTes.length) {
     return true;
