@@ -16,7 +16,7 @@ exports.BanSide = class BanSide {
   }
 
   get label() {
-    return 'TODO: 先手後手';
+    return this.shortLabel;
   }
 
   get shortLabel() {
