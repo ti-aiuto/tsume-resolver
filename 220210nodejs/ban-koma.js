@@ -48,6 +48,19 @@ exports.BanKoma = class BanKoma {
     );
   }
 
+  // 引数の地点が利きの範囲に成り得るかどうか
+  nearPointOf(otherBanPoint) {
+    if (!this.banPoint) {
+      return null;
+    }
+    return (
+      this.banPoint.sujiDistance(otherBanPoint) <=
+        this.koma.maximumSujiStepLength(this.nari) &&
+      this.banPoint.danDistance(otherBanPoint) <=
+        this.koma.maximumDanStepLength(this.nari)
+    );
+  }
+
   moveOrMoveAndNariToBanPoint(toBanPoint) {
     const result = [];
     const nextBanKoma = new BanKoma(

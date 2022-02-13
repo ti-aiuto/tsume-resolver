@@ -70,8 +70,9 @@ exports.TeResolver = class TeResolver {
 
     const result = [];
     for (let banKoma of myCapturedBanKomas) {
+      // 飛び道具の場合はある程度総当たり的な探索が必要
+      // それ以外の場合は近い場所だけ対象にする
       const emptyBanPoints = banSnapshot.findEmptyPoints();
-
       for (let banPoint of emptyBanPoints) {
         const nextBanKoma = new BanKoma(banKoma.koma, tumaseSide, banPoint);
 

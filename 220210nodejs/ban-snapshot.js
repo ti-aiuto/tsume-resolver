@@ -97,10 +97,7 @@ exports.BanSnapshot = class BanSnapshot {
 
   canMoveToBanPointBySide(fromBanPoint, toBanPoint, banSide) {
     // 移動先に自分の駒があったら移動不可
-    const destinationPointCheck = this.isNotOccupiedBySide(
-      toBanPoint,
-      banSide,
-    );
+    const destinationPointCheck = this.isNotOccupiedBySide(toBanPoint, banSide);
     if (!destinationPointCheck) {
       return false;
     }
@@ -114,6 +111,11 @@ exports.BanSnapshot = class BanSnapshot {
 
   // 第一引数の駒の効きに第二引数の駒が入っているかどうか
   isInPownerOfMove(banKoma, otherBanPoint) {
+    // 最大限移動しても利きに入っていないなら入らない
+    if (!banKoma.nearPointOf(otherBanPoint)) {
+      return false;
+    }
+
     const gyokuInInPowerOfMove = banKoma
       .nextValidRangeBanPoints()
       .some((banPoint) => otherBanPoint.equals(banPoint));
