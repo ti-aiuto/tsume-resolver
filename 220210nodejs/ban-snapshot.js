@@ -80,6 +80,7 @@ exports.BanSnapshot = class BanSnapshot {
     if (!banKoma) {
       throw new Error('持ち駒に駒がない');
     }
+    this.removeBanKoma(banKoma);
   }
 
   isNotOccupiedBySide(banPoint, banSide) {
