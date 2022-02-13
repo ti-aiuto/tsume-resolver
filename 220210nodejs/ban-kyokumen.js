@@ -2,8 +2,10 @@ exports.BanKyokumen = class BanKyokumen {
   constructor(banSnapshot) {
     this.banSnapshot = banSnapshot;
     this.banTes = [];
-    this.isNoOte = false;
-    this.isTsumi = false;
+    this.isNoOte = null;
+    this.isTsumi = null;
+    this.isOneOfThemNoOte = null;
+    this.isOneOfThemCompleteTsumi = null;
   }
 
   addBanTe(...banTes) {
@@ -16,6 +18,14 @@ exports.BanKyokumen = class BanKyokumen {
 
   markAsTsumi() {
     this.isTsumi = true;
+  }
+
+  markAsOneOfThemNoOte() {
+    this.isOneOfThemNoOte = true;
+  }
+
+  markAsOneOfThemCompleteTsumi() {
+    this.isOneOfThemCompleteTsumi = true;
   }
 
   get isToContinue() {

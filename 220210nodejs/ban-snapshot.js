@@ -4,20 +4,22 @@ const BanPoint = require('./ban-point.js').BanPoint;
 const BanSide = require('./ban-side.js').BanSide;
 
 exports.BanSnapshot = class BanSnapshot {
-  constructor(banKomas = []) {
-    this.banKomas = banKomas;
+  constructor(senteBanKomas = [], goteBanKomas = [], sujiDanBanKomaMap = {}) {
+    this.senteBanKomas = senteBanKomas;
+    this.goteBanKomas = goteBanKomas;
+    this.sujiDanBanKomaMap = sujiDanBanKomaMap;
   }
 
   initPutOnBoard(banPoint, koma, side, nari) {
     if (this.findBanKomaByBanPoint(banPoint)) {
       new Error('既に駒が存在');
     }
-    this.banKomas.push(new BanKoma(koma, side, banPoint, nari));
+    this.addBanKoma(new BanKoma(koma, side, banPoint, nari));
     return this;
   }
 
   initAddCaptured(koma, side) {
-    this.banKomas.push(new BanKoma(koma, side, null, false));
+    this.addBanKoma(new BanKoma(koma, side, null, false));
     return this;
   }
 
@@ -37,13 +39,14 @@ exports.BanSnapshot = class BanSnapshot {
       throw new Error('既に自分の駒が存在');
     }
 
-    cloned.addOnBoardBanKoma(targetBanKoma.koma, mySide, toBanPoint, nari);
-    cloned.removeOnBoardBanKoma(targetBanKoma);
-
     if (existingBanKoma) {
-      cloned.removeOnBoardBanKoma(existingBanKoma);
+      cloned.removeBanKoma(existingBanKoma);
       cloned.addCapturedBanKoma(existingBanKoma.koma, mySide);
     }
+
+    cloned.addOnBoardBanKoma(targetBanKoma.koma, mySide, toBanPoint, nari);
+    cloned.removeBanKoma(targetBanKoma);
+
     return cloned;
   }
 
@@ -59,14 +62,8 @@ exports.BanSnapshot = class BanSnapshot {
   }
 
   // protected
-  removeOnBoardBanKoma(banKoma) {
-    const index = this.banKomas.indexOf(banKoma);
-    this.banKomas.splice(index, 1);
-  }
-
-  // protected
   addOnBoardBanKoma(koma, side, banPoint, nari) {
-    this.banKomas.push(new BanKoma(koma, side, banPoint, nari));
+    this.addBanKoma(new BanKoma(koma, side, banPoint, nari));
   }
 
   // protected
@@ -86,8 +83,7 @@ exports.BanSnapshot = class BanSnapshot {
     if (!banKoma) {
       throw new Error('持ち駒に駒がない');
     }
-    const index = this.banKomas.indexOf(banKoma);
-    this.banKomas.splice(index, 1);
+    this.removeBanKoma(banKoma);
   }
 
   isNotOccupiedBySide(banPoint, banSide) {
@@ -131,45 +127,59 @@ exports.BanSnapshot = class BanSnapshot {
   }
 
   findBanKomaByBanPoint(banPoint) {
-    return this.banKomas.find(
-      (banKoma) => banKoma.banPoint && banKoma.banPoint.equals(banPoint),
-    );
+    return this.sujiDanBanKomaMap[this.sujiDanKeyOf(banPoint)];
   }
 
   findBanKomasBySideAndSuji(side, suji) {
-    return this.banKomas.filter(
-      (banKoma) => banKoma.side.equals(side) && banKoma.banPoint?.suji === suji,
-    );
+    if (side.isSente) {
+      return this.senteBanKomas.filter(
+        (banKoma) => banKoma.isOnBoard && banKoma.banPoint?.suji === suji,
+      );
+    } else {
+      return this.goteBanKomas.filter(
+        (banKoma) => banKoma.isOnBoard && banKoma.banPoint?.suji === suji,
+      );
+    }
   }
 
   findOnBoardBanKomasBySide(side) {
-    return this.banKomas.filter(
-      (banKoma) => banKoma.side.equals(side) && banKoma.isOnBoard,
-    );
+    if (side.isSente) {
+      return this.senteBanKomas.filter((banKoma) => banKoma.isOnBoard);
+    } else {
+      return this.goteBanKomas.filter((banKoma) => banKoma.isOnBoard);
+    }
   }
 
   findCapturedBanKomasBySide(side) {
-    return this.banKomas.filter(
-      (banKoma) => banKoma.side.equals(side) && banKoma.isCaptured,
-    );
+    if (side.isSente) {
+      return this.senteBanKomas.filter((banKoma) => banKoma.isCaptured);
+    } else {
+      return this.goteBanKomas.filter((banKoma) => banKoma.isCaptured);
+    }
   }
 
   findDistictCapturedBanKomasBySide(side) {
     const result = [];
     const banKomas = this.findCapturedBanKomasBySide(side);
     // 重複を除く
-    banKomas.forEach((banKoma) => {
+    for (let banKoma of banKomas) {
       if (!result.find((resultKoma) => resultKoma.koma.equals(banKoma.koma))) {
         result.push(banKoma);
       }
-    });
+    }
     return result;
   }
 
   findGyokuBySide(side) {
-    return this.banKomas.find(
-      (item) => item.side.equals(side) && item.koma instanceof KomaGyoku,
-    );
+    if (side.isSente) {
+      return this.senteBanKomas.find(
+        (item) => item.side.equals(side) && item.koma instanceof KomaGyoku,
+      );
+    } else {
+      return this.goteBanKomas.find(
+        (item) => item.side.equals(side) && item.koma instanceof KomaGyoku,
+      );
+    }
   }
 
   // 駒を打てる場所の一覧
@@ -202,7 +212,9 @@ exports.BanSnapshot = class BanSnapshot {
   }
 
   clone() {
-    return new BanSnapshot([...this.banKomas]);
+    return new BanSnapshot([...this.senteBanKomas], [...this.goteBanKomas], {
+      ...this.sujiDanBanKomaMap,
+    });
   }
 
   toString() {
@@ -233,5 +245,39 @@ exports.BanSnapshot = class BanSnapshot {
     });
     text += '\n';
     return text;
+  }
+
+  addBanKoma(banKoma) {
+    if (banKoma.side.isSente) {
+      this.senteBanKomas.push(banKoma);
+    } else {
+      this.goteBanKomas.push(banKoma);
+    }
+    if (banKoma.banPoint) {
+      this.sujiDanBanKomaMap[this.sujiDanKeyOf(banKoma.banPoint)] = banKoma;
+    }
+  }
+
+  removeBanKoma(banKoma) {
+    if (banKoma.banPoint) {
+      this.sujiDanBanKomaMap[this.sujiDanKeyOf(banKoma.banPoint)] = null;
+    }
+    if (banKoma.side.isSente) {
+      const index = this.senteBanKomas.indexOf(banKoma);
+      if (index === -1) {
+        throw new Error('駒が不明');
+      }
+      this.senteBanKomas.splice(index, 1);
+    } else {
+      const index = this.goteBanKomas.indexOf(banKoma);
+      this.goteBanKomas.splice(index, 1);
+      if (index === -1) {
+        throw new Error('駒が不明');
+      }
+    }
+  }
+
+  sujiDanKeyOf(banPoint) {
+    return `${banPoint.suji}-${banPoint.dan}`;
   }
 };
