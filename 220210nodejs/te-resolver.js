@@ -5,6 +5,7 @@ const KomaGyoku = require('./koma-gyoku.js').KomaGyoku;
 const BanTe = require('./ban-te.js').BanTe;
 const BanKyokumen = require('./ban-kyokumen.js').BanKyokumen;
 
+// forEachよりfor(of)のほうが速いそうなので書き換えた
 exports.TeResolver = class TeResolver {
   // 駒を動かして王手にできる手の配列(BanCommand[])を返す
   findNextMovingOtesOf(banSnapshot, tumasareSide) {
@@ -13,45 +14,45 @@ exports.TeResolver = class TeResolver {
     const tumaseSide = tumasareSide.opposite();
 
     const myOnBoardBanKomas = banSnapshot.findOnBoardBanKomasBySide(tumaseSide);
-    myOnBoardBanKomas
-      .filter((banKoma) => !(banKoma.koma instanceof KomaGyoku)) // 玉で王手を掛けるとこちらが王手になってしまう
-      .forEach((banKoma) => {
-        // 盤の範囲内で移動できる点
-        const nextValidRangeBanPoints = banKoma.nextValidRangeBanPoints();
+    for (let banKoma of myOnBoardBanKomas) {
+      if (banKoma.koma instanceof KomaGyoku) {
+        continue;
+        // 玉で王手を掛けるとこちらが王手になってしまう
+      }
+      // 盤の範囲内で移動できる点
+      const nextValidRangeBanPoints = banKoma.nextValidRangeBanPoints();
 
+      // 移動してみて成る場合とならない場合のBanKomaを生成してみる
+      for (let banPoint of nextValidRangeBanPoints) {
         // 自分の駒がいない点
-        const notOccupyingPoints = nextValidRangeBanPoints.filter((banPoint) =>
+        if (
           banSnapshot.canMoveToBanPointBySide(
             banKoma.banPoint,
             banPoint,
             tumaseSide,
-          ),
-        );
+          )
+        ) {
+          for (let nextBanKoma of banKoma.moveOrMoveAndNariToBanPoint(
+            banPoint,
+          )) {
+            // そのBanKomaの移動先でその駒が王手をかけること
+            if (
+              banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma.banPoint)
+            ) {
+              const nextBanShapshot = banSnapshot.moveKomaTo(
+                banKoma.banPoint,
+                nextBanKoma.banPoint,
+                nextBanKoma.nari,
+              );
+              const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
+              const banTe = new BanTe(nextBanKoma, nextBanKyokumen, banKoma);
+              banTes.push(banTe);
+            }
+          }
+        }
+      }
+    }
 
-        // 移動してみて成る場合とならない場合のBanKomaを生成してみる
-        const nextPossibleBanKomas = [];
-        notOccupyingPoints.forEach((banPoint) =>
-          nextPossibleBanKomas.push(
-            ...banKoma.moveOrMoveAndNariToBanPoint(banPoint),
-          ),
-        );
-        // そのBanKomaの移動先でその駒が王手をかけること
-        const oteBanKomas = nextPossibleBanKomas.filter((nextBanKoma) =>
-          banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma.banPoint),
-        );
-
-        banTes.push(
-          ...oteBanKomas.map((oteBanKoma) => {
-            const nextBanShapshot = banSnapshot.moveKomaTo(
-              banKoma.banPoint,
-              oteBanKoma.banPoint,
-              oteBanKoma.nari,
-            );
-            const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
-            return new BanTe(oteBanKoma, nextBanKyokumen, banKoma);
-          }),
-        );
-      });
     return banTes;
   }
 
