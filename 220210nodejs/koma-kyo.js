@@ -37,4 +37,20 @@ exports.KomaKyo = class KomaKyo extends Koma {
       ];
     }
   }
+
+  maximumSujiStepLength(nari) {
+    if (nari) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+
+  maximumDanStepLength(nari) {
+    if (nari) {
+      return 1;
+    } else {
+      return 8;
+    }
+  }
 };

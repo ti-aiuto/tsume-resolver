@@ -55,4 +55,12 @@ class KomaGin extends Koma {
       ];
     }
   }
+  
+  maximumSujiStepLength(nari) {
+    return 1;
+  }
+
+  maximumDanStepLength(nari) {
+    return 1;
+  }
 }

@@ -55,4 +55,12 @@ exports.KomaHisha = class KomaHisha extends Koma {
       return steps;
     }
   }
+  
+  maximumSujiStepLength(nari) {
+    return 8;
+  }
+
+  maximumDanStepLength(nari) {
+    return 8;
+  }
 };

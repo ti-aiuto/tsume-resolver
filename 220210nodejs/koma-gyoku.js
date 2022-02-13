@@ -22,4 +22,12 @@ exports.KomaGyoku = class KomaGyoku extends Koma {
       [-1, -1],
     ];
   }
+
+  maximumSujiStepLength(nari) {
+    return 1;
+  }
+
+  maximumDanStepLength(nari) {
+    return 1;
+  }
 };
