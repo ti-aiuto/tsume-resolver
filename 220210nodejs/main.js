@@ -60,22 +60,30 @@ const DEPTH_LIMIT = 10;
 function oteRecursively(depth, teResolver, banKyokumen, tumasareSide) {
   if (depth > DEPTH_LIMIT) {
     // console.log("階層が深いため中止");
-    return false;
+    throw new Error("再帰上限");
   }
   if (nextOte(teResolver, banKyokumen, tumasareSide)) {
     // 王手をかけることができた場合、各差し手について逃げ道があるかチェック
     for (let banTe of banKyokumen.banTes) {
-      if (
-        surviveRecursively(
-          depth + 1,
-          teResolver,
-          banTe.banKyokumen,
-          tumasareSide,
-        ) === false
-      ) {
-        // 一つでも逃げられない手があればそのKyokumenが完全に詰みとする
-        banKyokumen.markAsOneOfThemCompleteTsumi();
-        return true;
+      try {
+        if (
+          surviveRecursively(
+            depth + 1,
+            teResolver,
+            banTe.banKyokumen,
+            tumasareSide,
+          ) === false
+        ) {
+          // 一つでも逃げられない手があればそのKyokumenが完全に詰みとする
+          banKyokumen.markAsOneOfThemCompleteTsumi();
+          return true;
+        }  
+      } catch (e) {
+        if (e.message === "再帰上限") {
+          return false;
+        } else {
+          throw e;
+        } 
       }
     }
     return false;
