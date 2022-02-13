@@ -1,7 +1,7 @@
 // 220210の目標：いったんテストコード無しで動くロジックを書いてみる
 
 // TODO: コマンドライン引数でとる
-const sample_filename = '../sample/horoki3.json';
+const sample_filename = '../sample/horoki1.json';
 
 async function readFileAsJson(filename) {
   const fs = require('fs').promises;
@@ -60,31 +60,47 @@ const DEPTH_LIMIT = 10;
 function oteRecursively(depth, teResolver, banKyokumen, tumasareSide) {
   if (depth > DEPTH_LIMIT) {
     // console.log("階層が深いため中止");
-    return;
+    return false;
   }
   if (nextOte(teResolver, banKyokumen, tumasareSide)) {
-    // 次の階層
+    // 王手をかけることができた場合、各差し手について逃げ道があるかチェック
     for (let banTe of banKyokumen.banTes) {
-      surviveRecursively(
-        depth + 1,
-        teResolver,
-        banTe.banKyokumen,
-        tumasareSide,
-      );
+      if (
+        surviveRecursively(
+          depth + 1,
+          teResolver,
+          banTe.banKyokumen,
+          tumasareSide,
+        ) === false
+      ) {
+        // 一つでも逃げられない手があればそのKyokumenが完全に詰みとする
+        banKyokumen.markAsOneOfThemCompleteTsumi();
+        return true;
+      }
     }
+    return false;
   } else {
     // 逃げられた
+    return false;
   }
 }
 
 function surviveRecursively(depth, teResolver, banKyokumen, tumasareSide) {
   if (nextSurvival(teResolver, banKyokumen, tumasareSide)) {
-    // 次の階層
+    // 逃げられた場合、各差し手について王手を探す
     for (let banTe of banKyokumen.banTes) {
-      oteRecursively(depth + 1, teResolver, banTe.banKyokumen, tumasareSide);
+      if (
+        oteRecursively(depth + 1, teResolver, banTe.banKyokumen, tumasareSide) === false
+      ) {
+        // 一つでも逃げられた手があったらそのKyokumenは詰め失敗とする
+        banKyokumen.markAsOneOfThemNoOte();
+        return true;
+      }
     }
+    return false;
   } else {
     // 詰み
+    return false;
   }
 }
 
