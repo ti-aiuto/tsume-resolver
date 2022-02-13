@@ -64,12 +64,10 @@ exports.TeResolver = class TeResolver {
       banSnapshot.findDistictCapturedBanKomasBySide(tumaseSide);
 
     const result = [];
-
-    myCapturedBanKomas.forEach((banKoma) => {
+    for (let banKoma of myCapturedBanKomas) {
       const emptyBanPoints = banSnapshot.findEmptyPoints();
-      const nextOtePossibleBanKomas = [];
 
-      emptyBanPoints.forEach((banPoint) => {
+      for (let banPoint of emptyBanPoints) {
         const nextBanKoma = new BanKoma(banKoma.koma, tumaseSide, banPoint);
 
         if (banKoma.koma instanceof KomaFu) {
@@ -79,27 +77,23 @@ exports.TeResolver = class TeResolver {
               .findBanKomasBySideAndSuji(tumaseSide, banPoint.suji)
               .find((banKoma) => banKoma.koma.equals(banKoma.koma))
           ) {
-            return false;
+            continue;
           }
         }
 
         if (banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma.banPoint)) {
-          nextOtePossibleBanKomas.push(nextBanKoma);
-        }
-      });
-
-      result.push(
-        ...nextOtePossibleBanKomas.map((oteBanKoma) => {
+          // 打って王手にできる駒
           const nextBanShapshot = banSnapshot.putKoma(
-            oteBanKoma.banPoint,
-            oteBanKoma.koma,
-            oteBanKoma.side,
+            nextBanKoma.banPoint,
+            nextBanKoma.koma,
+            nextBanKoma.side,
           );
           const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
-          return new BanTe(oteBanKoma, nextBanKyokumen, null);
-        }),
-      );
-    });
+          const banTe = new BanTe(nextBanKoma, nextBanKyokumen, null);
+          result.push(banTe);
+        }
+      }
+    }
 
     return result;
   }
