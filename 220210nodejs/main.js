@@ -9,23 +9,26 @@ async function readFileAsJson(filename) {
   return JSON.parse(body);
 }
 
-const KOMA_FU = ' 歩';
-const KOMA_KYO = ' 香';
-const KOMA_KEI = ' 桂';
-const KOMA_KAKU = ' 角';
-const KOMA_HISHA = ' 飛';
-const KOMA_KIN = ' 金';
-const KOMA_GIN = ' 銀';
-const KOMA_GYOKU = ' 玉';
-const KOMA_TOKIN = 'ﾄ金';
-const KOMA_NARI_KYO = 'ﾄ香';
-const KOMA_NARI_KEI = 'ﾄ桂';
-const KOMA_UMA = ' 馬';
-const KOMA_RYU = ' 竜';
-const KOMA_NARI_GIN = 'ﾄ銀';
+class BanI18n{
+  labelFu = ' 歩';
+  labelKyo = ' 香';
+  labelKei = ' 桂';
+  labelKaku = ' 角';
+  labelHisha = ' 飛';
+  labelKin = ' 金';
+  labelGin = ' 銀';
+  labelGyoku = ' 玉';
+  labelTokin = 'ﾄ金';
+  labelNariKyo = 'ﾄ香';
+  labelNariKei = 'ﾄ桂';
+  labelUma = ' 馬';
+  labelRyu = ' 竜';
+  labelNariGin = 'ﾄ銀';
+}
+const banI18n = new BanI18n;
 
 class Koma {
-  label(nari) {
+  label() {
     throw new Error('NotImplemented');
   }
 
@@ -49,9 +52,9 @@ class Koma {
 class KomaFu extends Koma {
   label(nari) {
     if (nari) {
-      return KOMA_TOKIN;
+      return banI18n.labelTokin;
     } else {
-      return KOMA_FU;
+      return banI18n.labelFu;
     }
   }
 
@@ -78,9 +81,9 @@ class KomaFu extends Koma {
 class KomaKyo extends Koma {
   label(nari) {
     if (nari) {
-      return KOMA_NARI_KYO;
+      return banI18n.labelNariKyo;
     } else {
-      return KOMA_KYO;
+      return banI18n.labelKyo;
     }
   }
 
@@ -116,9 +119,9 @@ class KomaKyo extends Koma {
 class KomaKei extends Koma {
   label(nari) {
     if (nari) {
-      return KOMA_NARI_KEI;
+      return banI18n.labelNariKei;
     } else {
-      return KOMA_KEI;
+      return banI18n.labelKei;
     }
   }
 
@@ -148,9 +151,9 @@ class KomaKei extends Koma {
 class KomaKaku extends Koma {
   label(nari) {
     if (nari) {
-      return KOMA_UMA;
+      return banI18n.labelUma;
     } else {
-      return KOMA_KAKU;
+      return banI18n.labelKaku;
     }
   }
 
@@ -204,9 +207,9 @@ class KomaKaku extends Koma {
 class KomaHisha extends Koma {
   label(nari) {
     if (nari) {
-      return KOMA_RYU;
+      return banI18n.labelRyu;
     } else {
-      return KOMA_HISHA;
+      return banI18n.labelHisha;
     }
   }
 
@@ -259,7 +262,7 @@ class KomaHisha extends Koma {
 
 class KomaKin extends Koma {
   label(nari) {
-    return KOMA_KIN;
+    return banI18n.labelKin;
   }
 
   get canBeNari() {
@@ -281,9 +284,9 @@ class KomaKin extends Koma {
 class KomaGin extends Koma {
   label(nari) {
     if (nari) {
-      return KOMA_NARI_GIN;
+      return banI18n.labelNariGin;
     } else {
-      return KOMA_GIN;
+      return banI18n.labelGin;
     }
   }
 
@@ -315,7 +318,7 @@ class KomaGin extends Koma {
 
 class KomaGyoku extends Koma {
   label(nari) {
-    return KOMA_GYOKU;
+    return banI18n.labelGyoku;
   }
 
   get canBeNari() {
