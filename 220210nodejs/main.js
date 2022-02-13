@@ -23,8 +23,6 @@ const KOMA_NARI_KEI = 'ﾄ桂';
 const KOMA_UMA = ' 馬';
 const KOMA_RYU = ' 竜';
 const KOMA_NARI_GIN = 'ﾄ銀';
-const OWNER_SENTE = '先手';
-const OWNER_GOTE = '後手';
 
 class Koma {
   label(nari) {
@@ -500,19 +498,27 @@ class BanSide {
   }
 
   get isSente() {
-    return this.side === OWNER_SENTE;
+    return this.side === BanSide.LABEL_SENTE;
   }
 
   get isGote() {
     return !this.isSente;
   }
 
+  static get LABEL_SENTE() {
+    return '先手';
+  }
+
+  static get LABEL_GOTE() {
+    return '後手';
+  }
+
   static createSenteSide() {
-    return new BanSide(OWNER_SENTE);
+    return new BanSide(BanSide.LABEL_SENTE);
   }
 
   static createGoteSide() {
-    return new BanSide(OWNER_GOTE);
+    return new BanSide(BanSide.LABEL_GOTE);
   }
 }
 
