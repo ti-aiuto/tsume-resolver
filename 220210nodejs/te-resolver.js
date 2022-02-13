@@ -14,7 +14,7 @@ exports.TeResolver = class TeResolver {
 
     const myOnBoardBanKomas = banSnapshot.findOnBoardBanKomasBySide(tumaseSide);
     myOnBoardBanKomas
-      .filter((banKoma) => banKoma.koma instanceof KomaGyoku)
+      .filter((banKoma) => !(banKoma.koma instanceof KomaGyoku)) // 玉で王手を掛けるとこちらが王手になってしまう
       .forEach((banKoma) => {
         // 盤の範囲内で移動できる点
         const nextValidRangeBanPoints = banKoma.nextValidRangeBanPoints();
