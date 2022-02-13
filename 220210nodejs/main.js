@@ -67,6 +67,7 @@ function oteRecursively(depth, teResolver, banKyokumen, tumasareSide) {
   if (nextOte(teResolver, banKyokumen, tumasareSide)) {
     // 王手をかけることができた場合、各差し手について逃げ道があるかチェック
     let index = 0;
+    let oteSuccess = false;
     for (let banTe of banKyokumen.banTes) {
       try {
         if (
@@ -80,7 +81,8 @@ function oteRecursively(depth, teResolver, banKyokumen, tumasareSide) {
           // 一つでも逃げられない手があればそのKyokumenが完全に詰みとする
           banKyokumen.markAsNoUkeAndFutureTsumi();
           banKyokumen.markAsOneOfThemCompleteTsumi(index);
-          return true;
+          oteSuccess = true;
+          // return true;
         }  
       } catch (e) {
         if (e.message === "再帰上限") {
@@ -90,6 +92,10 @@ function oteRecursively(depth, teResolver, banKyokumen, tumasareSide) {
         } 
       }
       index ++;
+    }
+    if (oteSuccess) {
+      // 全王手を見たいから
+      return true;
     }
     banKyokumen.markAsOneOfThemNoOte();
     return false;
