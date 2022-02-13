@@ -22,20 +22,10 @@ function nextOte(teResolver, banKyokumen, tumasareSide) {
   const banSnapshot = banKyokumen.banSnapshot;
   const mySide = tumasareSide.opposite();
 
-  const myOnBoardBanKomas = banSnapshot.findOnBoardBanKomasBySide(mySide);
-  // 自分が王手になっていないことのチェックも入れたほうがよさそう
-  myOnBoardBanKomas
-    .filter((banKoma) => banKoma.koma instanceof KomaGyoku)
-    .forEach((myOnBoardBanKoma) => {
-      const nextBanTes = teResolver.findNextMovingOtesOf(
-        banSnapshot,
-        tumasareSide,
-        myOnBoardBanKoma,
-      );
-
-      nextBanTes.forEach((banTe) => {
-        banKyokumen.addBanTe(banTe);
-      });
+  teResolver
+    .findNextMovingOtesOf(banSnapshot, tumasareSide)
+    .forEach((banTe) => {
+      banKyokumen.addBanTe(banTe);
     });
 
   const myCapturedBanKomas =
