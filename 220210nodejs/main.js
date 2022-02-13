@@ -26,6 +26,7 @@ function nextOte(teResolver, banKyokumen, tumasareSide) {
   banKyokumen.addBanTe(
     ...teResolver.findNextPuttingOtesOf(banSnapshot, tumasareSide),
   );
+  // TODO: 開き王手を考慮する
 
   if (banKyokumen.banTes.length) {
     return true;
