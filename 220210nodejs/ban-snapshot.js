@@ -158,11 +158,11 @@ exports.BanSnapshot = class BanSnapshot {
     const result = [];
     const banKomas = this.findCapturedBanKomasBySide(side);
     // 重複を除く
-    banKomas.forEach((banKoma) => {
+    for (let banKoma of banKomas) {
       if (!result.find((resultKoma) => resultKoma.koma.equals(banKoma.koma))) {
         result.push(banKoma);
       }
-    });
+    }
     return result;
   }
 
