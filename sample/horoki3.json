@@ -1,0 +1,54 @@
+{
+  "initial_koma": {
+    "on_board": {
+      "sente": [
+        { "suji": 1, "dan": 3, "name": "香", "nari": false },
+        { "suji": 1, "dan": 4, "name": "歩", "nari": false },
+        { "suji": 2, "dan": 1, "name": "桂", "nari": false },
+        { "suji": 2, "dan": 3, "name": "歩", "nari": false },
+        { "suji": 3, "dan": 2, "name": "銀", "nari": false },
+        { "suji": 3, "dan": 4, "name": "歩", "nari": false },
+        { "suji": 4, "dan": 1, "name": "金", "nari": false },
+        { "suji": 4, "dan": 2, "name": "玉", "nari": false },
+        { "suji": 4, "dan": 3, "name": "歩", "nari": false },
+        { "suji": 5, "dan": 3, "name": "歩", "nari": false },
+        { "suji": 5, "dan": 6, "name": "桂", "nari": false },
+        { "suji": 6, "dan": 4, "name": "歩", "nari": false },
+        { "suji": 6, "dan": 6, "name": "角", "nari": false },
+        { "suji": 6, "dan": 9, "name": "銀", "nari": false },
+        { "suji": 7, "dan": 2, "name": "歩", "nari": false },
+        { "suji": 8, "dan": 1, "name": "歩", "nari": false },
+        { "suji": 8, "dan": 2, "name": "金", "nari": false },
+        { "suji": 9, "dan": 3, "name": "歩", "nari": false }
+      ],
+      "gote": [
+        { "suji": 1, "dan": 6, "name": "歩", "nari": false },
+        { "suji": 1, "dan": 9, "name": "香", "nari": false },
+        { "suji": 2, "dan": 7, "name": "歩", "nari": false },
+        { "suji": 2, "dan": 8, "name": "銀", "nari": false },
+        { "suji": 2, "dan": 9, "name": "桂", "nari": false },
+        { "suji": 3, "dan": 7, "name": "歩", "nari": false },
+        { "suji": 3, "dan": 8, "name": "角", "nari": false },
+        { "suji": 4, "dan": 7, "name": "歩", "nari": false },
+        { "suji": 4, "dan": 8, "name": "金", "nari": false },
+        { "suji": 4, "dan": 9, "name": "玉", "nari": false },
+        { "suji": 5, "dan": 7, "name": "歩", "nari": false },
+        { "suji": 7, "dan": 8, "name": "香", "nari": false },
+        { "suji": 7, "dan": 9, "name": "銀", "nari": false },
+        { "suji": 8, "dan": 6, "name": "歩", "nari": false },
+        { "suji": 9, "dan": 1, "name": "飛", "nari": true },
+        { "suji": 9, "dan": 7, "name": "歩", "nari": false },
+        { "suji": 9, "dan": 9, "name": "香", "nari": false }
+      ]
+    },
+    "captured": {
+      "sente": [{ "name": "歩" }],
+      "gote": [
+        { "name": "歩" },
+        { "name": "桂" },
+        { "name": "金" },
+        { "name": "飛" }
+      ]
+    }
+  }
+}
