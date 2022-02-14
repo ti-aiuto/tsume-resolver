@@ -72,19 +72,17 @@ exports.BanKoma = class BanKoma {
     );
   }
 
+  moveToBanPoint(toBanPoint) {
+    return new BanKoma(this.koma, this.side, toBanPoint, this.nari);
+  }
+
   moveOrMoveAndNariToBanPoint(toBanPoint) {
-    const result = [];
-    const nextBanKoma = new BanKoma(
-      this.koma,
-      this.side,
-      toBanPoint,
-      this.nari,
-    );
+    const nextBanKoma = this.moveToBanPoint(toBanPoint);
     if (this.canBecomeNari(this.banPoint, toBanPoint)) {
-      result.push(nextBanKoma.becomeNari(this.banPoint, toBanPoint));
+      return [nextBanKoma, nextBanKoma.becomeNari(this.banPoint, toBanPoint)];
+    } else {
+      return [nextBanKoma];
     }
-    result.push(nextBanKoma);
-    return result;
   }
 
   canBecomeNari(fromBanPoint, toBanPoint) {

@@ -116,8 +116,7 @@ exports.TeResolver = class TeResolver {
       }
 
       // 玉を移動させてみて、その状態で王手じゃないかをチェックする
-      const nextBanKomas = gyokuBanKoma.moveOrMoveAndNariToBanPoint(banPoint);
-      const nextBanKoma = nextBanKomas[0]; // 玉は成らない
+      const nextBanKoma = gyokuBanKoma.moveToBanPoint(banPoint);
       const nextBanSnapshot = banSnapshot.moveKomaTo(
         gyokuBanKoma.banPoint,
         banPoint,
