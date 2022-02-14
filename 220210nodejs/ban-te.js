@@ -173,7 +173,7 @@ exports.BanTe = class BanTe {
       banSnapshot.causingOteBanKomasTo(tumasareSide);
     const myBanKomas = banSnapshot.findOnBoardBanKomasBySide(tumasareSide);
 
-    if (enemyCausingOteBanKomas.length == -0) {
+    if (enemyCausingOteBanKomas.length === 0) {
       throw new Error('王手がかかっていない');
     }
 
