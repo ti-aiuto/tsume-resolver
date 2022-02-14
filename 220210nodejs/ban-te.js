@@ -232,7 +232,7 @@ exports.BanTe = class BanTe {
     const enemyCausingOteBanKomas =
       this.banSnapshot.causingOteBanKomasTo(tumasareSide);
 
-    if (enemyCausingOteBanKomas.length == -0) {
+    if (!enemyCausingOteBanKomas.length) {
       throw new Error('王手がかかっていない');
     }
 
