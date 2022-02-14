@@ -92,15 +92,10 @@ exports.BanSnapshot = class BanSnapshot {
     this.removeBanKoma(banKoma);
   }
 
-  isNotOccupiedBySide(banPoint, banSide) {
-    const occupyingBanKoma = this.findBanKomaByBanPoint(banPoint);
-    return !occupyingBanKoma || !occupyingBanKoma.side.equals(banSide);
-  }
-
   canMoveToBanPointBySide(fromBanPoint, toBanPoint, banSide) {
-    // 移動先に自分の駒があったら移動不可
-    const destinationPointCheck = this.isNotOccupiedBySide(toBanPoint, banSide);
-    if (!destinationPointCheck) {
+    const occupyingBanKoma = this.findBanKomaByBanPoint(toBanPoint);
+    if (occupyingBanKoma && occupyingBanKoma.side.equals(banSide)) {
+      // 移動先に自分の駒があったら移動不可
       return false;
     }
 
