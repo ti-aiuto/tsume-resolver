@@ -62,7 +62,7 @@ const DEPTH_LIMIT = 10;
 function oteRecursively(depth, teResolver, banKyokumen, tumasareSide) {
   if (depth > DEPTH_LIMIT) {
     // console.log("階層が深いため中止");
-    throw new Error("再帰上限");
+    throw new Error('再帰上限');
   }
   if (nextOte(teResolver, banKyokumen, tumasareSide)) {
     // 王手をかけることができた場合、各差し手について逃げ道があるかチェック
@@ -83,15 +83,15 @@ function oteRecursively(depth, teResolver, banKyokumen, tumasareSide) {
           banKyokumen.markAsOneOfThemCompleteTsumi(index);
           oteSuccess = true;
           // return true;
-        }  
+        }
       } catch (e) {
-        if (e.message === "再帰上限") {
+        if (e.message === '再帰上限') {
           return false;
         } else {
           throw e;
-        } 
+        }
       }
-      index ++;
+      index++;
     }
     if (oteSuccess) {
       // 全王手を見たいから
@@ -110,7 +110,12 @@ function surviveRecursively(depth, teResolver, banKyokumen, tumasareSide) {
     // 逃げられた場合、各差し手について王手を探す
     for (let banTe of banKyokumen.banTes) {
       if (
-        oteRecursively(depth + 1, teResolver, banTe.banKyokumen, tumasareSide) === false
+        oteRecursively(
+          depth + 1,
+          teResolver,
+          banTe.banKyokumen,
+          tumasareSide,
+        ) === false
       ) {
         // 一つでも逃げられた手があったらそのKyokumenは詰め失敗とする
         banKyokumen.markAsOneOfThemNoOte();
@@ -149,10 +154,15 @@ async function main() {
   const enemySide = BanSide.createGoteSide();
   const teResolver = new TeResolver();
 
+  const start = new Date();
+
   console.log('探索を開始');
   console.log(`再帰上限：${DEPTH_LIMIT}`);
   oteRecursively(1, teResolver, initialBanKyokumen, enemySide);
   console.log('探索完了');
+
+  const end = new Date();
+  console.log(end - start);
 
   const rawTsumiTejuns = [];
   extractTsumiTejunAsArray(rawTsumiTejuns, [], initialBanKyokumen);
@@ -170,19 +180,19 @@ async function main() {
     return Math.sign(a.length - b.length);
   });
 
-  console.log('最良手数の場合：');
+  // console.log('最良手数の場合：');
 
-  console.log(initialBanSnapshot.toString());
+  // console.log(initialBanSnapshot.toString());
   const tejunBest = tsumiTejuns[0];
   tejunBest.forEach((banTe) => {
-    console.log(banTe.toString());
+    // console.log(banTe.toString());
   });
 
-  console.log('最悪手数（再帰制約内）の場合：');
-  console.log(initialBanSnapshot.toString());
+  // console.log('最悪手数（再帰制約内）の場合：');
+  // console.log(initialBanSnapshot.toString());
   const tejunWorst = tsumiTejuns[tsumiTejuns.length - 1];
   tejunWorst.forEach((banTe) => {
-    console.log(banTe.toString());
+    // console.log(banTe.toString());
   });
 }
 main();
