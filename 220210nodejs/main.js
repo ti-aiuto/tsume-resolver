@@ -13,71 +13,73 @@ const KomaFu = require('./koma-fu.js').KomaFu;
 
 const BanSide = require('./ban-side.js').BanSide;
 const TeResolver = require('./te-resolver.js').TeResolver;
-const BanKyokumen = require('./ban-kyokumen.js').BanKyokumen;
+const BanTe = require('./ban-te.js').BanTe;
 
 const JsonBanLoader = require('./json-ban-loader.js').JsonBanLoader;
 
-function nextOte(teResolver, banKyokumen, tumasareSide) {
-  const banSnapshot = banKyokumen.banSnapshot;
+function nextOte(teResolver, parentBanTe, tumasareSide) {
+  const banSnapshot = parentBanTe.banSnapshot;
 
-  banKyokumen.addBanTe(
+  parentBanTe.addBanTe(
     ...teResolver.findNextMovingOtesOf(banSnapshot, tumasareSide),
   );
-  banKyokumen.addBanTe(
+  parentBanTe.addBanTe(
     ...teResolver.findNextPuttingOtesOf(banSnapshot, tumasareSide),
   );
   // TODO: 開き王手を考慮する
 
-  if (banKyokumen.banTes.length) {
+  if (parentBanTe.nextBanTes.length) {
     return true;
   } else {
     return false;
   }
 }
 
-function nextSurvival(teResolver, banKyokumen, tumasareSide) {
-  banKyokumen.addBanTe(
-    ...teResolver.findNextOteEscaping(banKyokumen.banSnapshot, tumasareSide),
+function nextSurvival(teResolver, parentBanTe, tumasareSide) {
+  const banSnapshot = parentBanTe.banSnapshot;
+
+  parentBanTe.addBanTe(
+    ...teResolver.findNextOteEscaping(banSnapshot, tumasareSide),
   );
-  banKyokumen.addBanTe(
-    ...teResolver.findNextOteRemoving(banKyokumen.banSnapshot, tumasareSide),
+  parentBanTe.addBanTe(
+    ...teResolver.findNextOteRemoving(banSnapshot, tumasareSide),
   );
-  banKyokumen.addBanTe(
-    ...teResolver.findNextOteAigoma(banKyokumen.banSnapshot, tumasareSide),
+  parentBanTe.addBanTe(
+    ...teResolver.findNextOteAigoma(banSnapshot, tumasareSide),
   );
 
-  if (banKyokumen.banTes.length) {
-    banKyokumen.markAsNotTsumi();
+  if (parentBanTe.nextBanTes.length) {
+    parentBanTe.markAsNotTsumi();
     return true;
   } else {
-    banKyokumen.markAsTsumi();
+    parentBanTe.markAsTsumi();
     return false;
   }
 }
 
 const DEPTH_LIMIT = 10;
 
-function oteRecursively(depth, teResolver, banKyokumen, tumasareSide) {
+function oteRecursively(depth, teResolver, parentBanTe, tumasareSide) {
   if (depth > DEPTH_LIMIT) {
     // console.log("階層が深いため中止");
     throw new Error('再帰上限');
   }
-  if (nextOte(teResolver, banKyokumen, tumasareSide)) {
+  if (nextOte(teResolver, parentBanTe, tumasareSide)) {
     // 王手をかけることができた場合、各差し手について逃げ道があるかチェック
     let index = 0;
     let oteSuccess = false;
-    for (let banTe of banKyokumen.banTes) {
+    for (let banTe of parentBanTe.nextBanTes) {
       try {
         if (
           surviveRecursively(
             depth + 1,
             teResolver,
-            banTe.banKyokumen,
+            banTe,
             tumasareSide,
           ) === false
         ) {
           // 一つでも逃げられない手があればそのKyokumenが完全に詰みとする
-          banKyokumen.markAsNoUkeAndFutureTsumi();
+          parentBanTe.markAsNoUkeAndFutureTsumi();
           oteSuccess = true;
           // return true;
         }
@@ -94,7 +96,7 @@ function oteRecursively(depth, teResolver, banKyokumen, tumasareSide) {
       // 全王手を見たいから
       return true;
     }
-    banKyokumen.markAsOneOfThemNoOte();
+    parentBanTe.markAsOneOfThemNoOte();
     return false;
   } else {
     // 逃げられた
@@ -102,24 +104,24 @@ function oteRecursively(depth, teResolver, banKyokumen, tumasareSide) {
   }
 }
 
-function surviveRecursively(depth, teResolver, banKyokumen, tumasareSide) {
-  if (nextSurvival(teResolver, banKyokumen, tumasareSide)) {
+function surviveRecursively(depth, teResolver, parentBanTe, tumasareSide) {
+  if (nextSurvival(teResolver, parentBanTe, tumasareSide)) {
     // 逃げられた場合、各差し手について王手を探す
-    for (let banTe of banKyokumen.banTes) {
+    for (let banTe of parentBanTe.nextBanTes) {
       if (
         oteRecursively(
           depth + 1,
           teResolver,
-          banTe.banKyokumen,
+          banTe,
           tumasareSide,
         ) === false
       ) {
         // 一つでも逃げられた手があったらそのKyokumenは詰め失敗とする
-        banKyokumen.markAsOneOfThemNoOte();
+        parentBanTe.markAsOneOfThemNoOte();
         return true;
       }
     }
-    banKyokumen.markAsNoUkeAndFutureTsumi();
+    parentBanTe.markAsNoUkeAndFutureTsumi();
     return false;
   } else {
     // 詰み
@@ -127,18 +129,18 @@ function surviveRecursively(depth, teResolver, banKyokumen, tumasareSide) {
   }
 }
 
-function extractTsumiTejunAsArray(result, currentPath, banKyokumen) {
-  if (banKyokumen.isTsumi) {
+function extractTsumiTejunAsArray(result, currentPath, parentBanTe) {
+  if (parentBanTe.isTsumi) {
     result.push(currentPath);
   }
-  for (let banTe of banKyokumen.banTes) {
-    if (!banKyokumen.isNoUkeAndFutureTsumi) {
+  for (let banTe of parentBanTe.nextBanTes) {
+    if (!parentBanTe.isNoUkeAndFutureTsumi) {
       continue;
     }
     extractTsumiTejunAsArray(
       result,
       [...currentPath, banTe],
-      banTe.banKyokumen,
+      banTe,
     );
   }
 }
@@ -146,7 +148,7 @@ function extractTsumiTejunAsArray(result, currentPath, banKyokumen) {
 async function main() {
   const json = await readFileAsJson(sample_filename);
   const initialBanSnapshot = new JsonBanLoader().load(json);
-  const initialBanKyokumen = new BanKyokumen(initialBanSnapshot);
+  const initialBanTe = new BanTe(null, initialBanSnapshot);
 
   const enemySide = BanSide.createGoteSide();
   const teResolver = new TeResolver();
@@ -155,14 +157,14 @@ async function main() {
 
   console.log('探索を開始');
   console.log(`再帰上限：${DEPTH_LIMIT}`);
-  oteRecursively(1, teResolver, initialBanKyokumen, enemySide);
+  oteRecursively(1, teResolver, initialBanTe, enemySide);
   console.log('探索完了');
 
   const end = new Date();
   console.log(end - start);
 
   const rawTsumiTejuns = [];
-  extractTsumiTejunAsArray(rawTsumiTejuns, [], initialBanKyokumen);
+  extractTsumiTejunAsArray(rawTsumiTejuns, [], initialBanTe);
 
   console.log(`総手順：${rawTsumiTejuns.length}`);
 
@@ -179,7 +181,7 @@ async function main() {
 
   // console.log('最良手数の場合：');
 
-  // console.log(initialBanSnapshot.toString());
+  console.log(initialBanSnapshot.toString());
   const tejunBest = tsumiTejuns[0];
   tejunBest.forEach((banTe) => {
     // console.log(banTe.toString());

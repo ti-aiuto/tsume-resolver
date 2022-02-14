@@ -3,7 +3,6 @@ const BanKoma = require('./ban-koma.js').BanKoma;
 const KomaFu = require('./koma-fu.js').KomaFu;
 const KomaGyoku = require('./koma-gyoku.js').KomaGyoku;
 const BanTe = require('./ban-te.js').BanTe;
-const BanKyokumen = require('./ban-kyokumen.js').BanKyokumen;
 
 // forEachよりfor(of)のほうが速いそうなので書き換えた
 exports.TeResolver = class TeResolver {
@@ -49,8 +48,7 @@ exports.TeResolver = class TeResolver {
                 nextBanKoma.banPoint,
                 nextBanKoma.nari,
               );
-              const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
-              const banTe = new BanTe(nextBanKoma, nextBanKyokumen, banKoma);
+              const banTe = new BanTe(nextBanKoma, nextBanShapshot, banKoma);
               banTes.push(banTe);
             }
           }
@@ -94,8 +92,7 @@ exports.TeResolver = class TeResolver {
             nextBanKoma.koma,
             nextBanKoma.side,
           );
-          const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
-          const banTe = new BanTe(nextBanKoma, nextBanKyokumen, null);
+          const banTe = new BanTe(nextBanKoma, nextBanShapshot, null);
           result.push(banTe);
         }
       }
@@ -126,11 +123,10 @@ exports.TeResolver = class TeResolver {
         banPoint,
         false,
       );
-      const banKyokumen = new BanKyokumen(nextBanSnapshot);
-      const nextBanTe = new BanTe(nextBanKoma, banKyokumen, gyokuBanKoma);
+      const nextBanTe = new BanTe(nextBanKoma, nextBanSnapshot, gyokuBanKoma);
 
       // 王手を回避できる手
-      if (!nextBanTe.banKyokumen.banSnapshot.isOtedFor(tumasareSide)) {
+      if (!nextBanTe.banSnapshot.isOtedFor(tumasareSide)) {
         result.push(nextBanTe);
       }
     }
@@ -187,11 +183,10 @@ exports.TeResolver = class TeResolver {
             nextBanKoma.banPoint,
             nextBanKoma.nari,
           );
-          const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
-          const nextBanTe = new BanTe(nextBanKoma, nextBanKyokumen, myBanKoma);
+          const nextBanTe = new BanTe(nextBanKoma, nextBanShapshot, myBanKoma);
 
           // 王手を回避できること
-          if (!nextBanTe.banKyokumen.banSnapshot.isOtedFor(tumasareSide)) {
+          if (!nextBanTe.banSnapshot.isOtedFor(tumasareSide)) {
             result.push(nextBanTe);
           }
         }
@@ -232,11 +227,10 @@ exports.TeResolver = class TeResolver {
             capturedBanKoma.koma,
             tumasareSide,
           );
-          const nextBanKyokumen = new BanKyokumen(nextBanShapshot);
-          const nextBanTe = new BanTe(nextBanKoma, nextBanKyokumen);
+          const nextBanTe = new BanTe(nextBanKoma, nextBanShapshot);
 
           // 王手を回避できること
-          if (!nextBanTe.banKyokumen.banSnapshot.isOtedFor(tumasareSide)) {
+          if (!nextBanTe.banSnapshot.isOtedFor(tumasareSide)) {
             result.push(nextBanTe);
           }
         }

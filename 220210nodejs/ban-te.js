@@ -1,7 +1,6 @@
 exports.BanTe = class BanTe {
   constructor(banKoma, banSnapshot, beforeBanKoma) {
     this.banKoma = banKoma;
-    this.banKyokumen = banKyokumen;
     this.beforeBanKoma = beforeBanKoma;
     this.nextBanTes = [];
     this.banSnapshot = banSnapshot;
@@ -37,7 +36,7 @@ exports.BanTe = class BanTe {
     } else {
       result += `${this.banKoma.toString()} 打ち\n`;
     }
-    result += this.banKyokumen.banSnapshot.toString();
+    result += this.banSnapshot.toString();
     return result;
   }
 };
