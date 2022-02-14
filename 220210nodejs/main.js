@@ -12,19 +12,16 @@ async function readFileAsJson(filename) {
 const KomaFu = require('./koma-fu.js').KomaFu;
 
 const BanSide = require('./ban-side.js').BanSide;
-const TeResolver = require('./te-resolver.js').TeResolver;
 const BanTe = require('./ban-te.js').BanTe;
 
 const JsonBanLoader = require('./json-ban-loader.js').JsonBanLoader;
 
-function nextOte(teResolver, parentBanTe, tumasareSide) {
-  const banSnapshot = parentBanTe.banSnapshot;
-
+function nextOte(parentBanTe, tumasareSide) {
   parentBanTe.addBanTe(
-    ...teResolver.findNextMovingOtesOf(banSnapshot, tumasareSide),
+    ...parentBanTe.findNextMovingOtesOf(tumasareSide),
   );
   parentBanTe.addBanTe(
-    ...teResolver.findNextPuttingOtesOf(banSnapshot, tumasareSide),
+    ...parentBanTe.findNextPuttingOtesOf(tumasareSide),
   );
   // TODO: 開き王手を考慮する
 
@@ -35,17 +32,15 @@ function nextOte(teResolver, parentBanTe, tumasareSide) {
   }
 }
 
-function nextSurvival(teResolver, parentBanTe, tumasareSide) {
-  const banSnapshot = parentBanTe.banSnapshot;
-
+function nextSurvival(parentBanTe, tumasareSide) {
   parentBanTe.addBanTe(
-    ...teResolver.findNextOteEscaping(banSnapshot, tumasareSide),
+    ...parentBanTe.findNextOteEscaping(tumasareSide),
   );
   parentBanTe.addBanTe(
-    ...teResolver.findNextOteRemoving(banSnapshot, tumasareSide),
+    ...parentBanTe.findNextOteRemoving(tumasareSide),
   );
   parentBanTe.addBanTe(
-    ...teResolver.findNextOteAigoma(banSnapshot, tumasareSide),
+    ...parentBanTe.findNextOteAigoma(tumasareSide),
   );
 
   if (parentBanTe.nextBanTes.length) {
@@ -59,21 +54,19 @@ function nextSurvival(teResolver, parentBanTe, tumasareSide) {
 
 const DEPTH_LIMIT = 10;
 
-function oteRecursively(depth, teResolver, parentBanTe, tumasareSide) {
+function oteRecursively(depth, parentBanTe, tumasareSide) {
   if (depth > DEPTH_LIMIT) {
     // console.log("階層が深いため中止");
     throw new Error('再帰上限');
   }
-  if (nextOte(teResolver, parentBanTe, tumasareSide)) {
+  if (nextOte(parentBanTe, tumasareSide)) {
     // 王手をかけることができた場合、各差し手について逃げ道があるかチェック
-    let index = 0;
     let oteSuccess = false;
     for (let banTe of parentBanTe.nextBanTes) {
       try {
         if (
           surviveRecursively(
             depth + 1,
-            teResolver,
             banTe,
             tumasareSide,
           ) === false
@@ -90,7 +83,6 @@ function oteRecursively(depth, teResolver, parentBanTe, tumasareSide) {
           throw e;
         }
       }
-      index++;
     }
     if (oteSuccess) {
       // 全王手を見たいから
@@ -104,14 +96,13 @@ function oteRecursively(depth, teResolver, parentBanTe, tumasareSide) {
   }
 }
 
-function surviveRecursively(depth, teResolver, parentBanTe, tumasareSide) {
-  if (nextSurvival(teResolver, parentBanTe, tumasareSide)) {
+function surviveRecursively(depth, parentBanTe, tumasareSide) {
+  if (nextSurvival(parentBanTe, tumasareSide)) {
     // 逃げられた場合、各差し手について王手を探す
     for (let banTe of parentBanTe.nextBanTes) {
       if (
         oteRecursively(
           depth + 1,
-          teResolver,
           banTe,
           tumasareSide,
         ) === false
@@ -151,13 +142,12 @@ async function main() {
   const initialBanTe = new BanTe(null, initialBanSnapshot);
 
   const enemySide = BanSide.getInstangeOfGoteSide();
-  const teResolver = new TeResolver();
 
   const start = new Date();
 
   console.log('探索を開始');
   console.log(`再帰上限：${DEPTH_LIMIT}`);
-  oteRecursively(1, teResolver, initialBanTe, enemySide);
+  oteRecursively(1, initialBanTe, enemySide);
   console.log('探索完了');
 
   const end = new Date();
