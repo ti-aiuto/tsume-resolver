@@ -1,8 +1,33 @@
 exports.BanTe = class BanTe {
-  constructor(banKoma, banKyokumen, beforeBanKoma) {
+  constructor(banKoma, banSnapshot, beforeBanKoma) {
     this.banKoma = banKoma;
     this.banKyokumen = banKyokumen;
     this.beforeBanKoma = beforeBanKoma;
+    this.nextBanTes = [];
+    this.banSnapshot = banSnapshot;
+    this.isTsumi = null;
+    this.isOneOfThemNoOte = null;
+    this.isNoUkeAndFutureTsumi = null;
+  }
+
+  addBanTe(...banTes) {
+    this.nextBanTes.push(...banTes);
+  }
+
+  markAsTsumi() {
+    this.isTsumi = true;
+  }
+
+  markAsNotTsumi() {
+    this.isTsumi = false;
+  }
+
+  markAsOneOfThemNoOte() {
+    this.isOneOfThemNoOte = true;
+  }
+
+  markAsNoUkeAndFutureTsumi() {
+    this.isNoUkeAndFutureTsumi = true;
   }
 
   toString() {
