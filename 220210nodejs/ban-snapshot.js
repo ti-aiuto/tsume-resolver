@@ -2,6 +2,7 @@ const BanKoma = require('./ban-koma.js').BanKoma;
 const KomaGyoku = require('./koma-gyoku.js').KomaGyoku;
 const BanPoint = require('./ban-point.js').BanPoint;
 const BanSide = require('./ban-side.js').BanSide;
+const KomaFu = require('./koma-fu.js').KomaFu;
 
 exports.BanSnapshot = class BanSnapshot {
   constructor(
@@ -144,6 +145,15 @@ exports.BanSnapshot = class BanSnapshot {
   findBanKomasBySideAndSuji(side, suji) {
     return this.findOnBoardBanKomasBySide(side).filter(
       (banKoma) => banKoma.banPoint?.suji === suji,
+    );
+  }
+
+  findFuBySideAndSuji(side, suji) {
+    return this.findOnBoardBanKomasBySide(side).find(
+      (banKoma) =>
+        banKoma.banPoint?.suji === suji &&
+        banKoma.koma instanceof KomaFu &&
+        !banKoma.nari,
     );
   }
 

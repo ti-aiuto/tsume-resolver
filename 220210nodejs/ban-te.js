@@ -40,7 +40,8 @@ exports.BanTe = class BanTe {
     const gyokuBanKoma = this.banSnapshot.findGyokuBySide(tumasareSide);
     const tumaseSide = tumasareSide.opposite();
 
-    const myOnBoardBanKomas = this.banSnapshot.findOnBoardBanKomasBySide(tumaseSide);
+    const myOnBoardBanKomas =
+      this.banSnapshot.findOnBoardBanKomasBySide(tumaseSide);
     for (let banKoma of myOnBoardBanKomas) {
       if (banKoma.koma instanceof KomaGyoku) {
         continue;
@@ -74,7 +75,10 @@ exports.BanTe = class BanTe {
 
             // そのBanKomaの移動先でその駒が王手をかけること
             if (
-              nextBanShapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma.banPoint)
+              nextBanShapshot.isInPownerOfMove(
+                nextBanKoma,
+                gyokuBanKoma.banPoint,
+              )
             ) {
               banTes.push(banTe);
             }
@@ -91,7 +95,7 @@ exports.BanTe = class BanTe {
     const tumaseSide = gyokuBanKoma.side.opposite();
 
     const myCapturedBanKomas =
-    this.banSnapshot.findDistictCapturedBanKomasBySide(tumaseSide);
+      this.banSnapshot.findDistictCapturedBanKomasBySide(tumaseSide);
 
     const result = [];
     for (let banKoma of myCapturedBanKomas) {
@@ -103,16 +107,14 @@ exports.BanTe = class BanTe {
 
         if (banKoma.koma instanceof KomaFu) {
           // 二歩のチェック
-          if (
-            this.banSnapshot
-              .findBanKomasBySideAndSuji(tumaseSide, banPoint.suji)
-              .find((banKoma) => banKoma.koma.equals(banKoma.koma))
-          ) {
+          if (this.banSnapshot.findFuBySideAndSuji(tumaseSide, banPoint.suji)) {
             continue;
           }
         }
 
-        if (this.banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma.banPoint)) {
+        if (
+          this.banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma.banPoint)
+        ) {
           // 打って王手にできる駒
           const nextBanShapshot = this.banSnapshot.putKoma(
             nextBanKoma.banPoint,
@@ -162,7 +164,7 @@ exports.BanTe = class BanTe {
 
   findNextOteRemoving(tumasareSide) {
     const enemyCausingOteBanKomas =
-    this.banSnapshot.causingOteBanKomasTo(tumasareSide);
+      this.banSnapshot.causingOteBanKomasTo(tumasareSide);
     const myBanKomas = this.banSnapshot.findOnBoardBanKomasBySide(tumasareSide);
 
     if (enemyCausingOteBanKomas.length === 0) {
@@ -175,7 +177,10 @@ exports.BanTe = class BanTe {
       // 王手をかけている駒をとれる駒
       if (
         !enemyCausingOteBanKomas.some((enemyBanKoma) => {
-          return this.banSnapshot.isInPownerOfMove(myBanKoma, enemyBanKoma.banPoint);
+          return this.banSnapshot.isInPownerOfMove(
+            myBanKoma,
+            enemyBanKoma.banPoint,
+          );
         })
       ) {
         continue;
@@ -225,14 +230,14 @@ exports.BanTe = class BanTe {
   findNextOteAigoma(tumasareSide) {
     const gyokuBanKoma = this.banSnapshot.findGyokuBySide(tumasareSide);
     const enemyCausingOteBanKomas =
-    this.banSnapshot.causingOteBanKomasTo(tumasareSide);
+      this.banSnapshot.causingOteBanKomasTo(tumasareSide);
 
     if (enemyCausingOteBanKomas.length == -0) {
       throw new Error('王手がかかっていない');
     }
 
     const myCapturedBanKomas =
-    this.banSnapshot.findDistictCapturedBanKomasBySide(tumasareSide);
+      this.banSnapshot.findDistictCapturedBanKomasBySide(tumasareSide);
 
     const result = [];
     for (let enemyBanKoma of enemyCausingOteBanKomas) {
