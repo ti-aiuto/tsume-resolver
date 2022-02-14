@@ -29,10 +29,8 @@ function nextOte(teResolver, banKyokumen, tumasareSide) {
   // TODO: 開き王手を考慮する
 
   if (banKyokumen.banTes.length) {
-    banKyokumen.markAsOte();
     return true;
   } else {
-    banKyokumen.markAsNoOte();
     return false;
   }
 }
@@ -80,7 +78,6 @@ function oteRecursively(depth, teResolver, banKyokumen, tumasareSide) {
         ) {
           // 一つでも逃げられない手があればそのKyokumenが完全に詰みとする
           banKyokumen.markAsNoUkeAndFutureTsumi();
-          banKyokumen.markAsOneOfThemCompleteTsumi(index);
           oteSuccess = true;
           // return true;
         }

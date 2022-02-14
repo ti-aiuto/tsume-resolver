@@ -2,24 +2,13 @@ exports.BanKyokumen = class BanKyokumen {
   constructor(banSnapshot) {
     this.banSnapshot = banSnapshot;
     this.banTes = [];
-    // TODO: ここの状態は後で整理する
-    this.isOte = null;
     this.isTsumi = null;
     this.isOneOfThemNoOte = null;
-    this.completeTsumiIndex = null;
     this.isNoUkeAndFutureTsumi = null;
   }
 
   addBanTe(...banTes) {
     this.banTes.push(...banTes);
-  }
-
-  markAsOte() {
-    this.isOte = true;
-  }
-
-  markAsNoOte() {
-    this.isOte = false;
   }
 
   markAsTsumi() {
@@ -32,10 +21,6 @@ exports.BanKyokumen = class BanKyokumen {
 
   markAsOneOfThemNoOte() {
     this.isOneOfThemNoOte = true;
-  }
-
-  markAsOneOfThemCompleteTsumi(index) {
-    this.completeTsumiIndex = index;
   }
 
   markAsNoUkeAndFutureTsumi() {
