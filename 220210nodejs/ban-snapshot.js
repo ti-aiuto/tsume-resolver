@@ -159,7 +159,7 @@ exports.BanSnapshot = class BanSnapshot {
 
   findGyokuBySide(side) {
     return this.findOnBoardBanKomasBySide(side).find(
-      (item) => item.side.equals(side) && item.koma instanceof KomaGyoku,
+      (item) => item.koma instanceof KomaGyoku,
     );
   }
 
