@@ -67,16 +67,17 @@ exports.BanTe = class BanTe {
           for (let nextBanKoma of banKoma.moveOrMoveAndNariToBanPoint(
             banPoint,
           )) {
+            const nextBanShapshot = this.banSnapshot.moveKomaTo(
+              banKoma.banPoint,
+              nextBanKoma.banPoint,
+              nextBanKoma.nari,
+            );
+            const banTe = new BanTe(nextBanKoma, nextBanShapshot, banKoma);
+
             // そのBanKomaの移動先でその駒が王手をかけること
             if (
-              this.banSnapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma.banPoint)
+              nextBanShapshot.isInPownerOfMove(nextBanKoma, gyokuBanKoma.banPoint)
             ) {
-              const nextBanShapshot = this.banSnapshot.moveKomaTo(
-                banKoma.banPoint,
-                nextBanKoma.banPoint,
-                nextBanKoma.nari,
-              );
-              const banTe = new BanTe(nextBanKoma, nextBanShapshot, banKoma);
               banTes.push(banTe);
             }
           }
