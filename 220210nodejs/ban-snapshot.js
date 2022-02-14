@@ -45,6 +45,16 @@ exports.BanSnapshot = class BanSnapshot {
       throw new Error('既に自分の駒が存在');
     }
 
+    // 移動先までの間に自分・敵どちらかの駒があったら今回の行先には移動不可
+    const pointsBetween = fromBanPoint.pointsBetween(toBanPoint);
+    if (
+      pointsBetween.some((pointBetween) =>
+        this.findBanKomaByBanPoint(pointBetween),
+      )
+    ) {
+      throw new Error('間に駒が存在');
+    }
+
     if (existingBanKoma) {
       cloned.removeBanKoma(existingBanKoma);
       cloned.addCapturedBanKoma(existingBanKoma.koma, mySide);
