@@ -52,10 +52,7 @@ exports.BanTe = class BanTe {
       }
 
       // 盤の範囲内で移動できる点
-      const nextValidRangeBanPoints = banKoma.nextValidRangeBanPoints();
-
-      // 移動してみて成る場合とならない場合のBanKomaを生成してみる
-      for (let banPoint of nextValidRangeBanPoints) {
+      for (let banPoint of banKoma.nextValidRangeBanPoints()) {
         // 自分の駒がいない点
         if (
           this.banSnapshot.canMoveToBanPointBySide(
@@ -64,6 +61,7 @@ exports.BanTe = class BanTe {
             tumaseSide,
           )
         ) {
+          // 移動してみて成る場合とならない場合のBanKomaを生成してみる
           for (let nextBanKoma of banKoma.moveOrMoveAndNariToBanPoint(
             banPoint,
           )) {
