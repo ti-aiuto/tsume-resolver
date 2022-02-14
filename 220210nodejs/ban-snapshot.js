@@ -4,8 +4,15 @@ const BanPoint = require('./ban-point.js').BanPoint;
 const BanSide = require('./ban-side.js').BanSide;
 
 exports.BanSnapshot = class BanSnapshot {
-  constructor(capturedBanKomas = [], sujiDanBanKomaMap = {}) {
+  constructor(
+    capturedBanKomas = [],
+    senteOnBoardBanKomas = [],
+    goteOnBoardBanKomas = [],
+    sujiDanBanKomaMap = {},
+  ) {
     this.capturedBanKomas = capturedBanKomas;
+    this.senteOnBoardBanKomas = senteOnBoardBanKomas;
+    this.goteOnBoardBanKomas = goteOnBoardBanKomas;
     this.sujiDanBanKomaMap = sujiDanBanKomaMap;
   }
 
@@ -191,9 +198,14 @@ exports.BanSnapshot = class BanSnapshot {
   }
 
   clone() {
-    return new BanSnapshot([...this.capturedBanKomas], {
-      ...this.sujiDanBanKomaMap,
-    });
+    return new BanSnapshot(
+      [...this.capturedBanKomas],
+      [...this.senteOnBoardBanKomas],
+      [...this.goteOnBoardBanKomas],
+      {
+        ...this.sujiDanBanKomaMap,
+      },
+    );
   }
 
   toString() {
@@ -229,6 +241,11 @@ exports.BanSnapshot = class BanSnapshot {
   addBanKoma(banKoma) {
     if (banKoma.banPoint) {
       this.sujiDanBanKomaMap[this.sujiDanKeyOf(banKoma.banPoint)] = banKoma;
+      if (banKoma.side.isSente) {
+        this.senteOnBoardBanKomas.push(banKoma);
+      } else {
+        this.goteOnBoardBanKomas.push(banKoma);
+      }
     } else {
       this.capturedBanKomas.push(banKoma);
     }
@@ -237,6 +254,19 @@ exports.BanSnapshot = class BanSnapshot {
   removeBanKoma(banKoma) {
     if (banKoma.banPoint) {
       this.sujiDanBanKomaMap[this.sujiDanKeyOf(banKoma.banPoint)] = null;
+      if (banKoma.side.isSente) {
+        const index = this.senteOnBoardBanKomas.indexOf(banKoma);
+        if (index === -1) {
+          throw new Error('駒が不明');
+        }
+        this.senteOnBoardBanKomas.splice(index, 1);
+      } else {
+        const index = this.goteOnBoardBanKomas.indexOf(banKoma);
+        if (index === -1) {
+          throw new Error('駒が不明');
+        }
+        this.goteOnBoardBanKomas.splice(index, 1);
+      }
     } else {
       const index = this.capturedBanKomas.indexOf(banKoma);
       if (index === -1) {
@@ -247,9 +277,11 @@ exports.BanSnapshot = class BanSnapshot {
   }
 
   findOnBoardBanKomasBySide(side) {
-    return Object.values(this.sujiDanBanKomaMap).filter(
-      (banKoma) => banKoma && banKoma.side.equals(side),
-    );
+    if (side.isSente) {
+      return this.senteOnBoardBanKomas;
+    } else {
+      return this.goteOnBoardBanKomas;
+    }
   }
 
   sujiDanKeyOf(banPoint) {
