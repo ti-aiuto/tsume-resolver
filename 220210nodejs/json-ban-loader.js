@@ -15,8 +15,8 @@ class JsonBanLoader {
   load(json) {
     const banSnapshot = new BanSnapshot();
 
-    const sente = BanSide.createSenteSide();
-    const gote = BanSide.createGoteSide();
+    const sente = BanSide.getInstangeOfSenteSide();
+    const gote = BanSide.getInstangeOfGoteSide();
 
     json['initial_koma']['on_board']['sente'].forEach((koma) => {
       banSnapshot.initPutOnBoard(

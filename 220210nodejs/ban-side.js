@@ -9,9 +9,9 @@ exports.BanSide = class BanSide {
 
   opposite() {
     if (this.isSente) {
-      return BanSide.createGoteSide();
+      return BanSide.getInstangeOfGoteSide();
     } else {
-      return BanSide.createSenteSide();
+      return BanSide.getInstangeOfSenteSide();
     }
   }
 
@@ -43,11 +43,14 @@ exports.BanSide = class BanSide {
     return 'GOTE';
   }
 
-  static createSenteSide() {
-    return new BanSide(BanSide.ID_SENTE);
+  static senteInstance = new BanSide(BanSide.ID_SENTE);
+  static goteInstance = new BanSide(BanSide.ID_GOTE);
+
+  static getInstangeOfSenteSide() {
+    return this.senteInstance;
   }
 
-  static createGoteSide() {
-    return new BanSide(BanSide.ID_GOTE);
+  static getInstangeOfGoteSide() {
+    return this.goteInstance;
   }
 };

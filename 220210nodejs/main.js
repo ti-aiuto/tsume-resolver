@@ -150,7 +150,7 @@ async function main() {
   const initialBanSnapshot = new JsonBanLoader().load(json);
   const initialBanTe = new BanTe(null, initialBanSnapshot);
 
-  const enemySide = BanSide.createGoteSide();
+  const enemySide = BanSide.getInstangeOfGoteSide();
   const teResolver = new TeResolver();
 
   const start = new Date();

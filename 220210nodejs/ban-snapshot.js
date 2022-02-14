@@ -218,7 +218,7 @@ exports.BanSnapshot = class BanSnapshot {
   }
 
   toString() {
-    const sente = BanSide.createSenteSide();
+    const sente = BanSide.getInstangeOfSenteSide();
     const gote = sente.opposite();
     let text = '';
     text += `${gote.shortLabel}:`;
