@@ -88,7 +88,6 @@ exports.TsumeResolver = class TsumeResolver {
   }
 
   resolve() {
-    this.log('---');
     this.log('探索を開始');
     this.log(`再帰上限：${this.depthLimit}`);
     const start = new Date();
@@ -101,6 +100,7 @@ exports.TsumeResolver = class TsumeResolver {
     this.log(`詰みあり：${foundTsumi}`);
     const end = new Date();
     this.log(`所要時間：${end - start}`);
+    this.log('---');
     return foundTsumi;
   }
 

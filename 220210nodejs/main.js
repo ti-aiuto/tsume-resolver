@@ -47,7 +47,6 @@ async function main() {
     depthLimit += 2;
   }
 
-  console.log('---');
   console.log(initialBanTe.toString());
   console.log('手順');
   showTsumiResursively(1, initialBanTe);
