@@ -25,18 +25,31 @@ function showTsumiResursively(depth, parentBanTe) {
 
 async function main() {
   const json = await readFileAsJson(sample_filename);
-  const initialBanSnapshot = new JsonBanLoader().load(json);
-  const initialBanTe = new BanTe(null, initialBanSnapshot);
   const enemySide = BanSide.getInstangeOfGoteSide();
+  const initialBanSnapshot = new JsonBanLoader().load(json);
 
-  const resolver = new TsumeResolver(initialBanTe, enemySide, 8, false);
-  const foundTsumi = resolver.resolve();
+  let initialBanTe;
+  let depthLimit = 2;
 
-  console.log(initialBanTe.toString());
-
-  if (foundTsumi) {
-    console.log("手順");
-    showTsumiResursively(1, initialBanTe);
+  // 成功するまで上限を上げながら繰り返す
+  while (true) {
+    initialBanTe = new BanTe(null, initialBanSnapshot);
+    const resolver = new TsumeResolver(
+      initialBanTe,
+      enemySide,
+      depthLimit,
+      false,
+    );
+    const foundTsumi = resolver.resolve();
+    if (foundTsumi) {
+      break;
+    }
+    depthLimit += 2;
   }
+
+  console.log('---');
+  console.log(initialBanTe.toString());
+  console.log('手順');
+  showTsumiResursively(1, initialBanTe);
 }
 main();
