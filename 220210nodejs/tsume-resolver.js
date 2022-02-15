@@ -38,7 +38,9 @@ exports.TsumeResolver = class TsumeResolver {
             // 一つでも逃げられない手があればそのKyokumenが完全に詰みとする
             parentBanTe.markAsNoUkeAndFutureTsumi();
             oteSuccess = true;
-            // return true;
+            if (!this.findAll) {
+              return true;
+            }
           }
         } catch (e) {
           if (e.message === '再帰上限') {
@@ -49,7 +51,7 @@ exports.TsumeResolver = class TsumeResolver {
         }
       }
       if (oteSuccess) {
-        // 全王手を見たいから
+        // 全王手をチェックする場合は覚えていた値に応じてreturnする
         return true;
       }
       parentBanTe.markAsOneOfThemNoOte();
@@ -78,17 +80,27 @@ exports.TsumeResolver = class TsumeResolver {
     }
   }
 
-  constructor(initialBanTe, enemySide, depthLimit) {
+  constructor(initialBanTe, enemySide, depthLimit, findAll) {
     this.initialBanTe = initialBanTe;
     this.enemySide = enemySide;
     this.depthLimit = depthLimit;
+    this.findAll = findAll;
   }
 
   resolve() {
     this.log('探索を開始');
     this.log(`再帰上限：${this.depthLimit}`);
-    this.oteRecursively(1, this.initialBanTe, this.enemySide);
+    const start = new Date();
+    const foundTsumi = this.oteRecursively(
+      1,
+      this.initialBanTe,
+      this.enemySide,
+    );
     this.log('探索完了');
+    this.log(`詰みあり：${this.foundTsumi}`);
+    const end = new Date();
+    this.log(`所要時間：${end - start}`);
+    return foundTsumi;
   }
 
   log(message) {
