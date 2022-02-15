@@ -295,12 +295,20 @@ exports.BanTe = class BanTe {
     ];
   }
 
-  toString() {
+  tejunToString() {
     let result = '';
     if (this.beforeBanKoma) {
-      result += `${this.banKoma.toString()}\n`;
+      result += `${this.banKoma.toString()}`;
     } else {
-      result += `${this.banKoma.toString()} 打ち\n`;
+      result += `${this.banKoma.toString()} 打ち`;
+    }
+    return result;
+  }
+
+  toString() {
+    let result = '';
+    if (this.banKoma) {
+      result += this.tejunToString() + '\n';
     }
     result += this.banSnapshot.toString();
     return result;

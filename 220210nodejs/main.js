@@ -9,28 +9,18 @@ async function readFileAsJson(filename) {
   return JSON.parse(body);
 }
 
-const KomaFu = require('./koma-fu.js').KomaFu;
-
+const JsonBanLoader = require('./json-ban-loader.js').JsonBanLoader;
+const TsumeResolver = require('./tsume-resolver.js').TsumeResolver;
 const BanSide = require('./ban-side.js').BanSide;
 const BanTe = require('./ban-te.js').BanTe;
-const TsumeResolver = require('./tsume-resolver.js').TsumeResolver;
 
-const JsonBanLoader = require('./json-ban-loader.js').JsonBanLoader;
-
-function extractTsumiTejunAsArray(result, currentPath, parentBanTe) {
-  if (parentBanTe.isTsumi) {
-    result.push(currentPath);
-  }
-  for (let banTe of parentBanTe.nextBanTes) {
-    if (!parentBanTe.isNoUkeAndFutureTsumi) {
-      continue;
-    }
-    extractTsumiTejunAsArray(
-      result,
-      [...currentPath, banTe],
-      banTe,
-    );
-  }
+function showTsumiResursively(depth, parentBanTe) {
+  parentBanTe.nextBanTes
+    .filter((nextBanTe) => nextBanTe.isNoUkeAndFutureTsumi)
+    .forEach((nextBanTe) => {
+      console.log('  '.repeat(depth) + nextBanTe.tejunToString());
+      showTsumiResursively(depth + 1, nextBanTe);
+    });
 }
 
 async function main() {
@@ -39,44 +29,13 @@ async function main() {
   const initialBanTe = new BanTe(null, initialBanSnapshot);
   const enemySide = BanSide.getInstangeOfGoteSide();
 
-  const start = new Date();
+  const resolver = new TsumeResolver(initialBanTe, enemySide, 8, false);
+  const foundTsumi = resolver.resolve();
 
-  const resolver = new TsumeResolver(initialBanTe, enemySide, 10);
+  console.log(initialBanTe.toString());
 
-  resolver.resolve();
-
-  const end = new Date();
-  console.log(end - start);
-
-  const rawTsumiTejuns = [];
-  extractTsumiTejunAsArray(rawTsumiTejuns, [], initialBanTe);
-
-  console.log(`総手順：${rawTsumiTejuns.length}`);
-
-  const tsumiTejuns = rawTsumiTejuns.filter((tsumiTejun) => {
-    const lastTe = tsumiTejun[tsumiTejun.length - 1];
-    // 歩打ちで詰みは禁止
-    return !(!lastTe.beforeBanKoma && lastTe.banKoma.koma instanceof KomaFu);
-  });
-  console.log(`歩で詰みを除く：${tsumiTejuns.length}`);
-
-  tsumiTejuns.sort(function (a, b) {
-    return Math.sign(a.length - b.length);
-  });
-
-  // console.log('最良手数の場合：');
-
-  console.log(initialBanSnapshot.toString());
-  const tejunBest = tsumiTejuns[0];
-  tejunBest.forEach((banTe) => {
-    // console.log(banTe.toString());
-  });
-
-  // console.log('最悪手数（再帰制約内）の場合：');
-  // console.log(initialBanSnapshot.toString());
-  const tejunWorst = tsumiTejuns[tsumiTejuns.length - 1];
-  tejunWorst.forEach((banTe) => {
-    // console.log(banTe.toString());
-  });
+  if (foundTsumi) {
+    showTsumiResursively(1, initialBanTe);
+  }
 }
 main();

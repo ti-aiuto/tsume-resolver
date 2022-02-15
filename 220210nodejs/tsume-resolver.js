@@ -97,7 +97,7 @@ exports.TsumeResolver = class TsumeResolver {
       this.enemySide,
     );
     this.log('探索完了');
-    this.log(`詰みあり：${this.foundTsumi}`);
+    this.log(`詰みあり：${foundTsumi}`);
     const end = new Date();
     this.log(`所要時間：${end - start}`);
     return foundTsumi;
