@@ -35,6 +35,7 @@ async function main() {
   console.log(initialBanTe.toString());
 
   if (foundTsumi) {
+    console.log("手順");
     showTsumiResursively(1, initialBanTe);
   }
 }

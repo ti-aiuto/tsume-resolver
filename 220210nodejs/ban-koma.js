@@ -110,6 +110,6 @@ exports.BanKoma = class BanKoma {
   toString() {
     return `${this.side.shortLabel} 筋:${this.banPoint.suji} 段:${
       this.banPoint.dan
-    } ${this.koma.label(this.nari)} ${this.nari ? '成' : '不成'}`;
+    } ${this.koma.label(this.nari)}${this.nari ? ' 成' : ''}`;
   }
 };
