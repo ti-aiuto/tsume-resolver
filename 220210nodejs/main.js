@@ -16,7 +16,7 @@ const BanTe = require('./ban-te.js').BanTe;
 
 function showTsumiResursively(depth, parentBanTe) {
   parentBanTe.nextBanTes
-    .filter((nextBanTe) => nextBanTe.isNoUkeAndFutureTsumi)
+    .filter((nextBanTe) => nextBanTe.isNoUkeAndFutureTsumi || nextBanTe.isTsumi)
     .forEach((nextBanTe) => {
       console.log('  '.repeat(depth) + nextBanTe.tejunToString());
       showTsumiResursively(depth + 1, nextBanTe);
