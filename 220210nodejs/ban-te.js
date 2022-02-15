@@ -110,6 +110,8 @@ exports.BanTe = class BanTe {
           if (this.banSnapshot.findFuBySideAndSuji(tumaseSide, banPoint.suji)) {
             continue;
           }
+
+          // TODO: 打ち歩詰めのチェック
         }
 
         if (
@@ -269,6 +271,22 @@ exports.BanTe = class BanTe {
     }
 
     return result;
+  }
+
+  findNextOteSeme(tumasareSide) {
+    return [
+      ...this.findNextMovingOtesOf(tumasareSide),
+      ...this.findNextPuttingOtesOf(tumasareSide),
+    ];
+    // TODO: 開き王手を考慮する
+  }
+
+  findNextOteUke(tumasareSide) {
+    return [
+      ...this.findNextOteEscaping(tumasareSide),
+      ...this.findNextOteRemoving(tumasareSide),
+      ...this.findNextOteAigoma(tumasareSide),
+    ];
   }
 
   toString() {

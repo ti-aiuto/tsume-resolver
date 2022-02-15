@@ -1,10 +1,9 @@
 exports.TsumeResolver = class TsumeResolver {
   nextOte(parentBanTe, tumasareSide) {
-    parentBanTe.addBanTe(...parentBanTe.findNextMovingOtesOf(tumasareSide));
-    parentBanTe.addBanTe(...parentBanTe.findNextPuttingOtesOf(tumasareSide));
-    // TODO: 開き王手を考慮する
+    const nextBanTes = parentBanTe.findNextOteSeme(tumasareSide);
+    parentBanTe.addBanTe(...nextBanTes);
 
-    if (parentBanTe.nextBanTes.length) {
+    if (nextBanTes.length) {
       return true;
     } else {
       return false;
@@ -12,11 +11,10 @@ exports.TsumeResolver = class TsumeResolver {
   }
 
   nextSurvival(parentBanTe, tumasareSide) {
-    parentBanTe.addBanTe(...parentBanTe.findNextOteEscaping(tumasareSide));
-    parentBanTe.addBanTe(...parentBanTe.findNextOteRemoving(tumasareSide));
-    parentBanTe.addBanTe(...parentBanTe.findNextOteAigoma(tumasareSide));
+    const nextBanTes = parentBanTe.findNextOteUke(tumasareSide);
+    parentBanTe.addBanTe(...nextBanTes);
 
-    if (parentBanTe.nextBanTes.length) {
+    if (nextBanTes.length) {
       parentBanTe.markAsNotTsumi();
       return true;
     } else {
@@ -34,7 +32,9 @@ exports.TsumeResolver = class TsumeResolver {
       let oteSuccess = false;
       for (let banTe of parentBanTe.nextBanTes) {
         try {
-          if (this.surviveRecursively(depth + 1, banTe, tumasareSide) === false) {
+          if (
+            this.surviveRecursively(depth + 1, banTe, tumasareSide) === false
+          ) {
             // 一つでも逃げられない手があればそのKyokumenが完全に詰みとする
             parentBanTe.markAsNoUkeAndFutureTsumi();
             oteSuccess = true;
