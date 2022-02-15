@@ -38,7 +38,7 @@ async function main() {
       initialBanTe,
       enemySide,
       depthLimit,
-      false,
+      true,
     );
     const foundTsumi = resolver.resolve();
     if (foundTsumi) {

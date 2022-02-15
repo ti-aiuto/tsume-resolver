@@ -90,6 +90,7 @@ exports.TsumeResolver = class TsumeResolver {
   resolve() {
     this.log('探索を開始');
     this.log(`再帰上限：${this.depthLimit}`);
+    this.log(`全探索：${this.findAll}`);
     const start = new Date();
     const foundTsumi = this.oteRecursively(
       1,
