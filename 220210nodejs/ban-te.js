@@ -110,8 +110,6 @@ exports.BanTe = class BanTe {
           if (this.banSnapshot.findFuBySideAndSuji(tumaseSide, banPoint.suji)) {
             continue;
           }
-
-          // TODO: 打ち歩詰めのチェック
         }
 
         if (
@@ -124,6 +122,14 @@ exports.BanTe = class BanTe {
             nextBanKoma.side,
           );
           const banTe = new BanTe(nextBanKoma, nextBanShapshot, null);
+
+          if (banKoma.koma instanceof KomaFu) {
+            if (!banTe.findNextOteUke(tumasareSide).length) {
+              // 打ち歩詰め
+              continue;
+            }
+          }
+
           result.push(banTe);
         }
       }
