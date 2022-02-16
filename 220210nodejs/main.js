@@ -11,12 +11,16 @@ const TsumeResolver = require('./tsume-resolver.js').TsumeResolver;
 const BanSide = require('./ban-side.js').BanSide;
 const BanTe = require('./ban-te.js').BanTe;
 
-function showTsumiResursively(depth, parentBanTe) {
+function showTsumiResursively(depth, parentBanTe, specifiedTejuns) {
   parentBanTe.nextBanTes
     .filter((nextBanTe) => nextBanTe.isNoUkeAndFutureTsumi || nextBanTe.isTsumi)
+    .filter((nextBanTe) => {
+      const specifiedTe = specifiedTejuns[depth - 1];
+      return !specifiedTe || specifiedTe === nextBanTe.banKoma.label().trim();
+    })
     .forEach((nextBanTe) => {
       console.log('  '.repeat(depth) + nextBanTe.tejunToString());
-      showTsumiResursively(depth + 1, nextBanTe);
+      showTsumiResursively(depth + 1, nextBanTe, specifiedTejuns);
     });
 }
 
@@ -25,7 +29,7 @@ async function main() {
   const enemySide = BanSide.getInstangeOfGoteSide();
   const initialBanSnapshot = new JsonBanLoader().load(json);
 
-  console.log("読み込み完了");
+  console.log('読み込み完了');
   console.log(initialBanSnapshot.toString());
 
   let initialBanTe;
@@ -49,6 +53,6 @@ async function main() {
 
   console.log(initialBanTe.toString());
   console.log('手順');
-  showTsumiResursively(1, initialBanTe);
+  showTsumiResursively(1, initialBanTe, []);
 }
 main();

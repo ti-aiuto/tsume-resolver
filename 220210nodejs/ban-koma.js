@@ -107,9 +107,13 @@ exports.BanKoma = class BanKoma {
     return cloned;
   }
 
+  label() {
+    return `${this.koma.label(this.nari)}`;
+  }
+
   toString() {
     return `${this.side.shortLabel} 筋:${this.banPoint.suji} 段:${
       this.banPoint.dan
-    } ${this.koma.label(this.nari)}${this.nari ? ' 成' : ''}`;
+    } ${this.label()}`;
   }
 };
