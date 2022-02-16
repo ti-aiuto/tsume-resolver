@@ -12,16 +12,35 @@ const BanSide = require('./ban-side.js').BanSide;
 const BanTe = require('./ban-te.js').BanTe;
 
 function showTsumiResursively(depth, parentBanTe, specifiedTejuns) {
-  parentBanTe.nextBanTes
+  const nextBanTes = parentBanTe.nextBanTes
     .filter((nextBanTe) => nextBanTe.isNoUkeAndFutureTsumi || nextBanTe.isTsumi)
     .filter((nextBanTe) => {
       const specifiedTe = specifiedTejuns[depth - 1];
       return !specifiedTe || specifiedTe === nextBanTe.banKoma.label().trim();
-    })
-    .forEach((nextBanTe) => {
-      console.log('  '.repeat(depth) + nextBanTe.tejunToString());
-      showTsumiResursively(depth + 1, nextBanTe, specifiedTejuns);
     });
+
+  const minTsumiDepth = Math.min(...nextBanTes.map((banTe) => banTe.minTsumiDepth));
+  const maxTsumiDepth = Math.max(...nextBanTes.map((banTe) => banTe.minTsumiDepth));
+
+  let optimizedNextBanTes;
+  if (depth % 2 === 0) {
+    // 受け側なので長引くほう
+    optimizedNextBanTes = nextBanTes.filter(
+      (banTe) => banTe.minTsumiDepth === maxTsumiDepth,
+    );
+  } else {
+    // 攻め側なので早く片付くほう
+    optimizedNextBanTes = [
+      nextBanTes.find((banTe) => banTe.minTsumiDepth === minTsumiDepth),
+    ];
+  }
+
+  optimizedNextBanTes.forEach((nextBanTe) => {
+    console.log('  '.repeat(depth) + nextBanTe.tejunToString());
+    if (!nextBanTe.isTsumi) {
+      showTsumiResursively(depth + 1, nextBanTe, specifiedTejuns);
+    }
+  });
 }
 
 async function main() {
