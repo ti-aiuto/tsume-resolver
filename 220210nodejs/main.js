@@ -1,8 +1,5 @@
 // 220210の目標：いったんテストコード無しで動くロジックを書いてみる
 
-// TODO: コマンドライン引数でとる
-const sample_filename = '../sample/horoki1.json';
-
 async function readFileAsJson(filename) {
   const fs = require('fs').promises;
   const body = await fs.readFile(filename, 'utf-8');
@@ -24,9 +21,12 @@ function showTsumiResursively(depth, parentBanTe) {
 }
 
 async function main() {
-  const json = await readFileAsJson(sample_filename);
+  const json = await readFileAsJson(process.argv[2]);
   const enemySide = BanSide.getInstangeOfGoteSide();
   const initialBanSnapshot = new JsonBanLoader().load(json);
+
+  console.log("読み込み完了");
+  console.log(initialBanSnapshot.toString());
 
   let initialBanTe;
   let depthLimit = 2;
