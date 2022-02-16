@@ -10,7 +10,7 @@ exports.TsumeResolver = class TsumeResolver {
     }
   }
 
-  nextSurvival(parentBanTe, tumasareSide) {
+  nextSurvival(parentBanTe, tumasareSide, depth) {
     const nextBanTes = parentBanTe.findNextOteUke(tumasareSide);
     parentBanTe.addBanTe(...nextBanTes);
 
@@ -18,7 +18,7 @@ exports.TsumeResolver = class TsumeResolver {
       parentBanTe.markAsNotTsumi();
       return true;
     } else {
-      parentBanTe.markAsTsumi();
+      parentBanTe.markAsTsumi(depth);
       return false;
     }
   }
@@ -63,7 +63,7 @@ exports.TsumeResolver = class TsumeResolver {
   }
 
   surviveRecursively(depth, parentBanTe, tumasareSide) {
-    if (this.nextSurvival(parentBanTe, tumasareSide)) {
+    if (this.nextSurvival(parentBanTe, tumasareSide, depth)) {
       // 逃げられた場合、各差し手について王手を探す
       for (let banTe of parentBanTe.nextBanTes) {
         if (this.oteRecursively(depth + 1, banTe, tumasareSide) === false) {
