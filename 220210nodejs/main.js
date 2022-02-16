@@ -36,7 +36,7 @@ function showTsumiResursively(depth, parentBanTe, specifiedTejuns) {
   }
 
   optimizedNextBanTes.forEach((nextBanTe) => {
-    console.log('  '.repeat(depth) + nextBanTe.tejunToString());
+    console.log(`B:${nextBanTe.minTsumiDepth} W:${nextBanTe.maxTsumiDepth} ${'  '.repeat(depth)}${nextBanTe.tejunToString()}`);
     if (!nextBanTe.isTsumi) {
       showTsumiResursively(depth + 1, nextBanTe, specifiedTejuns);
     }

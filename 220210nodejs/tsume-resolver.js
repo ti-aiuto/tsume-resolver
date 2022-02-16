@@ -18,7 +18,7 @@ exports.TsumeResolver = class TsumeResolver {
       parentBanTe.markAsNotTsumi();
       return true;
     } else {
-      parentBanTe.markAsTsumi(depth);
+      parentBanTe.markAsTsumi(depth - 1);
       return false;
     }
   }
