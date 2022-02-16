@@ -44,7 +44,7 @@ exports.TsumeResolver = class TsumeResolver {
           }
         } catch (e) {
           if (e.message === '再帰上限') {
-            return false;
+            continue;
           } else {
             throw e;
           }
