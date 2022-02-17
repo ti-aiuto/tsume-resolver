@@ -19,19 +19,20 @@ function showTsumiResursively(depth, parentBanTe, specifiedTejuns) {
       return !specifiedTe || specifiedTe === nextBanTe.banKoma.label().trim();
     });
 
-  const minTsumiDepth = Math.min(...nextBanTes.map((banTe) => banTe.minTsumiDepth));
-  const maxTsumiDepth = Math.max(...nextBanTes.map((banTe) => banTe.minTsumiDepth));
+  // min優先、同じ値ならmaxで比較
+  const minTsumiDepthScore = Math.min(...nextBanTes.map((banTe) => banTe.depthScore()));
+  const maxTsumiDepthScore = Math.max(...nextBanTes.map((banTe) => banTe.depthScore()));
 
   let optimizedNextBanTes;
   if (depth % 2 === 0) {
     // 受け側なので長引くほう
     optimizedNextBanTes = nextBanTes.filter(
-      (banTe) => banTe.minTsumiDepth === maxTsumiDepth,
+      (banTe) => banTe.depthScore() === maxTsumiDepthScore,
     );
   } else {
     // 攻め側なので早く片付くほう
     optimizedNextBanTes = [
-      nextBanTes.find((banTe) => banTe.minTsumiDepth === minTsumiDepth),
+      nextBanTes.find((banTe) => banTe.depthScore() === minTsumiDepthScore),
     ];
   }
 

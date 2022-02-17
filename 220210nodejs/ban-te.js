@@ -45,6 +45,8 @@ exports.BanTe = class BanTe {
     }
   }
 
+  // 詰み探索用のデータと純粋な手のデータは分離したい
+
   markAsNotTsumi() {
     this.isTsumi = false;
   }
@@ -55,6 +57,10 @@ exports.BanTe = class BanTe {
 
   markAsNoUkeAndFutureTsumi() {
     this.isNoUkeAndFutureTsumi = true;
+  }
+
+  depthScore() {
+    return this.minTsumiDepth * 100 + this.maxTsumiDepth;
   }
 
   // 駒を動かして王手にできる手の配列(BanCommand[])を返す
