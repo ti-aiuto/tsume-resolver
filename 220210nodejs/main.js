@@ -11,7 +11,12 @@ const TsumeResolver = require('./tsume-resolver.js').TsumeResolver;
 const BanSide = require('./ban-side.js').BanSide;
 const BanTe = require('./ban-te.js').BanTe;
 
-function showTsumiResursively(depth, parentBanTe, specifiedTejuns) {
+function showTsumiResursively(
+  depth,
+  parentBanTe,
+  specifiedTejuns,
+  enableEscapingEffort,
+) {
   const nextBanTes = parentBanTe.nextBanTes
     .filter((nextBanTe) => nextBanTe.isNoUkeAndFutureTsumi || nextBanTe.isTsumi)
     .filter((nextBanTe) => {
@@ -20,11 +25,15 @@ function showTsumiResursively(depth, parentBanTe, specifiedTejuns) {
     });
 
   // min優先、同じ値ならmaxで比較
-  const minTsumiDepthScore = Math.min(...nextBanTes.map((banTe) => banTe.depthScore()));
-  const maxTsumiDepthScore = Math.max(...nextBanTes.map((banTe) => banTe.depthScore()));
+  const minTsumiDepthScore = Math.min(
+    ...nextBanTes.map((banTe) => banTe.depthScore()),
+  );
+  const maxTsumiDepthScore = Math.max(
+    ...nextBanTes.map((banTe) => banTe.depthScore()),
+  );
 
-  let optimizedNextBanTes;
-  if (depth % 2 === 0) {
+  let optimizedNextBanTes = [];
+  if (depth % 2 === 0 && enableEscapingEffort) {
     // 受け側なので長引くほう
     optimizedNextBanTes = nextBanTes.filter(
       (banTe) => banTe.depthScore() === maxTsumiDepthScore,
@@ -37,9 +46,18 @@ function showTsumiResursively(depth, parentBanTe, specifiedTejuns) {
   }
 
   optimizedNextBanTes.forEach((nextBanTe) => {
-    console.log(`B:${nextBanTe.minTsumiDepth} W:${nextBanTe.maxTsumiDepth} ${'  '.repeat(depth)}${nextBanTe.tejunToString()}`);
+    console.log(
+      `B:${nextBanTe.minTsumiDepth} W:${nextBanTe.maxTsumiDepth} ${'  '.repeat(
+        depth,
+      )}${nextBanTe.tejunToString()}`,
+    );
     if (!nextBanTe.isTsumi) {
-      showTsumiResursively(depth + 1, nextBanTe, specifiedTejuns);
+      showTsumiResursively(
+        depth + 1,
+        nextBanTe,
+        specifiedTejuns,
+        enableEscapingEffort,
+      );
     }
   });
 }
@@ -72,7 +90,10 @@ async function main() {
   }
 
   console.log(initialBanTe.toString());
-  console.log('手順');
-  showTsumiResursively(1, initialBanTe, []);
+  console.log('最良手順');
+  showTsumiResursively(1, initialBanTe, [], false);
+
+  console.log('逃げ優先手順');
+  showTsumiResursively(1, initialBanTe, [], true);
 }
 main();
