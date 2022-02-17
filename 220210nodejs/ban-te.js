@@ -110,7 +110,7 @@ exports.BanTe = class BanTe {
               )
             ) {
               // 自分の玉を危険に追い込んでいないかチェック
-              if (!banTe.banSnapshot.isOtedFor(mySide)) {
+              if (!banTe.banSnapshot.isOtedFor(tumaseSide)) {
                 banTes.push(banTe);
               }
             }
@@ -388,8 +388,8 @@ exports.BanTe = class BanTe {
 
   findNextOteSeme(tumasareSide) {
     return [
-      // ...this.findNextMovingOtesOf(tumasareSide),
-      // ...this.findNextPuttingOtesOf(tumasareSide),
+      ...this.findNextMovingOtesOf(tumasareSide),
+      ...this.findNextPuttingOtesOf(tumasareSide),
       ...this.findOpeningOteOf(tumasareSide),
     ];
   }
