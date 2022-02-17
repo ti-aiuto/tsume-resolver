@@ -117,8 +117,8 @@ exports.BanSnapshot = class BanSnapshot {
     );
   }
 
-  // 第一引数の駒の効きに第二引数の駒が入っているかどうか
-  isInPownerOfMove(banKoma, otherBanPoint) {
+  // 間に邪魔する駒がなければ利きに入るかどうか
+  isPotentiallyInPowerOfMove(banKoma, otherBanPoint) {
     // 最大限移動しても利きに入っていないなら入らない
     if (!banKoma.nearPointOf(otherBanPoint)) {
       return false;
@@ -128,6 +128,15 @@ exports.BanSnapshot = class BanSnapshot {
       .nextValidRangeBanPoints()
       .some((banPoint) => otherBanPoint.equals(banPoint));
     if (!gyokuInInPowerOfMove) {
+      return false;
+    }
+
+    return true;
+  }
+
+  // 第一引数の駒の効きに第二引数の駒が入っているかどうか
+  isInPownerOfMove(banKoma, otherBanPoint) {
+    if (!this.isPotentiallyInPowerOfMove(banKoma, otherBanPoint)) {
       return false;
     }
 
@@ -200,6 +209,10 @@ exports.BanSnapshot = class BanSnapshot {
 
   causingOteBanKomasTo(side) {
     const gyokuBanKoma = this.findGyokuBySide(side);
+    if (!gyokuBanKoma) {
+      // 自玉がない場合は問題なし
+      return true;
+    }
     const enemySide = side.opposite();
     const enemyBanKomas = this.findOnBoardBanKomasBySide(enemySide);
     return enemyBanKomas.filter((banKoma) => {

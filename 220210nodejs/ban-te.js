@@ -109,7 +109,10 @@ exports.BanTe = class BanTe {
                 gyokuBanKoma.banPoint,
               )
             ) {
-              banTes.push(banTe);
+              // 自分の玉を危険に追い込んでいないかチェック
+              if (!banTe.banSnapshot.isOtedFor(mySide)) {
+                banTes.push(banTe);
+              }
             }
           }
         }
@@ -165,6 +168,81 @@ exports.BanTe = class BanTe {
     }
 
     return result;
+  }
+
+  findOpeningOteOf(tumasareSide) {
+    const gyokuBanKoma = this.banSnapshot.findGyokuBySide(tumasareSide);
+    const mySide = tumasareSide.opposite();
+    const myBanKomas = this.banSnapshot.findOnBoardBanKomasBySide(mySide);
+    const banTes = [];
+
+    for (let myBanKoma of myBanKomas) {
+      if (
+        !this.banSnapshot.isPotentiallyInPowerOfMove(
+          myBanKoma,
+          gyokuBanKoma.banPoint,
+        )
+      ) {
+        // 他の駒がどいても効きに入らないものは飛ばす
+        continue;
+      }
+
+      const pointsBetween = myBanKoma.banPoint.pointsBetween(
+        gyokuBanKoma.banPoint,
+      );
+      if (!pointsBetween.length) {
+        // 飛び道具以外はスキップ
+        continue;
+      }
+
+      const komasInBetween = pointsBetween
+        .map((point) => this.banSnapshot.findBanKomaByBanPoint(point))
+        .filter((item) => item && item.side.equals(mySide));
+      if (komasInBetween.length !== 1) {
+        // 邪魔する駒が自分の駒一つのときだけ処理を続行する
+        continue;
+      }
+
+      const banKoma = komasInBetween[0];
+
+      // 盤の範囲内で移動できる点
+      for (let banPoint of banKoma.nextValidRangeBanPoints()) {
+        if (
+          !this.banSnapshot.canMoveToBanPointBySide(
+            banKoma.banPoint,
+            banPoint,
+            mySide,
+          )
+        ) {
+          // 自分の駒がいる点には動けない
+          continue;
+        }
+
+        if (
+          pointsBetween.find((pointInBetween) =>
+            pointInBetween.equals(banPoint),
+          )
+        ) {
+          // 飛び道具を邪魔する場所には動かさない
+          continue;
+        }
+
+        // 移動してみて成る場合とならない場合のBanKomaを生成してみる
+        for (let nextBanKoma of banKoma.moveOrMoveAndNariToBanPoint(banPoint)) {
+          const nextBanShapshot = this.banSnapshot.moveKomaTo(
+            banKoma.banPoint,
+            nextBanKoma.banPoint,
+            nextBanKoma.nari,
+          );
+          const nextBanTe = new BanTe(nextBanKoma, nextBanShapshot, banKoma);
+          // 自分の玉を危険に追い込んでいないかチェック
+          if (!nextBanTe.banSnapshot.isOtedFor(mySide)) {
+            banTes.push(nextBanTe);
+          }
+        }
+      }
+    }
+    return banTes;
   }
 
   // 玉が逃げる・取るパターン
@@ -310,10 +388,10 @@ exports.BanTe = class BanTe {
 
   findNextOteSeme(tumasareSide) {
     return [
-      ...this.findNextMovingOtesOf(tumasareSide),
-      ...this.findNextPuttingOtesOf(tumasareSide),
+      // ...this.findNextMovingOtesOf(tumasareSide),
+      // ...this.findNextPuttingOtesOf(tumasareSide),
+      ...this.findOpeningOteOf(tumasareSide),
     ];
-    // TODO: 開き王手を考慮する
   }
 
   findNextOteUke(tumasareSide) {
