@@ -170,7 +170,7 @@ exports.BanTe = class BanTe {
     return result;
   }
 
-  findOpeningOteOf(tumasareSide) {
+  findNextOpeningOteOf(tumasareSide) {
     const gyokuBanKoma = this.banSnapshot.findGyokuBySide(tumasareSide);
     const mySide = tumasareSide.opposite();
     const myBanKomas = this.banSnapshot.findOnBoardBanKomasBySide(mySide);
@@ -390,7 +390,7 @@ exports.BanTe = class BanTe {
     return [
       ...this.findNextMovingOtesOf(tumasareSide),
       ...this.findNextPuttingOtesOf(tumasareSide),
-      ...this.findOpeningOteOf(tumasareSide),
+      ...this.findNextOpeningOteOf(tumasareSide),
     ];
   }
 
