@@ -236,7 +236,7 @@ exports.BanTe = class BanTe {
           );
           const nextBanTe = new BanTe(nextBanKoma, nextBanShapshot, banKoma);
           // 自分の玉を危険に追い込んでいないかチェック
-          if (!nextBanTe.banSnapshot.isOtedFor(mySide)) {
+          if (!nextBanTe.banSnapshot.isOtedFor(mySide) && nextBanTe.banSnapshot.isOtedFor(tumasareSide)) {
             banTes.push(nextBanTe);
           }
         }
