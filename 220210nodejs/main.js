@@ -47,8 +47,8 @@ function showTsumiResursively(
 
   optimizedNextNodes.forEach((nextNode) => {
     console.log(
-      `B:${nextNode.minTsumiDepth} W:${nextNode.maxTsumiDepth} ${'  '.repeat(
-        depth,
+      `B:${nextNode.minTsumiDepth} W:${nextNode.maxTsumiDepth} | ${'  '.repeat(
+        depth - 1,
       )}${nextNode.banTe.tejunToString()}`,
     );
     if (!nextNode.isTsumi) {
