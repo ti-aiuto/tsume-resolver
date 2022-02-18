@@ -114,8 +114,8 @@ exports.BanKoma = class BanKoma {
   }
 
   toString() {
-    return `${this.side.shortLabel} ${this.banPoint.sujiLabel}${
+    return `${this.side.shortLabel} (${this.banPoint.sujiLabel}${
       this.banPoint.danLabel
-    }${this.label()}`;
+    })${this.label()}`;
   }
 };

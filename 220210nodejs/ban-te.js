@@ -47,19 +47,14 @@ exports.BanTe = class BanTe {
               nextBanKoma.banPoint,
               nextBanKoma.nari,
             );
-            const banTe = new BanTe(nextBanKoma, nextBanShapshot, banKoma);
+            const nextBanTe = new BanTe(nextBanKoma, nextBanShapshot, banKoma);
 
-            // そのBanKomaの移動先でその駒が王手をかけること
+            // 自分の玉を危険に追い込んでいないかチェック
             if (
-              nextBanShapshot.isInPownerOfMove(
-                nextBanKoma,
-                gyokuBanKoma.banPoint,
-              )
+              !nextBanTe.banSnapshot.isOtedFor(tumaseSide) &&
+              nextBanTe.banSnapshot.isOtedFor(tumasareSide)
             ) {
-              // 自分の玉を危険に追い込んでいないかチェック
-              if (!banTe.banSnapshot.isOtedFor(tumaseSide)) {
-                banTes.push(banTe);
-              }
+              banTes.push(nextBanTe);
             }
           }
         }
@@ -183,7 +178,10 @@ exports.BanTe = class BanTe {
           );
           const nextBanTe = new BanTe(nextBanKoma, nextBanShapshot, banKoma);
           // 自分の玉を危険に追い込んでいないかチェック
-          if (!nextBanTe.banSnapshot.isOtedFor(mySide) && nextBanTe.banSnapshot.isOtedFor(tumasareSide)) {
+          if (
+            !nextBanTe.banSnapshot.isOtedFor(mySide) &&
+            nextBanTe.banSnapshot.isOtedFor(tumasareSide)
+          ) {
             banTes.push(nextBanTe);
           }
         }
