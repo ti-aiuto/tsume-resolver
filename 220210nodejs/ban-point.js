@@ -106,4 +106,12 @@ exports.BanPoint = class BanPoint {
   static danOptions() {
     return this.sujiOptions();
   }
+
+  static sujiLabel(suji) {
+    return ['', '１', '２', '３', '４', '５', '６', '７', '８', '９'][suji];
+  }
+
+  static danLabel(dan) {
+    return ['', '一', '二', '三', '四', '五', '六', '七', '八', '九'][dan];
+  }
 };

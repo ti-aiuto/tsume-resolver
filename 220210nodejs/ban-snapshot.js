@@ -244,8 +244,17 @@ exports.BanSnapshot = class BanSnapshot {
     this.findCapturedBanKomasBySide(sente).forEach((banKoma) => {
       text += banKoma.koma.label(banKoma.nari);
     });
-    text += `\n${'-'.repeat(62)}\n`;
+
+    text += '\n';
+    text += '  |';
+    [...BanPoint.sujiOptions()].reverse().forEach((suji) => {
+      text += `  ${BanPoint.sujiLabel(suji)}  |`;
+    });
+    text += '\n';
+
+    text += `${'-'.repeat(66)}\n`;
     BanPoint.danOptions().forEach((dan) => {
+      text += `${BanPoint.danLabel(dan)}| `;
       [...BanPoint.sujiOptions()].reverse().forEach((suji) => {
         const banPoint = new BanPoint(suji, dan);
         const banKoma = this.findBanKomaByBanPoint(banPoint);
@@ -258,7 +267,8 @@ exports.BanSnapshot = class BanSnapshot {
       });
       text += '\n';
     });
-    text += `${'-'.repeat(62)}\n`;
+
+    text += `${'-'.repeat(66)}\n`;
     text += `${gote.label}:`;
     this.findCapturedBanKomasBySide(gote).forEach((banKoma) => {
       text += banKoma.koma.label(banKoma.nari);
