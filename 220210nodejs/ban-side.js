@@ -16,7 +16,7 @@ exports.BanSide = class BanSide {
   }
 
   get label() {
-    return this.shortLabel;
+    return (this.isSente ? '先手' : '後手') + `(${this.shortLabel})`;
   }
 
   get shortLabel() {

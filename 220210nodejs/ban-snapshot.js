@@ -240,13 +240,13 @@ exports.BanSnapshot = class BanSnapshot {
     const sente = BanSide.getInstangeOfSenteSide();
     const gote = sente.opposite();
     let text = '';
-    text += `${gote.shortLabel}:`;
-    this.findCapturedBanKomasBySide(gote).forEach((banKoma) => {
+    text += `${sente.label}:`;
+    this.findCapturedBanKomasBySide(sente).forEach((banKoma) => {
       text += banKoma.koma.label(banKoma.nari);
     });
     text += '\n';
-    [...BanPoint.danOptions()].reverse().forEach((dan) => {
-      BanPoint.sujiOptions().forEach((suji) => {
+    BanPoint.danOptions().forEach((dan) => {
+      [...BanPoint.sujiOptions()].reverse().forEach((suji) => {
         const banPoint = new BanPoint(suji, dan);
         const banKoma = this.findBanKomaByBanPoint(banPoint);
         if (banKoma) {
@@ -258,8 +258,8 @@ exports.BanSnapshot = class BanSnapshot {
       });
       text += '\n';
     });
-    text += `${sente.shortLabel}:`;
-    this.findCapturedBanKomasBySide(sente).forEach((banKoma) => {
+    text += `${gote.label}:`;
+    this.findCapturedBanKomasBySide(gote).forEach((banKoma) => {
       text += banKoma.koma.label(banKoma.nari);
     });
     text += '\n';
