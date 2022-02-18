@@ -8,53 +8,53 @@ async function readFileAsJson(filename) {
 
 const JsonBanLoader = require('./json-ban-loader.js').JsonBanLoader;
 const TsumeResolver = require('./tsume-resolver.js').TsumeResolver;
+const TsumeResolverNode = require('./tsume-resolver-node.js').TsumeResolverNode;
 const BanSide = require('./ban-side.js').BanSide;
 const BanTe = require('./ban-te.js').BanTe;
 
 function showTsumiResursively(
   depth,
-  parentBanTe,
+  headNode,
   specifiedTejuns,
   enableEscapingEffort,
 ) {
-  const nextBanTes = parentBanTe.nextBanTes
-    .filter((nextBanTe) => nextBanTe.isNoUkeAndFutureTsumi || nextBanTe.isTsumi)
-    .filter((nextBanTe) => {
+  const nextNodes = headNode.childNodes
+    .filter((nextNode) => nextNode.isNoUkeAndFutureTsumi || nextNode.isTsumi)
+    .filter((nextNode) => {
       const specifiedTe = specifiedTejuns[depth - 1];
-      return !specifiedTe || specifiedTe === nextBanTe.banKoma.label().trim();
+      return !specifiedTe || specifiedTe === nextNode.banTe.banKoma.label().trim();
     });
 
-  // min優先、同じ値ならmaxで比較
   const minTsumiDepthScore = Math.min(
-    ...nextBanTes.map((banTe) => banTe.depthScore()),
+    ...nextNodes.map((banTe) => banTe.depthScore()),
   );
   const maxTsumiDepthScore = Math.max(
-    ...nextBanTes.map((banTe) => banTe.depthScore()),
+    ...nextNodes.map((banTe) => banTe.depthScore()),
   );
 
-  let optimizedNextBanTes = [];
+  let optimizedNextNodes = [];
   if (depth % 2 === 0 && enableEscapingEffort) {
     // 受け側なので長引くほう
-    optimizedNextBanTes = nextBanTes.filter(
+    optimizedNextNodes = nextNodes.filter(
       (banTe) => banTe.depthScore() === maxTsumiDepthScore,
     );
   } else {
     // 攻め側なので早く片付くほう
-    optimizedNextBanTes = [
-      nextBanTes.find((banTe) => banTe.depthScore() === minTsumiDepthScore),
+    optimizedNextNodes = [
+      nextNodes.find((banTe) => banTe.depthScore() === minTsumiDepthScore),
     ];
   }
 
-  optimizedNextBanTes.forEach((nextBanTe) => {
+  optimizedNextNodes.forEach((nextNode) => {
     console.log(
-      `B:${nextBanTe.minTsumiDepth} W:${nextBanTe.maxTsumiDepth} ${'  '.repeat(
+      `B:${nextNode.minTsumiDepth} W:${nextNode.maxTsumiDepth} ${'  '.repeat(
         depth,
-      )}${nextBanTe.tejunToString()}`,
+      )}${nextNode.banTe.tejunToString()}`,
     );
-    if (!nextBanTe.isTsumi) {
+    if (!nextNode.isTsumi) {
       showTsumiResursively(
         depth + 1,
-        nextBanTe,
+        nextNode,
         specifiedTejuns,
         enableEscapingEffort,
       );
@@ -66,18 +66,19 @@ async function main() {
   const json = await readFileAsJson(process.argv[2]);
   const enemySide = BanSide.getInstangeOfGoteSide();
   const initialBanSnapshot = new JsonBanLoader().load(json);
+  const initialBanTe = new BanTe(null, initialBanSnapshot);
 
   console.log('読み込み完了');
   console.log(initialBanSnapshot.toString());
 
-  let initialBanTe;
   let depthLimit = 2;
+  let headNode;
 
   // 成功するまで上限を上げながら繰り返す
   while (true) {
-    initialBanTe = new BanTe(null, initialBanSnapshot);
+    headNode = new TsumeResolverNode(initialBanTe);
     const resolver = new TsumeResolver(
-      initialBanTe,
+      headNode,
       enemySide,
       depthLimit,
       true,
@@ -91,9 +92,9 @@ async function main() {
 
   console.log(initialBanTe.toString());
   console.log('最良手順');
-  showTsumiResursively(1, initialBanTe, [], false);
+  showTsumiResursively(1, headNode, [], false);
 
   console.log('逃げ優先手順');
-  showTsumiResursively(1, initialBanTe, [], true);
+  showTsumiResursively(1, headNode, [], true);
 }
 main();

@@ -1,7 +1,10 @@
+const TsumeResolverNode = require('./tsume-resolver-node.js').TsumeResolverNode;
+
 exports.TsumeResolver = class TsumeResolver {
-  nextOte(parentBanTe, tumasareSide) {
-    const nextBanTes = parentBanTe.findNextOteSeme(tumasareSide);
-    parentBanTe.addBanTe(...nextBanTes);
+  nextOte(parentNode, tumasareSide) {
+    const nextBanTes = parentNode.banTe.findNextOteSeme(tumasareSide);
+    const childNodes = nextBanTes.map((banTe) => new TsumeResolverNode(banTe));
+    parentNode.addChildNode(...childNodes);
 
     if (nextBanTes.length) {
       return true;
@@ -10,33 +13,34 @@ exports.TsumeResolver = class TsumeResolver {
     }
   }
 
-  nextSurvival(parentBanTe, tumasareSide, depth) {
-    const nextBanTes = parentBanTe.findNextOteUke(tumasareSide);
-    parentBanTe.addBanTe(...nextBanTes);
+  nextSurvival(parentNode, tumasareSide, depth) {
+    const nextBanTes = parentNode.banTe.findNextOteUke(tumasareSide);
+    const childNodes = nextBanTes.map((banTe) => new TsumeResolverNode(banTe));
+    parentNode.addChildNode(...childNodes);
 
     if (nextBanTes.length) {
-      parentBanTe.markAsNotTsumi();
+      parentNode.markAsNotTsumi();
       return true;
     } else {
-      parentBanTe.markAsTsumi(depth - 1);
+      parentNode.markAsTsumi(depth - 1);
       return false;
     }
   }
 
-  oteRecursively(depth, parentBanTe, tumasareSide) {
+  oteRecursively(depth, parentNode, tumasareSide) {
     if (depth > this.depthLimit) {
       throw new Error('再帰上限');
     }
-    if (this.nextOte(parentBanTe, tumasareSide)) {
+    if (this.nextOte(parentNode, tumasareSide)) {
       // 王手をかけることができた場合、各差し手について逃げ道があるかチェック
       let oteSuccess = false;
-      for (let banTe of parentBanTe.nextBanTes) {
+      for (let nextNode of parentNode.childNodes) {
         try {
           if (
-            this.surviveRecursively(depth + 1, banTe, tumasareSide) === false
+            this.surviveRecursively(depth + 1, nextNode, tumasareSide) === false
           ) {
             // 一つでも逃げられない手があればそのKyokumenが完全に詰みとする
-            parentBanTe.markAsNoUkeAndFutureTsumi();
+            parentNode.markAsNoUkeAndFutureTsumi();
             oteSuccess = true;
             if (!this.findAll) {
               return true;
@@ -54,7 +58,7 @@ exports.TsumeResolver = class TsumeResolver {
         // 全王手をチェックする場合は覚えていた値に応じてreturnする
         return true;
       }
-      parentBanTe.markAsOneOfThemNoOte();
+      parentNode.markAsOneOfThemNoOte();
       return false;
     } else {
       // 逃げられた
@@ -62,17 +66,17 @@ exports.TsumeResolver = class TsumeResolver {
     }
   }
 
-  surviveRecursively(depth, parentBanTe, tumasareSide) {
-    if (this.nextSurvival(parentBanTe, tumasareSide, depth)) {
+  surviveRecursively(depth, parentNode, tumasareSide) {
+    if (this.nextSurvival(parentNode, tumasareSide, depth)) {
       // 逃げられた場合、各差し手について王手を探す
-      for (let banTe of parentBanTe.nextBanTes) {
-        if (this.oteRecursively(depth + 1, banTe, tumasareSide) === false) {
+      for (let nextNode of parentNode.childNodes) {
+        if (this.oteRecursively(depth + 1, nextNode, tumasareSide) === false) {
           // 一つでも逃げられた手があったらそのKyokumenは詰め失敗とする
-          parentBanTe.markAsOneOfThemNoOte();
+          parentNode.markAsOneOfThemNoOte();
           return true;
         }
       }
-      parentBanTe.markAsNoUkeAndFutureTsumi();
+      parentNode.markAsNoUkeAndFutureTsumi();
       return false;
     } else {
       // 詰み
@@ -80,8 +84,8 @@ exports.TsumeResolver = class TsumeResolver {
     }
   }
 
-  constructor(initialBanTe, enemySide, depthLimit, findAll) {
-    this.initialBanTe = initialBanTe;
+  constructor(headNode, enemySide, depthLimit, findAll) {
+    this.headNode = headNode;
     this.enemySide = enemySide;
     this.depthLimit = depthLimit;
     this.findAll = findAll;
@@ -92,11 +96,7 @@ exports.TsumeResolver = class TsumeResolver {
     this.log(`再帰上限：${this.depthLimit}`);
     this.log(`全探索：${this.findAll}`);
     const start = new Date();
-    const foundTsumi = this.oteRecursively(
-      1,
-      this.initialBanTe,
-      this.enemySide,
-    );
+    const foundTsumi = this.oteRecursively(1, this.headNode, this.enemySide);
     this.log('探索完了');
     this.log(`詰みあり：${foundTsumi}`);
     const end = new Date();
