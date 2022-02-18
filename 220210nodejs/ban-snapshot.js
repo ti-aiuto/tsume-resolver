@@ -240,7 +240,7 @@ exports.BanSnapshot = class BanSnapshot {
     const sente = BanSide.getInstangeOfSenteSide();
     const gote = sente.opposite();
     let text = '';
-    text += `${sente.label}:`;
+    text += `${sente.label}(${sente.shortLabel}):`;
     this.findCapturedBanKomasBySide(sente).forEach((banKoma) => {
       text += banKoma.koma.label(banKoma.nari);
     });
@@ -269,7 +269,7 @@ exports.BanSnapshot = class BanSnapshot {
     });
 
     text += `${'-'.repeat(66)}\n`;
-    text += `${gote.label}:`;
+    text += `${gote.label}(${gote.shortLabel}):`;
     this.findCapturedBanKomasBySide(gote).forEach((banKoma) => {
       text += banKoma.koma.label(banKoma.nari);
     });

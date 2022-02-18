@@ -12,6 +12,14 @@ exports.BanPoint = class BanPoint {
     }
   }
 
+  get danLabel() {
+    return BanPoint.danLabel(this.dan);
+  }
+
+  get sujiLabel() {
+    return BanPoint.sujiLabel(this.suji);
+  }
+
   equals(banPoint) {
     return this.suji === banPoint.suji && this.dan === banPoint.dan;
   }

@@ -1,3 +1,5 @@
+const BanPoint = require('./ban-point.js').BanPoint;
+
 exports.BanKoma = class BanKoma {
   constructor(koma, side, banPoint, nari) {
     this.koma = koma;
@@ -112,8 +114,8 @@ exports.BanKoma = class BanKoma {
   }
 
   toString() {
-    return `${this.side.shortLabel} 筋:${this.banPoint.suji} 段:${
-      this.banPoint.dan
+    return `${this.side.shortLabel} ${this.banPoint.sujiLabel}${
+      this.banPoint.danLabel
     } ${this.label()}`;
   }
 };
