@@ -49,7 +49,7 @@ function showTsumiResursively(
     console.log(
       `B:${nextNode.minTsumiDepth} W:${nextNode.maxTsumiDepth} | ${'  '.repeat(
         depth - 1,
-      )}${nextNode.banTe.tejunToString()}`,
+      )}${nextNode.banTe.tejunToString()}${depth % 2 === 0 ? ' の場合' : ''}${nextNode.isTsumi ? ' で詰み' : ''}`,
     );
     if (!nextNode.isTsumi) {
       showTsumiResursively(
