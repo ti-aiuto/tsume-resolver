@@ -16,47 +16,38 @@ function showTsumiResursively(
   depth,
   headNode,
   specifiedTejuns,
-  enableEscapingEffort,
 ) {
   const nextNodes = headNode.childNodes
     .filter((nextNode) => nextNode.isNoUkeAndFutureTsumi || nextNode.isTsumi)
     .filter((nextNode) => {
       const specifiedTe = specifiedTejuns[depth - 1];
-      return !specifiedTe || specifiedTe === nextNode.banTe.banKoma.label().trim();
+      return (
+        !specifiedTe || specifiedTe === nextNode.banTe.banKoma.label().trim()
+      );
     });
-
-  const minTsumiDepthScore = Math.min(
-    ...nextNodes.map((banTe) => banTe.depthScore()),
-  );
-  const maxTsumiDepthScore = Math.max(
-    ...nextNodes.map((banTe) => banTe.depthScore()),
+  nextNodes.sort((item1, item2) =>
+    Math.sign(item1.depthScore() - item2.depthScore()),
   );
 
-  let optimizedNextNodes = [];
-  if (depth % 2 === 0 && enableEscapingEffort) {
-    // 受け側なので長引くほう
-    optimizedNextNodes = nextNodes.filter(
-      (banTe) => banTe.depthScore() === maxTsumiDepthScore,
-    );
-  } else {
-    // 攻め側なので早く片付くほう
-    optimizedNextNodes = [
-      nextNodes.find((banTe) => banTe.depthScore() === minTsumiDepthScore),
-    ];
+  let optimizedNextNodes = nextNodes;
+  if (depth % 2 === 1) {
+    // 攻め側は最短の一つのみ
+    optimizedNextNodes = [nextNodes[0]];
   }
 
   optimizedNextNodes.forEach((nextNode) => {
     console.log(
       `B:${nextNode.minTsumiDepth} W:${nextNode.maxTsumiDepth} | ${'  '.repeat(
         depth - 1,
-      )}${nextNode.banTe.tejunToString()}${depth % 2 === 0 ? ' の場合' : ''}${nextNode.isTsumi ? ' で詰み' : ''}`,
+      )}${nextNode.banTe.tejunToString()}${depth % 2 === 0 ? ' の場合' : ''}${
+        nextNode.isTsumi ? ' で詰み' : ''
+      }`,
     );
     if (!nextNode.isTsumi) {
       showTsumiResursively(
         depth + 1,
         nextNode,
         specifiedTejuns,
-        enableEscapingEffort,
       );
     }
   });
@@ -77,12 +68,7 @@ async function main() {
   // 成功するまで上限を上げながら繰り返す
   while (true) {
     headNode = new TsumeResolverNode(initialBanTe);
-    const resolver = new TsumeResolver(
-      headNode,
-      enemySide,
-      depthLimit,
-      true,
-    );
+    const resolver = new TsumeResolver(headNode, enemySide, depthLimit, true);
     const foundTsumi = resolver.resolve();
     if (foundTsumi) {
       break;
@@ -91,10 +77,7 @@ async function main() {
   }
 
   console.log(initialBanTe.toString());
-  console.log('最良手順');
-  showTsumiResursively(1, headNode, [], false);
-
-  console.log('逃げ優先手順');
-  showTsumiResursively(1, headNode, [], true);
+  console.log('手順');
+  showTsumiResursively(1, headNode, []);
 }
 main();
