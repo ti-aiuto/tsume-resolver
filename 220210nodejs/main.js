@@ -40,20 +40,25 @@ function showTsumiResursively(depth, headNode, specifiedTejuns) {
   optimizedNextNodes.forEach((nextNode) => {
     if (depth % 2 === 0) {
       if (nextNode.depthScore() === minTsumiDepthScore) {
-        process.stdout.write("\x1b[32m");
+        process.stdout.write('\x1b[32m');
       } else if (nextNode.depthScore() === maxTsumiDepthScore) {
-        process.stdout.write("\x1b[31m");
+        process.stdout.write('\x1b[31m');
       }
+    } else {
+      process.stdout.write('\x1b[30m');
     }
 
-    console.log(
-      `B:${nextNode.minTsumiDepth} W:${nextNode.maxTsumiDepth} | ${'  '.repeat(
-        depth - 1,
-      )}${nextNode.banTe.tejunToString()}${depth % 2 === 0 ? ' の場合' : ''}${
-        nextNode.isTsumi ? ' で詰み' : ''
-      }`,
+    process.stdout.write(
+      `${'  '.repeat(depth - 1)}[B${nextNode.minTsumiDepth}W${nextNode.maxTsumiDepth}]`,
     );
-    process.stdout.write("\x1b[0m");
+    process.stdout.write('\x1b[0m');
+
+    process.stdout.write('  ');
+    console.log(
+      `${nextNode.banTe.tejunToString()}${
+        depth % 2 === 0 ? ' の場合' : ''
+      }${nextNode.isTsumi ? ' で詰み' : ''}`,
+    );
 
     if (!nextNode.isTsumi) {
       showTsumiResursively(depth + 1, nextNode, specifiedTejuns);
