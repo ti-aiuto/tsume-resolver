@@ -24,8 +24,8 @@ exports.BanKoma = class BanKoma {
   nextValidRangeBanPoints() {
     const stepVectors = this.koma.possibleStepVectors(this.nari);
 
-    // 後手の場合は回転する
-    if (this.side.isGote) {
+    // 先手の場合は回転する
+    if (this.side.isSente) {
       for (let item of stepVectors) {
         item[0] *= -1;
         item[1] *= -1;
