@@ -88,7 +88,7 @@ exports.BanPoint = class BanPoint {
   }
 
   isTekiJinFor(side) {
-    if (side.isSente) {
+    if (side.isGote) {
       return [7, 8, 9].includes(this.dan);
     } else {
       return [1, 2, 3].includes(this.dan);
