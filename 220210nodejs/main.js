@@ -12,11 +12,7 @@ const TsumeResolverNode = require('./tsume-resolver-node.js').TsumeResolverNode;
 const BanSide = require('./ban-side.js').BanSide;
 const BanTe = require('./ban-te.js').BanTe;
 
-function showTsumiResursively(
-  depth,
-  headNode,
-  specifiedTejuns,
-) {
+function showTsumiResursively(depth, headNode, specifiedTejuns) {
   const nextNodes = headNode.childNodes
     .filter((nextNode) => nextNode.isNoUkeAndFutureTsumi || nextNode.isTsumi)
     .filter((nextNode) => {
@@ -34,8 +30,22 @@ function showTsumiResursively(
     // 攻め側は最短の一つのみ
     optimizedNextNodes = [nextNodes[0]];
   }
+  const minTsumiDepthScore = Math.min(
+    ...nextNodes.map((banTe) => banTe.depthScore()),
+  );
+  const maxTsumiDepthScore = Math.max(
+    ...nextNodes.map((banTe) => banTe.depthScore()),
+  );
 
   optimizedNextNodes.forEach((nextNode) => {
+    if (depth % 2 === 0) {
+      if (nextNode.depthScore() === minTsumiDepthScore) {
+        process.stdout.write("\x1b[32m");
+      } else if (nextNode.depthScore() === maxTsumiDepthScore) {
+        process.stdout.write("\x1b[31m");
+      }
+    }
+
     console.log(
       `B:${nextNode.minTsumiDepth} W:${nextNode.maxTsumiDepth} | ${'  '.repeat(
         depth - 1,
@@ -43,12 +53,10 @@ function showTsumiResursively(
         nextNode.isTsumi ? ' で詰み' : ''
       }`,
     );
+    process.stdout.write("\x1b[0m");
+
     if (!nextNode.isTsumi) {
-      showTsumiResursively(
-        depth + 1,
-        nextNode,
-        specifiedTejuns,
-      );
+      showTsumiResursively(depth + 1, nextNode, specifiedTejuns);
     }
   });
 }
