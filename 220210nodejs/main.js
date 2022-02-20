@@ -41,14 +41,12 @@ async function main() {
 
   const tejun = TsumeTejun.buildFromTsumeResolverNode(headNode);
   tejun.tsumeTes.forEach((tsumeTe) => {
-    if (tsumeTe.depth % 2 === 0) {
+    if (tsumeTe.banTe.banKoma.side.equals(enemySide)) {
       if (tsumeTe.rank === 'best') {
         process.stdout.write('\x1b[32m');
       } else if (tsumeTe.rank === 'worst') {
         process.stdout.write('\x1b[31m');
       }
-    } else {
-      process.stdout.write('\x1b[30m');
     }
 
     process.stdout.write(
