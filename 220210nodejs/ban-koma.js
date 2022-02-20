@@ -1,5 +1,3 @@
-const BanPoint = require('./ban-point.js').BanPoint;
-
 exports.BanKoma = class BanKoma {
   constructor(koma, side, banPoint, nari) {
     this.koma = koma;
