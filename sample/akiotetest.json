@@ -2,13 +2,13 @@
   "initial_koma": {
     "on_board": {
       "sente": [
-        { "suji": 5, "dan": 6, "name": "歩", "nari": false },
-        { "suji": 7, "dan": 9, "name": "角", "nari": false },
-        { "suji": 8, "dan": 9, "name": "飛", "nari": true }
+        { "suji": 5, "dan": 4, "name": "歩", "nari": false },
+        { "suji": 3, "dan": 1, "name": "角", "nari": false },
+        { "suji": 2, "dan": 1, "name": "飛", "nari": true }
       ],
       "gote": [
-        { "suji": 6, "dan": 7, "name": "角", "nari": false },
-        { "suji": 6, "dan": 9, "name": "玉", "nari": false }
+        { "suji": 4, "dan": 3, "name": "角", "nari": false },
+        { "suji": 4, "dan": 1, "name": "玉", "nari": false }
       ]
     },
     "captured": {
