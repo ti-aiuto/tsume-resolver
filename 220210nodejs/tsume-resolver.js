@@ -50,7 +50,6 @@ exports.TsumeResolver = class TsumeResolver {
           return true;
         }
       }
-      parentNode.markAsNoUkeAndFutureTsumi();
       return false;
     } else {
       // 詰み
