@@ -51,11 +51,6 @@ exports.TsumeResolverNode = class TsumeResolverNode {
     this.isTsumi = false;
   }
 
-  markAsNoOteAndRelease() {
-    this.isOneOfThemNoOte = true;
-    this.childNodes = [];
-  }
-
   markAsNoUkeAndFutureTsumi() {
     this.isNoUkeAndFutureTsumi = true;
   }

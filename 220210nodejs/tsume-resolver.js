@@ -12,10 +12,7 @@ exports.TsumeResolver = class TsumeResolver {
     // 王手をかけることができた場合、各差し手について逃げ道があるかチェック
     const tsumiNodes = [];
     for (let nextNode of childNodes) {
-      if (this.surviveRecursively(depth + 1, nextNode, tumasareSide)) {
-        // 詰め失敗のためメモリ解放したい
-        nextNode.markAsNoOteAndRelease();
-      } else {
+      if (!this.surviveRecursively(depth + 1, nextNode, tumasareSide)) {
         // 逃げられなかったので詰み成功
         tsumiNodes.push(nextNode);
         if (!this.findAll) {
