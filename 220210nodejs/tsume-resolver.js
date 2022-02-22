@@ -1,18 +1,6 @@
 const TsumeResolverNode = require('./tsume-resolver-node.js').TsumeResolverNode;
 
 exports.TsumeResolver = class TsumeResolver {
-  nextOte(parentNode, tumasareSide) {
-    const nextBanTes = parentNode.banTe.findNextOteSeme(tumasareSide);
-    const childNodes = nextBanTes.map((banTe) => new TsumeResolverNode(banTe));
-    parentNode.addChildNode(...childNodes);
-
-    if (nextBanTes.length) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   nextSurvival(parentNode, tumasareSide, depth) {
     const nextBanTes = parentNode.banTe.findNextOteUke(tumasareSide);
     const childNodes = nextBanTes.map((banTe) => new TsumeResolverNode(banTe));
@@ -31,31 +19,26 @@ exports.TsumeResolver = class TsumeResolver {
     if (depth > this.depthLimit) {
       return false; // 手数が足りなかった
     }
-    if (this.nextOte(parentNode, tumasareSide)) {
-      // 王手をかけることができた場合、各差し手について逃げ道があるかチェック
-      let oteSuccess = false;
-      for (let nextNode of parentNode.childNodes) {
-        if (this.surviveRecursively(depth + 1, nextNode, tumasareSide)) {
-          // 詰め失敗のためメモリ解放したい
-          nextNode.markAsNoOteAndRelease();
-        } else {
-          // 一つでも逃げられない手があればそのKyokumenが完全に詰みとする
-          parentNode.markAsNoUkeAndFutureTsumi();
-          oteSuccess = true;
-          if (!this.findAll) {
-            return true;
-          }
+
+    const nextBanTes = parentNode.banTe.findNextOteSeme(tumasareSide);
+    const childNodes = nextBanTes.map((banTe) => new TsumeResolverNode(banTe));
+
+    // 王手をかけることができた場合、各差し手について逃げ道があるかチェック
+    const tsumiNodes = [];
+    for (let nextNode of childNodes) {
+      if (this.surviveRecursively(depth + 1, nextNode, tumasareSide)) {
+        // 詰め失敗のためメモリ解放したい
+        nextNode.markAsNoOteAndRelease();
+      } else {
+        // 逃げられなかったので詰み成功
+        tsumiNodes.push(nextNode);
+        if (!this.findAll) {
+          break;
         }
       }
-      if (oteSuccess) {
-        // 全王手をチェックする場合は覚えていた値に応じてreturnする
-        return true;
-      }
-      return false;
-    } else {
-      // 逃げられた
-      return false;
     }
+    parentNode.addChildNode(...tsumiNodes);
+    return !!tsumiNodes.length;
   }
 
   surviveRecursively(depth, parentNode, tumasareSide) {

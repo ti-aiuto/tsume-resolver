@@ -11,7 +11,16 @@ exports.TsumeResolverNode = class TsumeResolverNode {
   }
 
   addChildNode(...nodes) {
-    nodes.forEach((node) => (node.parentNode = this));
+    nodes.forEach((node) => {
+      node.parentNode = this;
+      if (node.minTsumiDepth) {
+        this.updateTsumiDepthRecursively(node.minTsumiDepth);
+      }
+      if (node.maxTsumiDepth) {
+        this.updateTsumiDepthRecursively(node.maxTsumiDepth);
+      }
+      this.markAsNoUkeAndFutureTsumi();
+    });
     this.childNodes.push(...nodes);
   }
 
