@@ -47,6 +47,68 @@ class JsonBanLoader {
     return banSnapshot;
   }
 
+  encode(banSnapshot) {
+    const json = {};
+    const sente = BanSide.getInstangeOfSenteSide();
+    const gote = BanSide.getInstangeOfGoteSide();
+
+    json['initial_koma'] = {
+      on_board: { sente: [], gote: [] },
+      captured: { sente: [], gote: [] },
+    };
+    banSnapshot.findOnBoardBanKomasBySide(sente).forEach((banKoma) => {
+      json['initial_koma']['on_board']['sente'].push({
+        suji: banKoma.banPoint.suji,
+        dan: banKoma.banPoint.dan,
+        nari: banKoma.nari,
+        name: this.komaName(banKoma.koma),
+      });
+    });
+    banSnapshot.findOnBoardBanKomasBySide(gote).forEach((banKoma) => {
+      json['initial_koma']['on_board']['gote'].push({
+        suji: banKoma.banPoint.suji,
+        dan: banKoma.banPoint.dan,
+        nari: banKoma.nari,
+        name: this.komaName(banKoma.koma),
+      });
+    });
+
+    banSnapshot.findCapturedBanKomasBySide(sente).forEach((banKoma) => {
+      json['initial_koma']['captured']['sente'].push({
+        name: this.komaName(banKoma.koma),
+      });
+    });
+    banSnapshot.findCapturedBanKomasBySide(gote).forEach((banKoma) => {
+      json['initial_koma']['captured']['gote'].push({
+        name: this.komaName(banKoma.koma),
+      });
+    });
+
+    return json;
+  }
+
+  komaName(koma) {
+    if (koma instanceof KomaFu) {
+      return '歩';
+    } else if (koma instanceof KomaKyo) {
+      return '香';
+    } else if (koma instanceof KomaKei) {
+      return '桂';
+    } else if (koma instanceof KomaKaku) {
+      return '角';
+    } else if (koma instanceof KomaHisha) {
+      return '飛';
+    } else if (koma instanceof KomaKin) {
+      return '金';
+    } else if (koma instanceof KomaGin) {
+      return '銀';
+    } else if (koma instanceof KomaGyoku) {
+      return '玉';
+    } else {
+      throw new Error('未定義の駒');
+    }
+  }
+
   createKoma(name, nari) {
     if (name === '歩') {
       return new KomaFu(nari);
