@@ -1,20 +1,6 @@
 const TsumeResolverNode = require('./tsume-resolver-node.js').TsumeResolverNode;
 
 exports.TsumeResolver = class TsumeResolver {
-  nextSurvival(parentNode, tumasareSide, depth) {
-    const nextBanTes = parentNode.banTe.findNextOteUke(tumasareSide);
-    const childNodes = nextBanTes.map((banTe) => new TsumeResolverNode(banTe));
-    parentNode.addChildNode(...childNodes);
-
-    if (nextBanTes.length) {
-      parentNode.markAsNotTsumi();
-      return true;
-    } else {
-      parentNode.markAsTsumi(depth - 1);
-      return false;
-    }
-  }
-
   oteRecursively(depth, parentNode, tumasareSide) {
     if (depth > this.depthLimit) {
       return false; // 手数が足りなかった
@@ -42,19 +28,24 @@ exports.TsumeResolver = class TsumeResolver {
   }
 
   surviveRecursively(depth, parentNode, tumasareSide) {
-    if (this.nextSurvival(parentNode, tumasareSide, depth)) {
-      // 逃げられた場合、各差し手について王手を探す
-      for (let nextNode of parentNode.childNodes) {
-        if (this.oteRecursively(depth + 1, nextNode, tumasareSide) === false) {
-          // 一つでも逃げられた手があったらそのKyokumenは詰め失敗とする
-          return true;
-        }
-      }
-      return false;
-    } else {
-      // 詰み
+    const nextBanTes = parentNode.banTe.findNextOteUke(tumasareSide);
+    const childNodes = nextBanTes.map((banTe) => new TsumeResolverNode(banTe));
+    parentNode.addChildNode(...childNodes);
+
+    if (!childNodes.length) {
+      // 逃げる手がなかった場合は詰みとする
+      parentNode.markAsTsumi(depth - 1);
       return false;
     }
+
+    // 逃げられた場合、各差し手について王手を探す
+    for (let nextNode of parentNode.childNodes) {
+      if (this.oteRecursively(depth + 1, nextNode, tumasareSide) === false) {
+        // 一つでも逃げられた手があったら逃げ成功
+        return true;
+      }
+    }
+    return false;
   }
 
   constructor(headNode, enemySide, depthLimit, findAll) {
