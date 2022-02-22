@@ -29,33 +29,21 @@ exports.TsumeResolver = class TsumeResolver {
 
   oteRecursively(depth, parentNode, tumasareSide) {
     if (depth > this.depthLimit) {
-      throw new Error('再帰上限');
+      return false; // 手数が足りなかった
     }
     if (this.nextOte(parentNode, tumasareSide)) {
       // 王手をかけることができた場合、各差し手について逃げ道があるかチェック
       let oteSuccess = false;
       for (let nextNode of parentNode.childNodes) {
-        try {
-          if (
-            this.surviveRecursively(depth + 1, nextNode, tumasareSide)
-          ) {
-            // 詰め失敗のためメモリ解放したい
-            nextNode.markAsNoOteAndRelease();
-          } else {
-            // 一つでも逃げられない手があればそのKyokumenが完全に詰みとする
-            parentNode.markAsNoUkeAndFutureTsumi();
-            oteSuccess = true;
-            if (!this.findAll) {
-              return true;
-            }
-          }
-        } catch (e) {
-          if (e.message === '再帰上限') {
-            // 詰め失敗のためメモリ解放したい
-            nextNode.markAsNoOteAndRelease();
-            continue;
-          } else {
-            throw e;
+        if (this.surviveRecursively(depth + 1, nextNode, tumasareSide)) {
+          // 詰め失敗のためメモリ解放したい
+          nextNode.markAsNoOteAndRelease();
+        } else {
+          // 一つでも逃げられない手があればそのKyokumenが完全に詰みとする
+          parentNode.markAsNoUkeAndFutureTsumi();
+          oteSuccess = true;
+          if (!this.findAll) {
+            return true;
           }
         }
       }
