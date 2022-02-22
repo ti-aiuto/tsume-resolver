@@ -16,7 +16,7 @@ const TsumeTejun = require('./tsume-tejun.js').TsumeTejun;
 async function main() {
   const json = await readFileAsJson(process.argv[2]);
   const enemySide = BanSide.getInstangeOfGoteSide();
-  const initialBanSnapshot = new JsonBanLoader().load(json);
+  const initialBanSnapshot = new JsonBanLoader().decode(json);
   const initialBanTe = new BanTe(null, initialBanSnapshot);
 
   console.log('読み込み完了');

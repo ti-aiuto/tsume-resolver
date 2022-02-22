@@ -12,7 +12,7 @@ const BanSide = require('./ban-side.js').BanSide;
 const BanSnapshot = require('./ban-snapshot.js').BanSnapshot;
 
 class JsonBanLoader {
-  load(json) {
+  decode(json) {
     const banSnapshot = new BanSnapshot();
 
     const sente = BanSide.getInstangeOfSenteSide();
