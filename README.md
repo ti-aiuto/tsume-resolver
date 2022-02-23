@@ -16,6 +16,7 @@
 ## 進捗
 
 * 2022/02/10 Node.js版
+* 2022/02/22 Node.js版(WorkerThread利用)
 * 次にRuby版を書く
 * 次にKotlin版を書く？
 * 次に・・・？
